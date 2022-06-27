@@ -1,0 +1,10 @@
+
+class Out
+{
+	static void print(String str)
+	{
+	}
+	static void println(String str)
+	{
+	}
+}

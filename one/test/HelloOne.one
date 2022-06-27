@@ -1,0 +1,12 @@
+
+
+class HelloOne
+{
+    void main()
+    {
+        String str = "hello one";
+        System.co(() {
+            Out.println(str);
+        });
+    }
+}

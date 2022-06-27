@@ -1,0 +1,13 @@
+﻿
+class Array<T>
+{
+	Array()
+	{
+		
+	}
+    
+	int length()
+	{
+		return 0;
+	}
+}
