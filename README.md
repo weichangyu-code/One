@@ -25,5 +25,9 @@
 . 完善各种基础库。  
 . 开发一个HTTP服务，用于验证。  
 
+## 注意
+. 规则文件在compiler/src/analyzer/rule/one.rule，修改规则后需要执行compiler/test/analyzer/RuleGenerator生成规则执行文件compiler/src/analyzer/one/OneRuleMap.inl  
+. compiler/test/generator/CppGeneratorTest用以编译One代码
+
 ## 最后
 . 未完待......  
