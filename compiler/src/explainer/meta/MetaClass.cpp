@@ -70,6 +70,11 @@ bool MetaClass::isParentClass(MetaClass* parent)
     return false;
 }
     
+bool MetaClass::isBaseOf(MetaClass* parent)
+{
+    return parent == this || isParentClass(parent);
+}
+    
 MetaClass* MetaClass::getParentClass()
 {
     //Object的父类为NULL

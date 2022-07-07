@@ -520,7 +520,6 @@ Result CppGenerator::generateInterface(const string& root, MetaClass* metaClass)
 
     //头文件包含
     h << "#pragma once" << endl;
-    h << "#include \"" << "OneInterface.h" << "\"" << endl;
     for (auto& name : includes)
     {
         h << "#include \"" << name << "\"" << endl;
@@ -1180,16 +1179,20 @@ Result CppGenerator::generateBlock(ofstream& f, const string& space, MetaBlock* 
                     //直接调用
                     stream << cppClass->cppName << "::" << cppFunc->cppName << "(";
                     int index = 0;
+                    auto paramTypeIter = metaFunc->params.begin();
                     for (auto& param : instruct->params)
                     {
                         if (index == 0)
                         {
-                            stream << generateData(param);
+                            //stream << generateData(param);
+                            stream << generateTypeData(param, (*paramTypeIter)->type, true);
                         }
                         else
                         {
-                            stream << ", " << generateData(param);
+                            //stream << ", " << generateData(param);
+                            stream << ", " << generateTypeData(param, (*paramTypeIter)->type, true);
                         }
+                        ++paramTypeIter;
                         index++;
                     }
                     stream << ")";
@@ -1197,6 +1200,7 @@ Result CppGenerator::generateBlock(ofstream& f, const string& space, MetaBlock* 
                 else
                 {
                     int index = 0;
+                    auto paramTypeIter = metaFunc->params.begin();
                     for (auto& param : instruct->params)
                     {
                         if (index == 0)
@@ -1213,11 +1217,15 @@ Result CppGenerator::generateBlock(ofstream& f, const string& space, MetaBlock* 
                         }
                         else if (index == 1)
                         {
-                            stream << generateData(param);
+                            //stream << generateData(param);
+                            stream << generateTypeData(param, (*paramTypeIter)->type, true);
+                            ++paramTypeIter;
                         }
                         else
                         {
-                            stream << ", " << generateData(param);
+                            //stream << ", " << generateData(param);
+                            stream << ", " << generateTypeData(param, (*paramTypeIter)->type, true);
+                            ++paramTypeIter;
                         }
 
                         index++;
@@ -1552,7 +1560,7 @@ string CppGenerator::generateData(MetaData& data)
             {
                 return "Pointer<" + generateType(var->type) + ">(this, true)";
             }
-            else if (var->varType == VAR_MEMBER)
+            else if (var->varType == VAR_MEMBER || var->varType == VAR_ANONY_THIS)
             {
                 if (var->isStatic)
                 {
@@ -1577,6 +1585,32 @@ string CppGenerator::generateData(MetaData& data)
         break;
     }
     return {};
+}
+    
+string CppGenerator::generateTypeData(MetaData& data, MetaType& type, bool pointer)
+{
+    string str = generateData(data);
+    MetaType dataType = data.getType();
+    if (dataType == type)
+    {
+        return str;
+    }
+    if (dataType.isClass() == false || type.isClass() == false)
+    {
+        return str;
+    }
+    if (pointer)
+    {
+        return "convertPointer<" + generateType(dataType) + ", " + generateType(type) + ">(" + str + ")";
+    }
+    else if (type.clazz->isInterface)
+    {
+        return "convertInterfaceReference<" + generateType(dataType) + ", " + generateType(type) + ">(" + str + ")";
+    }
+    else
+    {
+        return "convertObjectReference<" + generateType(dataType) + ", " + generateType(type) + ">(" + str + ")";
+    }
 }
 
 int CppGenerator::getStringIndex(const string& str)

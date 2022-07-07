@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "OneObject.h"
 #include "Reference.h"
-#include "OneInterface.h"
 
 namespace One
 {

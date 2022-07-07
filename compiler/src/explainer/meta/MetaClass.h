@@ -19,6 +19,7 @@ public:
     MetaClass* getInnerClass(const string& name);
 
     bool isParentClass(MetaClass* parent);
+    bool isBaseOf(MetaClass* parent);
     MetaClass* getParentClass();
     MetaClass* getParentClass(const string& name);
 

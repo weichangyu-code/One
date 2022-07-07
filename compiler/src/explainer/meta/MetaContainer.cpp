@@ -411,7 +411,7 @@ bool MetaContainer::canAutoConvertType(MetaType& src, MetaType& dst)
         {
             return true;
         }
-        return src.clazz == dst.clazz || src.clazz->isParentClass(dst.clazz);
+        return src.clazz->isBaseOf(dst.clazz);
     }
     return false;
 }

@@ -492,7 +492,7 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
             if (clazz)
             {
                 MetaClass* inClass = inFunc->getOuterClass();
-                if (inClass == clazz || inClass->isParentClass(clazz))
+                if (inClass->isBaseOf(clazz))
                 {
                     //代表本对象
                     iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, inClass->getThisVariable());
@@ -1127,7 +1127,7 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
             if (clazz)
             {
                 MetaClass* inClass = inFunc->getOuterClass();
-                if (inClass == clazz || inClass->isParentClass(clazz))
+                if (inClass->isBaseOf(clazz))
                 {
                     //代表本对象
                     iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, inClass->getThisVariable());

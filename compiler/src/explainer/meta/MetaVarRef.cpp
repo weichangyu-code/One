@@ -53,9 +53,13 @@ MetaVarRef* MetaVarRef::makeVarRef(MetaContainer* metaContainer, MetaVarRef* ref
         //成员变量
         if (ref == nullptr)
         {
-            ref = new MetaVarRef(var->box->getOuterClass()->getThisVariable(), metaContainer);
+            //ref = new MetaVarRef(var->box->getOuterClass()->getThisVariable(), metaContainer);
+            ref = new MetaVarRef(var, metaContainer);
         }
-        ref->addMember(var);
+        else
+        {
+            ref->addMember(var);
+        }
     }
     return ref;
 }

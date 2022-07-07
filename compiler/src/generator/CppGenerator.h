@@ -68,6 +68,7 @@ protected:
     string generateFuncParamType(MetaType& type);
 
     string generateData(MetaData& data);
+    string generateTypeData(MetaData& data, MetaType& type, bool pointer);
 
 public:
     MetaContainer* metaContainer = nullptr;

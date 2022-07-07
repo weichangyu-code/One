@@ -12,12 +12,21 @@ namespace One
         {}
         Pointer(T* ptr, bool inner)
         {
-            set(ptr, inner);
+            if (ptr)
+            {
+                this->ptr = (char*)ptr + (inner ? 1 : 0);
+            }
         }
         Pointer(const Pointer<T>& r)
         {
-            set(r);
+            this->ptr = r.ptr;
         }
+
+        // template<typename TT>
+        // Pointer(const Pointer<TT>& r)
+        // {
+        //     set(r.getObject(), r.isInner());
+        // }
 
         void set(T* ptr, bool inner)
         {
@@ -41,8 +50,7 @@ namespace One
 
         T* getObject() const
         {
-            register char* ptr2 = (char*)ptr;
-            return (T*) ((intptr_t)ptr2 & (~0x3));
+            return (T*) ((intptr_t)ptr & (~0x3));
         }
         bool isInner() const
         {
@@ -93,6 +101,7 @@ namespace One
         {
             return isNull() == false;
         }
+
         T& operator*()
         {
             return *getObject();
@@ -127,9 +136,31 @@ namespace One
                 i->releaseObj(isInner());
             }
         }
+        
+        Pointer<T> toOwnerPointer()
+        {
+            return Pointer<T>(getObject(), false);
+        }
+        Pointer<T> toInnerPointer()
+        {
+            return Pointer<T>(getObject(), true);
+        }
 
     public:
         char* ptr = nullptr;
     };
 
+    template<typename T1, typename T2>
+    Pointer<T2> convertPointer(Pointer<T1> r)
+    {
+        if (std::is_base_of<Object, T2>::value)
+        {
+            //转对象，ptr值不会有变化，强转
+            return (Pointer<T2>&)r;
+        }
+        else
+        {
+            return Pointer<T2>(r.getObject(), r.isInner());
+        }
+    }
 }

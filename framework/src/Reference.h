@@ -12,7 +12,10 @@ namespace One
         }
         ~Reference()
         {
-            clear();
+            if (pointer)
+            {
+                pointer.release();
+            }
         }
         Reference(T* obj, bool inner, bool acquire)
         {
@@ -51,6 +54,23 @@ namespace One
             pointer = r.pointer;
             r.pointer.clear();
         }
+
+        //支持不同类型的转换，需要手动转换
+        // template<typename TT>
+        // Reference(const Reference<TT>& r)
+        // {
+        //     pointer.set(r.pointer.getObject(), r.pointer.isInner());
+        //     if (pointer)
+        //     {
+        //         pointer.acquire();
+        //     }
+        // }
+        // template<typename TT>
+        // Reference(Reference<TT>&& r)
+        // {
+        //     pointer.set(r.pointer.getObject(), r.pointer.isInner());
+        //     r.pointer.clear();
+        // }
 
         void set(T* obj, bool inner, bool acquire)
         {
@@ -175,7 +195,28 @@ namespace One
             return *getObject();
         }
 
+        Reference<T> toOwnerReference()
+        {
+            return Reference<T>(pointer->toOwnerPointer(), true);
+        }
+        Reference<T> toInnerReference()
+        {
+            return Reference<T>(pointer->toInnerPointer(), true);
+        }
+
     public:
         Pointer<T> pointer;
     };
+
+    template<typename T1, typename T2>
+    Reference<T2>& convertObjectReference(const Reference<T1>& r)
+    {
+        return (Reference<T2>&)r;
+    }
+
+    template<typename T1, typename T2>
+    Reference<T2> convertInterfaceReference(const Reference<T1>& r)
+    {
+        return Reference<T2>(r.getObject(), r.isInner(), true);
+    }
 }
