@@ -1,4 +1,6 @@
 ﻿
+include_directories(../../../depend/json/include)
+
 aux_source_directory(./analyzer/common SEARCH_LIST)
 set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 aux_source_directory(./analyzer/engine SEARCH_LIST)
@@ -28,6 +30,12 @@ set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 aux_source_directory(./generator/cpp SEARCH_LIST)
 set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 aux_source_directory(./generator SEARCH_LIST)
+set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
+
+aux_source_directory(./project SEARCH_LIST)
+set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
+
+aux_source_directory(./ SEARCH_LIST)
 set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 
 add_library(compiler STATIC ${SRC_LIST})

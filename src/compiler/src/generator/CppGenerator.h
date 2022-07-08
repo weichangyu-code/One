@@ -39,7 +39,10 @@ public:
     ~CppGenerator();
 
 public:
-    Result generate(const string& exeName, const string& mainClass, const string& depend, const string& folder);
+    Result generate(const string& exeName, const string& mainClass, const string& folder);
+
+    void   addNativeClass(const string& oneClassPath, const string& hPath, const string& cppClass);
+    void   addIncludeFolder(const string& include);
 
 protected:
     void generateCppInfoPackage(const string& path, const string& namePrefix, MetaPackage* metaPackage);
@@ -50,7 +53,7 @@ protected:
 
     Result generateMainFile(const string& root, const string& mainClass);
     void   generateMainInitStateVar(ofstream& f, set<MetaClass*>& called, MetaClass* metaClass);
-    Result generateCMakeList(const string& root, const string& exeName, const string& depend);
+    Result generateCMakeList(const string& root, const string& exeName);
 
     Result generatePackage(const string& root, MetaPackage* metaPackage);
     Result generateClass(const string& root, MetaClass* metaClass);
@@ -70,13 +73,15 @@ protected:
     string generateData(MetaData& data);
     string generateTypeData(MetaData& data, const MetaType& type, bool pointer);
 
+    void   addNativeClassImpl(const string& oneClassPath, const string& hPath, const string& cppClass);
+
 public:
     MetaContainer* metaContainer = nullptr;
     CppContainer cppContainer;
 
-//C++嵌入管理
-public:
-    Result addNativeClass(const string& oneClassPath, const string& hPath, const string& cppClass);
+protected:
+    list<string> includes;
+    list<tuple<string, string, string>> natives;
 
 //字符串常量管理
 protected:

@@ -9,9 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#ifdef _MSC_VER
 #define JSON_UNACTIVE_ASSERT
-#endif
 
 #if !defined(JSON_IS_AMALGAMATION)
 #include "config.h"

@@ -33,18 +33,16 @@ CppGenerator::~CppGenerator()
     
 }
     
-Result CppGenerator::generate(const string& exeName, const string& mainClass, const string& depend, const string& folder)
+Result CppGenerator::generate(const string& exeName, const string& mainClass, const string& folder)
 {
     //避免误删的情况
     FileUtils::remove(FileUtils::appendFileName(folder, "one"));
 
     //添加原生类
-    VR(addNativeClass("one.std.Object", "OneObject.h", "Object"));
-    VR(addNativeClass("one.std.String", "OneString.h", "String"));
-    VR(addNativeClass("one.std.Out", "OneOut.h", "Out"));
-    VR(addNativeClass("one.std.Array", "OneArray.h", "Array"));
-    VR(addNativeClass("one.std.System", "OneSystem.h", "System"));
-    VR(addNativeClass("one.std.Runner", "OneSystem.h", "CoRunner"));
+    for (auto& native : natives)
+    {
+        addNativeClassImpl(std::get<0>(native), std::get<1>(native), std::get<2>(native));
+    }
 
     MetaPackage* rootPackage = metaContainer->getRootPackage();
 
@@ -55,9 +53,19 @@ Result CppGenerator::generate(const string& exeName, const string& mainClass, co
 
     VR(generateMainFile(folder, mainClass));
 
-    VR(generateCMakeList(folder, exeName, depend));
+    VR(generateCMakeList(folder, exeName));
 
     return {};
+}
+    
+void CppGenerator::addNativeClass(const string& oneClassPath, const string& hPath, const string& cppClass)
+{
+    natives.push_back({oneClassPath, hPath, cppClass});
+}
+    
+void CppGenerator::addIncludeFolder(const string& include)
+{
+    includes.push_back(include);
 }
     
 Result CppGenerator::generateMainFile(const string& root, const string& mainClass)
@@ -163,7 +171,7 @@ void CppGenerator::generateMainInitStateVar(ofstream& f, set<MetaClass*>& called
     f << "        One::" << cppClass->cppName << "::" << KEY_INIT_STATIC_VAR_FUNC << "();" << endl;
 }
 
-Result CppGenerator::generateCMakeList(const string& root, const string& exeName, const string& depend)
+Result CppGenerator::generateCMakeList(const string& root, const string& exeName)
 {
     ofstream f(FileUtils::appendFileName(root, "CMakeLists.txt"));
     if (f.is_open() == false)
@@ -175,7 +183,12 @@ Result CppGenerator::generateCMakeList(const string& root, const string& exeName
     f << "project(" << exeName << " VERSION 0.1.0)" << endl;
     f << "add_definitions(-std=c++11)" << endl;
 
-    f << "include_directories(./ " << FileUtils::appendFileName(depend, "framework/src") << " " << FileUtils::appendFileName(depend, "coroutine/src") << ")" << endl;
+    //f << "include_directories(./ " << FileUtils::appendFileName(depend, "framework/src") << " " << FileUtils::appendFileName(depend, "coroutine/src") << ")" << endl;
+    f << "include_directories(./)" << endl;
+    for (auto& include : includes)
+    {
+        f << "include_directories(" << include << ")" << endl;
+    }
 
     for (auto& metaClass : metaContainer->getClasses())
     {
@@ -1437,12 +1450,12 @@ string CppGenerator::generateFuncParamType(const MetaType& type)
     }
 }
 
-Result CppGenerator::addNativeClass(const string& oneClassPath, const string& hPath, const string& cppClass)
+void CppGenerator::addNativeClassImpl(const string& oneClassPath, const string& hPath, const string& cppClass)
 {
     MetaClass* metaClass = metaContainer->getClass(oneClassPath);
     if (metaClass == nullptr)
     {
-        return R_FAILED;
+        return;
     }
     CppClass* cppClass1 = CppClass::getCppClass(metaClass, &cppContainer);
     cppClass1->cppNative = true;
@@ -1456,7 +1469,7 @@ Result CppGenerator::addNativeClass(const string& oneClassPath, const string& hP
         cppClass2->cppNativeName = cppClass;
         cppClass2->cppNativeHPath = hPath;
     }
-    return {};
+    return;
 }
     
 string CppGenerator::generateData(MetaData& data)
