@@ -1,6 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.0.0)
-project(socket VERSION 0.1.0)
-
+﻿
 aux_source_directory(./epoll EPOLL_SRC_LIST)
 aux_source_directory(./iocp IOCP_SRC_LIST)
 aux_source_directory(./ SOCKET_SRC_LIST)

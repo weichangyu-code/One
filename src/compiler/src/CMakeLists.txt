@@ -1,6 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.0.0)
-project(compiler VERSION 0.1.0)
-
+﻿
 aux_source_directory(./analyzer/common SEARCH_LIST)
 set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 aux_source_directory(./analyzer/engine SEARCH_LIST)
