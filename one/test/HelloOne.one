@@ -8,5 +8,6 @@ class HelloOne
         System.co(() {
             Out.println(str);
         });
+        System.co(null);
     }
 }

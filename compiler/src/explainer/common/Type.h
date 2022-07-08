@@ -3,6 +3,7 @@
 enum DATA_TYPE
 {
     DT_NONE,
+    DT_NULL,               //null的类型，可以赋值给CLASS
     DT_VOID,
     DT_BOOL,
     DT_CHAR,               //有符号型

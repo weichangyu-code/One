@@ -6,6 +6,10 @@ namespace One
 {
     void System::createCoroutine(CoRunner* runner)
     {
+        if (runner == nullptr)
+        {
+            return;
+        }
         runner->acquireObj(false);
         CoSystem::createCoroutine([runner](Coroutine* co) {
             runner->run();

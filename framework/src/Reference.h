@@ -10,6 +10,9 @@ namespace One
         Reference()
         {
         }
+        Reference(nullptr_t n)
+        {
+        }
         ~Reference()
         {
             if (pointer)
@@ -157,6 +160,11 @@ namespace One
             set(std::move(r));
             return *this;
         }
+        Reference<T>& operator = (nullptr_t n)
+        {
+            clear();
+            return *this;
+        }
         bool operator==(const Reference<T>& r) const
         {
             return getObject() == r.getObject();
@@ -164,6 +172,14 @@ namespace One
         bool operator!=(const Reference<T>& r) const
         {
             return getObject() != r.getObject();
+        }
+        bool operator==(nullptr_t n) const
+        {
+            return isNull();
+        }
+        bool operator!=(nullptr_t n) const
+        {
+            return isNull() == false;
         }
         bool operator>(const Reference<T>& r) const
         {

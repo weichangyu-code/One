@@ -10,6 +10,8 @@ namespace One
     public:
         Pointer()
         {}
+        Pointer(nullptr_t n)
+        {}
         Pointer(T* ptr, bool inner)
         {
             if (ptr)
@@ -69,6 +71,14 @@ namespace One
         {
             return getObject() != r.getObject();
         }
+        bool operator==(nullptr_t n) const
+        {
+            return isNull();
+        }
+        bool operator!=(nullptr_t n) const
+        {
+            return isNull() == false;
+        }
         bool operator>(const Pointer<T>& r) const
         {
             return getObject() > r.getObject();
@@ -86,6 +96,11 @@ namespace One
         Pointer<T>& operator = (T* ptr)
         {
             set(ptr, false);
+            return *this;
+        }
+        Pointer<T>& operator = (nullptr_t n)
+        {
+            clear();
             return *this;
         }
 

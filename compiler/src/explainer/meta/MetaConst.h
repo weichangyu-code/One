@@ -56,13 +56,12 @@ public:
 
     void setRefNull()
     {
-        this->type = DT_CLASS;
-        this->ptrvalue = nullptr;
+        this->type = DT_NULL;
     }
 
     bool isRefNull()
     {
-        return this->type == DT_CLASS && this->ptrvalue == nullptr;
+        return this->type == DT_NULL;
     }
 
     MetaType getType();

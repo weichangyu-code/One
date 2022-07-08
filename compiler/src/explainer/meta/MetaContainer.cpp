@@ -407,11 +407,11 @@ bool MetaContainer::canAutoConvertType(MetaType& src, MetaType& dst)
     }
     else if (src.isClass() && dst.isClass())
     {
-        if (src.isNull() || dst.isNull())
-        {
-            return true;
-        }
         return src.clazz->isBaseOf(dst.clazz);
+    }
+    else if (src.isNull() && dst.isClass())
+    {
+        return true;
     }
     return false;
 }

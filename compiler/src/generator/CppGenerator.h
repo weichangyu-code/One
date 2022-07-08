@@ -63,12 +63,12 @@ protected:
     Result generateFuncDeclare(ofstream& h, MetaFunc* metaFunc);
     Result generateFuncImpl(ofstream& f, const string& space, MetaFunc* metaFunc, bool classPrefix);
 
-    string generateType(MetaType& type);
-    string generateVarDefType(MetaType& type);
-    string generateFuncParamType(MetaType& type);
+    string generateType(const MetaType& type);
+    string generateVarDefType(const MetaType& type);
+    string generateFuncParamType(const MetaType& type);
 
     string generateData(MetaData& data);
-    string generateTypeData(MetaData& data, MetaType& type, bool pointer);
+    string generateTypeData(MetaData& data, const MetaType& type, bool pointer);
 
 public:
     MetaContainer* metaContainer = nullptr;

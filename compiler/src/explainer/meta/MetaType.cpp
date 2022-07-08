@@ -30,7 +30,7 @@ void MetaType::setBool()
     
 void MetaType::setNull()
 {
-    setClass(nullptr);
+    setType(DT_NULL);
 }
 
 //pair<int, string>
@@ -142,7 +142,7 @@ bool MetaType::isVoid() const
     
 bool MetaType::isNull() const
 {
-    return this->type == DT_CLASS && this->clazz == nullptr;
+    return this->type == DT_NULL;
 }
 
 bool MetaType::equal(const MetaType& r) const

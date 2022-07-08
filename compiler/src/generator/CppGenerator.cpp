@@ -1033,7 +1033,10 @@ Result CppGenerator::generateBlock(ofstream& f, const string& space, MetaBlock* 
             break;
         case ASSIGN:
             {
-                instruct->cppCode = generateData(instruct->params.front()) + " = " + generateData(instruct->params.back());
+                //instruct->cppCode = generateData(instruct->params.front()) + " = " + generateData(instruct->params.back());
+                instruct->cppCode = generateData(instruct->params.front()) + " = " 
+                    + generateTypeData(instruct->params.back(), instruct->params.front().getType(), false);
+
             }
             break;
         case DEEP_ASSIGN:
@@ -1398,7 +1401,7 @@ Result CppGenerator::generateFuncImpl(ofstream& f, const string& space, MetaFunc
     return {};
 }
     
-string CppGenerator::generateType(MetaType& type)
+string CppGenerator::generateType(const MetaType& type)
 {
     if (type.isBaseType())
     {
@@ -1410,7 +1413,7 @@ string CppGenerator::generateType(MetaType& type)
     }
 }
     
-string CppGenerator::generateVarDefType(MetaType& type)
+string CppGenerator::generateVarDefType(const MetaType& type)
 {
     if (type.isBaseType())
     {
@@ -1422,7 +1425,7 @@ string CppGenerator::generateVarDefType(MetaType& type)
     }
 }
     
-string CppGenerator::generateFuncParamType(MetaType& type)
+string CppGenerator::generateFuncParamType(const MetaType& type)
 {
     if (type.isBaseType())
     {
@@ -1490,7 +1493,7 @@ string CppGenerator::generateData(MetaData& data)
                     return "g_stringPool.getString(" + StringUtils::itoa(getStringIndex(const_->remark)) + ")";
                 }
                 break;
-            case DT_CLASS:
+            case DT_NULL:
                 {
                     return "nullptr";
                 }
@@ -1587,7 +1590,7 @@ string CppGenerator::generateData(MetaData& data)
     return {};
 }
     
-string CppGenerator::generateTypeData(MetaData& data, MetaType& type, bool pointer)
+string CppGenerator::generateTypeData(MetaData& data, const MetaType& type, bool pointer)
 {
     string str = generateData(data);
     MetaType dataType = data.getType();

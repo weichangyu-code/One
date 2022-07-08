@@ -740,7 +740,7 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             MetaType type2 = instruct->params.back().getType();
             if (((type1.isRealNumber() && type2.isRealNumber())
                 || (type1.isBool() && type2.isBool())
-                || (type1.isClass() && type2.isClass())) == false)
+                || ((type1.isClass() || type1.isNull()) && (type2.isClass() || type2.isNull()))) == false)
             {
                 return R_FAILED;
             }
@@ -755,7 +755,7 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             MetaType type2 = instruct->params.back().getType();
             if (((type1.isRealNumber() && type2.isRealNumber())
                 || (type1.isBool() && type2.isBool())
-                || (type1.isClass() && type2.isClass())) == false)
+                || ((type1.isClass() || type1.isNull()) && (type2.isClass() || type2.isNull()))) == false)
             {
                 return R_FAILED;
             }
