@@ -44,7 +44,7 @@ Result CppGenerator::generate(const string& exeName, const string& mainClass, co
     VR(addNativeClass("one.std.Out", "OneOut.h", "Out"));
     VR(addNativeClass("one.std.Array", "OneArray.h", "Array"));
     VR(addNativeClass("one.std.System", "OneSystem.h", "System"));
-    VR(addNativeClass("one.std.CoRunner", "OneSystem.h", "CoRunner"));
+    VR(addNativeClass("one.std.Runner", "OneSystem.h", "CoRunner"));
 
     MetaPackage* rootPackage = metaContainer->getRootPackage();
 

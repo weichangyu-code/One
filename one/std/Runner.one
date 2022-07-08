@@ -1,4 +1,4 @@
-﻿interface CoRunner
+﻿interface Runner
 {
     virtual void run();
 }

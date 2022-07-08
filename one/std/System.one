@@ -2,11 +2,11 @@
 
 class System
 {
-    static void createCoroutine(CoRunner runner)
+    static void createCoroutine(Runner runner)
     {
 
     }
-    static void co(CoRunner runner)
+    static void co(Runner runner)
     {
 
     }
