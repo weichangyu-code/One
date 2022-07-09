@@ -35,7 +35,8 @@ set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 aux_source_directory(./project SEARCH_LIST)
 set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 
-aux_source_directory(./ SEARCH_LIST)
-set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
-
 add_library(compiler STATIC ${SRC_LIST})
+
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/dist/bin)
+add_executable(one ${SRC_LIST} Compiler.cpp)
+target_link_libraries(one common json)

@@ -1,13 +1,12 @@
 
 
-class HelloOne
+class HttpServer
 {
     void main()
     {
-        String str = "hello one";
+        String str = "hello HttpServer";
         System.co(() {
             Out.println(str);
         });
-        System.co(null);
     }
 }

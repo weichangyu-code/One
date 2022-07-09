@@ -10,6 +10,7 @@ namespace OneCommon
 		static bool isDir(const string& path);
 		static bool createDir(const string& path);
 		static bool remove(const string& path);
+		static bool exist(const string& path);
 
 		static string readFile(const string& path);
 
@@ -21,5 +22,8 @@ namespace OneCommon
 		static string getFileName(const string& path);
 		static string getFileTitle(const string& path);
 		static string getFileExt(const string& path);
+
+		static bool isAbsolutePath(const string& path);				//判断是不是绝对目录
+		static bool isRelativePath(const string& path);	
 	};
 }

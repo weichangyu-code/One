@@ -46,5 +46,9 @@
         "cstring": "cpp",
         "ctime": "cpp",
         "iomanip": "cpp"
+    },
+    "cmake.debugConfig": {
+        "args": ["./one/HttpServer"],
+        "cwd": "${workspaceFolder}"
     }
 }

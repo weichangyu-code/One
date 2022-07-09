@@ -2,5 +2,5 @@
 include_directories(../Common/src ./src)
 
 add_subdirectory(./src)
-add_subdirectory(./test)
+#add_subdirectory(./test)
 

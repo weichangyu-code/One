@@ -29,6 +29,10 @@ bool ProjectConfigLoader::load(const string& path, ProjectConfig* project)
         depend.version = dependValue["version"].asString();
         project->depends.push_back(std::move(depend));
     }
+    for (auto& dependValue : value["dependFolder"])
+    {
+        project->dependFolders.push_back(dependValue.asString());
+    }
     for (auto& nativeValue : value["native"])
     {
         ProjectConfig::Native native;
@@ -43,6 +47,14 @@ bool ProjectConfigLoader::load(const string& path, ProjectConfig* project)
         app.exeName = appValue["exeName"].asString();
         app.mainClass = appValue["mainClass"].asString();
         project->apps.push_back(std::move(app));
+    }
+    for (auto& includeValue : value["includeFolder"])
+    {
+        project->includeFolders.push_back(includeValue.asString());
+    }
+    for (auto& libValue : value["lib"])
+    {
+        project->libs.push_back(libValue.asString());
     }
     return true;
 }

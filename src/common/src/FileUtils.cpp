@@ -71,6 +71,16 @@ namespace OneCommon
         }, 50, FTW_DEPTH|FTW_PHYS);
         return true;
     }
+		
+    bool FileUtils::exist(const string& path)
+    {
+        struct stat fileStat;
+        if (stat(path.c_str(), &fileStat) == 0)
+        {
+            return true;
+        }
+        return false;
+    }
 
     string FileUtils::readFile(const string& path)
     {
@@ -162,5 +172,31 @@ namespace OneCommon
             return "";
         }
         return fileName.substr(find + 1);
+    }
+	
+    bool FileUtils::isAbsolutePath(const string& path)
+    {
+        if (path.empty())
+        {
+            return false;
+        }
+        if (IS_PATH_SEPARATE(path.front()))
+        {
+            return true;
+        }
+        if (path.size() >= 2)
+        {
+            if (path[1] == ':')
+            {
+                //windows的路径
+                return true;
+            }
+        }
+        return false;
+    }
+	
+    bool FileUtils::isRelativePath(const string& path)
+    {
+        return isAbsolutePath(path) == false;
     }
 }

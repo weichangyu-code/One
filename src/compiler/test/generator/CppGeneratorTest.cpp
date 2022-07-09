@@ -34,6 +34,7 @@
 #include "../../src/explainer/OneExplainer.h"
 #include "../../src/generator/CppGenerator.h"
 
+//这个测试废弃
 int main()
 {
     string cwd = "";
@@ -43,7 +44,7 @@ int main()
     result = oneExplainer.generate();
 
     CppGenerator cppGenerator(oneExplainer.getMetaContainer());
-    cppGenerator.generate("HelloOne", "one.test.HelloOne", "../../../", "../onetest");
+    //cppGenerator.generate("HelloOne", "one.test.HelloOne", "../../../", "../onetest");
 
     return 0;
 }

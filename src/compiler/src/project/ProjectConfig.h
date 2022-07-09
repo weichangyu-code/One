@@ -28,6 +28,9 @@ public:
     string name;
     string version;
     list<Depend> depends;
+    list<string> dependFolders;
     list<Native> natives;
     list<App> apps;
+    list<string> includeFolders;
+    list<string> libs;
 };

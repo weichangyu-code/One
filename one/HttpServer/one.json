@@ -1,0 +1,22 @@
+{
+    "name":"HttpServer",
+    "version":"0.1",
+    "dependFolder":
+    [
+        "../../dist/depend"
+    ],
+    "depend":
+    [
+        {
+            "name":"framework",
+            "version":"0.1"
+        }
+    ],
+    "app":
+    [
+        {
+            "exeName":"HttpServer",
+            "mainClass":"one.http.server.HttpServer"
+        }
+    ]
+}

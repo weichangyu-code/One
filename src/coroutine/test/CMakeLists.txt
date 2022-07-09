@@ -2,19 +2,19 @@ cmake_minimum_required(VERSION 3.0.0)
 
 
 add_executable(CoctxSwapTest CoctxSwapTest.cpp)
-target_link_libraries(CoctxSwapTest coctx common)
+target_link_libraries(CoctxSwapTest coroutine common)
 
 add_executable(CoroutineTest CoroutineTest.cpp)
-target_link_libraries(CoroutineTest engine socket coctx common)
+target_link_libraries(CoroutineTest coroutine common)
 
 add_executable(CoSleepTest CoSleepTest.cpp)
-target_link_libraries(CoSleepTest engine socket coctx common)
+target_link_libraries(CoSleepTest coroutine common)
 
 add_executable(CoServerTest CoServerTest.cpp)
-target_link_libraries(CoServerTest engine socket coctx common)
+target_link_libraries(CoServerTest coroutine common)
 
 add_executable(CoClientTest CoClientTest.cpp)
-target_link_libraries(CoClientTest engine socket coctx common)
+target_link_libraries(CoClientTest coroutine common)
 
 if(WIN32)
   target_link_libraries(CoroutineTest wsock32 ws2_32)

@@ -10,7 +10,7 @@ namespace One
     {
         pool = nullptr;
     }
-        
+
     void StringPool::reserve(unsigned int size)
     {
         pool = new String*[size + 1];

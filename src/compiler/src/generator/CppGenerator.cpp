@@ -68,6 +68,11 @@ void CppGenerator::addIncludeFolder(const string& include)
     includes.push_back(include);
 }
     
+void CppGenerator::addLibrary(const string& path)
+{
+    libs.push_back(path);
+}
+    
 Result CppGenerator::generateMainFile(const string& root, const string& mainClass)
 {
     string fileName = FileUtils::appendFileName(root, "main.cpp");
@@ -203,7 +208,12 @@ Result CppGenerator::generateCMakeList(const string& root, const string& exeName
     f << "set(SRC_LIST ${SRC_LIST} main.cpp)" << endl;
 
     f << "add_executable(" << exeName << " ${SRC_LIST})" << endl;
-    f << "target_link_libraries(" << exeName << " framework engine socket coctx common)" << endl;
+    f << "target_link_libraries(" << exeName;
+    for (auto& lib : libs)
+    {
+        f << " " << lib;
+    }
+    f << ")" << endl;
     f << "if(WIN32)" << endl;
     f << "  target_link_libraries(" << exeName << " wsock32 ws2_32)" << endl;
     f << "endif()" << endl;
