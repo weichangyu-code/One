@@ -13,11 +13,12 @@ public:
     Result build(const string& folder);
 
 protected:
-    Result buildModule(const string& name, const string& folder, ProjectConfig* config);
-    string searchModule(ProjectConfig::Depend* depend);
+    Result buildModule(const string& name, const string& folder, const string& folderByBuild, ProjectConfig* config);
+    bool searchModule(ProjectConfig::Depend* depend, string& folder, string& folderByBuild);
 
 protected:
     string projectFolder;
+    string projectFolderByBuild;
     ProjectConfig projectConfig;
 
     OneExplainer oneExplainer;

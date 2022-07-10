@@ -43,7 +43,8 @@ public:
 
     void   addNativeClass(const string& oneClassPath, const string& hPath, const string& cppClass);
     void   addIncludeFolder(const string& include);
-    void   addLibrary(const string& path);
+    void   addLibrary(const string& name);
+    void   addLibraryFolder(const string& path);
 
 protected:
     void generateCppInfoPackage(const string& path, const string& namePrefix, MetaPackage* metaPackage);
@@ -81,9 +82,10 @@ public:
     CppContainer cppContainer;
 
 protected:
-    list<string> includes;
+    list<string> includeFolders;
     list<tuple<string, string, string>> natives;
     list<string> libs;
+    list<string> libFolders;
 
 //字符串常量管理
 protected:

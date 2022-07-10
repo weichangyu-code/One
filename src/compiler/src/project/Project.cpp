@@ -12,6 +12,7 @@ Project::Project()
 Result Project::build(const string& folder)
 {
     projectFolder = folder;
+    projectFolderByBuild = "../";           //工作目录在build的时候，当前的工程目录
     //加载工程配置文件
     string projectFile = FileUtils::appendFileName(projectFolder, "one.json");
     if (ProjectConfigLoader::load(projectFile, &projectConfig) == false)
@@ -23,7 +24,7 @@ Result Project::build(const string& folder)
         return {R_FAILED, "app cannot be empty."};
     }
 
-    auto result = buildModule(projectConfig.name, projectFolder, &projectConfig);
+    auto result = buildModule(projectConfig.name, projectFolder, projectFolderByBuild, &projectConfig);
     if (result.isError())
     {
         return result;
@@ -45,7 +46,7 @@ Result Project::build(const string& folder)
     return {};
 }
     
-Result Project::buildModule(const string& name, const string& folder, ProjectConfig* config)
+Result Project::buildModule(const string& name, const string& folder, const string& folderByBuild, ProjectConfig* config)
 {
     if (buildedModules.count(name) > 0)
     {
@@ -53,7 +54,7 @@ Result Project::buildModule(const string& name, const string& folder, ProjectCon
     }
     buildedModules.insert(name);
 
-    //
+    //folder是现可访问的目录。要转换成build的相对目录
     string oneFolder = FileUtils::appendFileName(folder, "one");
     auto result = oneExplainer.explain(oneFolder, "one");
     if (result.isError())
@@ -62,49 +63,37 @@ Result Project::buildModule(const string& name, const string& folder, ProjectCon
     }
 
     //添加原生
-    string includeFolder = FileUtils::appendFileName(folder, "include");
-    if (FileUtils::isRelativePath(includeFolder))
-    {
-        //最终是生成在build目录下的，所以要提一层
-        includeFolder = "../" + includeFolder;
-    }
     for (auto& native : config->natives)
     {
-        string path = FileUtils::appendFileName(includeFolder, native.hPath);
-        cppGenerator.addNativeClass(native.oneClass, path, native.cppClass);
+        cppGenerator.addNativeClass(native.oneClass, native.hPath, native.cppClass);
     }
 
     //添加头文件目录
+    string includeFolder = FileUtils::appendFileName(folderByBuild, "include");
     cppGenerator.addIncludeFolder(includeFolder);
-    for (auto includeFolder : config->includeFolders)
+    for (auto includeFolder2 : config->includeFolders)
     {
-        if (FileUtils::isRelativePath(includeFolder))
+        if (FileUtils::isRelativePath(includeFolder2))
         {
-            includeFolder = FileUtils::appendFileName(folder, includeFolder);
-            if (FileUtils::isRelativePath(includeFolder))
-            {
-                includeFolder = "../" + includeFolder;
-            }
+            includeFolder2 = FileUtils::appendFileName(includeFolder, includeFolder2);
         }
-        cppGenerator.addIncludeFolder(includeFolder);
+        cppGenerator.addIncludeFolder(includeFolder2);
     }
 
     //添加库
-    string libFolder = FileUtils::appendFileName(folder, "lib");
-    if (FileUtils::isRelativePath(libFolder))
-    {
-        libFolder = "../" + libFolder;
-    }
+    string libFolder = FileUtils::appendFileName(folderByBuild, "lib");
+    cppGenerator.addLibraryFolder(libFolder);
     for (auto& lib : config->libs)
     {
-        cppGenerator.addLibrary(FileUtils::appendFileName(libFolder, lib));
+        cppGenerator.addLibrary(lib);
     }
 
     //编译依赖模块
     for (auto& dependModule : config->depends)
     {
-        string moduleFolder = searchModule(&dependModule);
-        if (moduleFolder.empty())
+        string moduleFolder;
+        string moduleFolderByBuild;
+        if (searchModule(&dependModule, moduleFolder, moduleFolderByBuild) == false)
         {
             return {R_FAILED, StringUtils::format("not found %s module.", dependModule.name)};
         }
@@ -116,7 +105,7 @@ Result Project::buildModule(const string& name, const string& folder, ProjectCon
             return {R_FAILED, StringUtils::format("load module config file %s failed.", moduleFile.c_str())};
         }
         
-        auto result = buildModule(dependModule.name, moduleFolder, &moduleConfig);
+        auto result = buildModule(dependModule.name, moduleFolder, moduleFolderByBuild, &moduleConfig);
         if (result.isError())
         {
             return result;
@@ -126,25 +115,31 @@ Result Project::buildModule(const string& name, const string& folder, ProjectCon
     return {};
 }
     
-string Project::searchModule(ProjectConfig::Depend* depend)
+bool Project::searchModule(ProjectConfig::Depend* depend, string& folder, string& folderByBuild)
 {
     string name = depend->name + "V" + depend->version;
     string path = FileUtils::appendFileName(FileUtils::appendFileName(projectFolder, "depend"), name);
     if (FileUtils::isDir(path))
     {
-        return path;
+        folder = path;
+        folderByBuild = FileUtils::appendFileName(FileUtils::appendFileName(projectFolderByBuild, "depend"), name);
+        return true;
     }
     for (auto dependFolder : projectConfig.dependFolders)
     {
+        string dependFolderByBuild = dependFolder;
         if (FileUtils::isRelativePath(dependFolder))
         {
+            dependFolderByBuild = FileUtils::appendFileName(projectFolderByBuild, dependFolder);
             dependFolder = FileUtils::appendFileName(projectFolder, dependFolder);
         }
         path = FileUtils::appendFileName(dependFolder, name);
         if (FileUtils::isDir(path))
         {
-            return path;
+            folder = path;
+            folderByBuild = FileUtils::appendFileName(dependFolderByBuild, name);
+            return true;
         }
     }
-    return "";
+    return false;
 }

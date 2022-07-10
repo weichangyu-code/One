@@ -65,12 +65,17 @@ void CppGenerator::addNativeClass(const string& oneClassPath, const string& hPat
     
 void CppGenerator::addIncludeFolder(const string& include)
 {
-    includes.push_back(include);
+    includeFolders.push_back(include);
 }
     
-void CppGenerator::addLibrary(const string& path)
+void CppGenerator::addLibraryFolder(const string& path)
 {
-    libs.push_back(path);
+    libFolders.push_back(path);
+}
+    
+void CppGenerator::addLibrary(const string& name)
+{
+    libs.push_back(name);
 }
     
 Result CppGenerator::generateMainFile(const string& root, const string& mainClass)
@@ -190,9 +195,14 @@ Result CppGenerator::generateCMakeList(const string& root, const string& exeName
 
     //f << "include_directories(./ " << FileUtils::appendFileName(depend, "framework/src") << " " << FileUtils::appendFileName(depend, "coroutine/src") << ")" << endl;
     f << "include_directories(./)" << endl;
-    for (auto& include : includes)
+    for (auto& include : includeFolders)
     {
-        f << "include_directories(" << include << ")" << endl;
+        f << "include_directories(\"" << include << "\")" << endl;
+    }
+
+    for (auto& lib : libFolders)
+    {
+        f << "link_directories(\"" << lib << "\")" << endl;
     }
 
     for (auto& metaClass : metaContainer->getClasses())
@@ -211,7 +221,7 @@ Result CppGenerator::generateCMakeList(const string& root, const string& exeName
     f << "target_link_libraries(" << exeName;
     for (auto& lib : libs)
     {
-        f << " " << lib;
+        f << " -l" << lib << "";
     }
     f << ")" << endl;
     f << "if(WIN32)" << endl;
