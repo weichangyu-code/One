@@ -63,13 +63,12 @@ enum INSTRUCT
     CALL,                       //函数调用，没有类前缀
     CALL_FIXED,                 //指定类函数调用，不会触发虚函数调用
     TYPE,                       //类型转换
-    JUMP,                       //就是跳
-    JUMPT,                      //条件正确跳转
-    JUMPF,                      //条件错误跳转
-    LABEL,                      //定位标签用，没啥左右
 
     VARDEF,                     //变量定义
     BLOCK,                      //定义BLOCK
+    IF,
+    ELSE_IF,
+    ELSE,
 
     // MUL_ASSIGN,
     // DIV_ASSIGN,

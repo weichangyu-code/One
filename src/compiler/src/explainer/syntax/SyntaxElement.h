@@ -4,6 +4,7 @@
 class SyntaxSentence;
 class SyntaxBlock;
 class SyntaxClass;
+class SyntaxIfBlock;
 class SyntaxElement : public SyntaxBase
 {
 public:
@@ -14,7 +15,20 @@ public:
     }
 
 public:
-    SyntaxSentence* sentence = nullptr;
-    SyntaxBlock* block = nullptr;
-    SyntaxClass* clazz = nullptr;
+    enum
+    {
+        SENTENCE,
+        CODEBLOCK,
+        IFBLOCK,
+        FORBLOCK,
+        WHILEBLOCK,
+    };
+    int type = SENTENCE;
+    union
+    {
+        SyntaxSentence* sentence = nullptr;
+        SyntaxBlock* block;
+        SyntaxIfBlock* ifBlock;
+    };
+    
 };

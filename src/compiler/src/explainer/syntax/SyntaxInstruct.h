@@ -21,7 +21,6 @@ public:
     {
         SyntaxVar* func = nullptr;          //cmd为CALL有效
         SyntaxType* type;                   //cmd为TYPE、NEW有效
-        SyntaxInstruct* jump;               //cmd为JUMP有效
         SyntaxVarDef* varDef;               //cmd为VARDEF有效
     };
     

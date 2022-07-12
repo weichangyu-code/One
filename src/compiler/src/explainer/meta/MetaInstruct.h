@@ -26,8 +26,6 @@ public:
         MetaBlock* block = nullptr;             //
         MetaFunc* func;                         //函数调用和NEW的时候
         MetaVariable* var;
-        MetaInstruct* jump;
-        void* jumpTmp;
     };
 
     //转换后的C++代码

@@ -6,7 +6,18 @@ class HttpServer
     {
         String str = "hello HttpServer";
         System.co(() {
-            Out.println(str);
+            if (str != null)
+            {
+                Out.println(str);
+            }
+            else if (str == null)
+            {
+                Out.println("else if");
+            }
+            else
+            {
+                Out.println("else");
+            }
         });
     }
 }

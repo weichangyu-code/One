@@ -13,6 +13,7 @@
 #include "ExplainPrefix.h"
 #include "ExplainSentence.h"
 #include "ExplainLambda.h"
+#include "ExplainIfBlock.h"
 
 ExplainContainer::ExplainContainer(RuleContainer* ruleContainer, ExplainContext* context)
     :ruleContainer(ruleContainer)
@@ -34,6 +35,7 @@ ExplainContainer::ExplainContainer(RuleContainer* ruleContainer, ExplainContext*
     explains.push_back(new ExplainVarDef(this, context));
     explains.push_back(new ExplainVar(this, context));
     explains.push_back(new ExplainLambda(this, context));
+    explains.push_back(new ExplainIfBlock(this, context));
 }
 
 ExplainContainer::~ExplainContainer()

@@ -23,6 +23,7 @@
 #include "../syntax/SyntaxInstruct.h"
 #include "../syntax/SyntaxVar.h"
 #include "../syntax/SyntaxBlock.h"
+#include "../syntax/SyntaxIfBlock.h"
 #include "StringUtils.h"
 #include "../common/Keyword.h"
 using namespace OneCommon;
@@ -359,37 +360,68 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
 
     for (auto& element : syntaxBlock->elements)
     {
-        if (element->clazz)
+        switch (element->type)
         {
-            //TODO:函数内部嵌入匿名类
-        }
-        else if (element->block)
-        {
-            MetaBlock* subBlock = new MetaBlock(block, metaContainer, element->block);
-            VR(generateMetaBlockInstruct(subBlock));
-
-            MetaInstruct* instruct = new MetaInstruct(metaContainer, nullptr);
-            instruct->cmd = BLOCK;
-            instruct->block = block;
-            block->instructs.push_back(instruct);
-        }
-        else if (element->sentence)
-        {
-            SyntaxExp* syntaxExp = element->sentence->exp;
-            if (syntaxExp)
+        case SyntaxElement::SENTENCE:
             {
-                MetaData tmp;
-                VR(generateMetaExpInstruct(block, syntaxExp, &tmp));
+                SyntaxExp* syntaxExp = element->sentence->exp;
+                if (syntaxExp)
+                {
+                    MetaData tmp;
+                    VR(generateMetaExpInstruct(block, syntaxExp, &tmp));
+                }
             }
-        }
-    }
+            break;
+        case SyntaxElement::CODEBLOCK:
+            {
+                MetaBlock* subBlock = new MetaBlock(block, metaContainer, element->block);
+                VR(generateMetaBlockInstruct(subBlock));
 
-    //处理下jump的跳转
-    for (auto& instruct : block->instructs)
-    {
-        if (instruct->cmd == JUMP || instruct->cmd == JUMPT || instruct->cmd == JUMPF)
-        {
-            instruct->jumpTmp = ((SyntaxInstruct*)instruct->jumpTmp)->ptr;
+                MetaInstruct* instruct = new MetaInstruct(metaContainer, nullptr);
+                instruct->cmd = BLOCK;
+                instruct->block = subBlock;
+                block->instructs.push_back(instruct);
+            }
+            break;
+        case SyntaxElement::IFBLOCK:
+            {
+                SyntaxIfBlock* syntaxIfBlock = (SyntaxIfBlock*)element->block;
+
+                MetaBlock* subBlock = new MetaBlock(block, metaContainer, nullptr);
+                MetaInstruct* instruct = new MetaInstruct(metaContainer, nullptr);
+                instruct->cmd = BLOCK;
+                instruct->block = subBlock;
+                block->instructs.push_back(instruct);
+
+                for (auto& ifitem : syntaxIfBlock->items)
+                {
+                    if (ifitem->exp)
+                    {
+                        MetaData cond;
+                        VR(generateMetaExpInstruct(subBlock, ifitem->exp, &cond));
+
+                        instruct = new MetaInstruct(metaContainer, nullptr);
+                        instruct->cmd = (ifitem == syntaxIfBlock->items.front()) ? IF : ELSE_IF;
+                        instruct->params.push_back(cond);
+                        subBlock->instructs.push_back(instruct);
+                    }
+                    else
+                    {
+                        instruct = new MetaInstruct(metaContainer, nullptr);
+                        instruct->cmd = ELSE;
+                        subBlock->instructs.push_back(instruct);
+                    }
+
+                    MetaBlock* ifItemBlock = new MetaBlock(subBlock, metaContainer, ifitem->block);
+                    VR(generateMetaBlockInstruct(ifItemBlock));
+
+                    instruct = new MetaInstruct(metaContainer, nullptr);
+                    instruct->cmd = BLOCK;
+                    instruct->block = ifItemBlock;
+                    subBlock->instructs.push_back(instruct);
+                }
+            }
+            break;
         }
     }
 
@@ -955,29 +987,6 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             {
                 return R_FAILED;
             }
-            block->instructs.push_back(instruct);
-        }
-        break;
-    case JUMP:
-        {
-            instruct->jumpTmp = syntaxInstruct->jump;
-            block->instructs.push_back(instruct);
-        }
-        break;
-    case JUMPT:
-    case JUMPF:
-        {
-            MetaType type = instruct->params.front().getType();
-            if (type.isBool() == false)
-            {
-                return R_FAILED;
-            }
-            instruct->jumpTmp = syntaxInstruct->jump;
-            block->instructs.push_back(instruct);
-        }
-        break;
-    case LABEL:
-        {
             block->instructs.push_back(instruct);
         }
         break;

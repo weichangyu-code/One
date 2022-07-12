@@ -1277,6 +1277,21 @@ Result CppGenerator::generateBlock(ofstream& f, const string& space, MetaBlock* 
                 instruct->cppCode = generateVarDefType(var->type) + " " + var->name;
             }
             break;
+        case IF:
+            {
+                instruct->cppCode = "if (" + generateData(instruct->params.front()) + ")";
+            }
+            break;
+        case ELSE_IF:
+            {
+                instruct->cppCode = "else if (" + generateData(instruct->params.front()) + ")";
+            }
+            break;
+        case ELSE:
+            {
+                instruct->cppCode = "else";
+            }
+            break;
         }
     }
 
@@ -1287,6 +1302,10 @@ Result CppGenerator::generateBlock(ofstream& f, const string& space, MetaBlock* 
             f << space << "{" << endl;
             VR(generateBlock(f, space + KEY_TAB, instruct->block));
             f << space << "}" << endl;
+        }
+        else if (instruct->cmd == IF || instruct->cmd == ELSE_IF || instruct->cmd == ELSE)
+        {
+            f << space << instruct->cppCode << endl;
         }
         else if (instruct->cppCode.empty() == false)
         {

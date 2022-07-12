@@ -5,6 +5,7 @@
 #include "../syntax/SyntaxBlock.h"
 #include "../syntax/SyntaxExp.h"
 #include "../syntax/SyntaxInstruct.h"
+#include "../syntax/SyntaxIfBlock.h"
 
 class ExplainCode : public ExplainBase
 {
@@ -13,8 +14,8 @@ public:
         : ExplainBase(container, context)
     {
         registe("element", "sentence", (MyRuleExecuteFunction)&onExplainElementSentence);
-        registe("element", "block", (MyRuleExecuteFunction)&onExplainElementBlock);
-        registe("element", "classdef", (MyRuleExecuteFunction)&onExplainElementClassDef);
+        registe("element", "codeblock", (MyRuleExecuteFunction)&onExplainElementCodeBlock);
+        registe("element", "ifblock", (MyRuleExecuteFunction)&onExplainElementIfBlock);
         
         registe("elements", "", (MyRuleExecuteFunction)&onExplainElements);
         registe("elements", "add", (MyRuleExecuteFunction)&onExplainElementsAdd);
@@ -28,27 +29,30 @@ public:
         SyntaxSentence* sentence = (SyntaxSentence*)es[0].ptr;
 
         SyntaxElement* element = new SyntaxElement(context);
+        element->type = SyntaxElement::SENTENCE;
         element->sentence = sentence;
         out.ptr = element;
         return {};
     }
 
-    Result onExplainElementBlock(Rule* rule, vector<LexElement>& es, LexElement& out)
+    Result onExplainElementCodeBlock(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
         SyntaxBlock* block = (SyntaxBlock*)es[0].ptr;
 
         SyntaxElement* element = new SyntaxElement(context);
+        element->type = SyntaxElement::CODEBLOCK;
         element->block = block;
         out.ptr = element;
         return {};
     }
 
-    Result onExplainElementClassDef(Rule* rule, vector<LexElement>& es, LexElement& out)
+    Result onExplainElementIfBlock(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
-        SyntaxClass* clazz = (SyntaxClass*)es[0].ptr;
+        SyntaxIfBlock* block = (SyntaxIfBlock*)es[0].ptr;
 
         SyntaxElement* element = new SyntaxElement(context);
-        element->clazz = clazz;
+        element->type = SyntaxElement::IFBLOCK;
+        element->ifBlock = block;
         out.ptr = element;
         return {};
     }

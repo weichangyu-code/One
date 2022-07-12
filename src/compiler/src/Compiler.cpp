@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
     Result result = project.build(projectFolder);
     if (result.isError())
     {
-        printf("build failed. %s\n", result.errMsg);
+        printf("build failed. %s\n", result.errMsg.c_str());
         return -1;
     }
 

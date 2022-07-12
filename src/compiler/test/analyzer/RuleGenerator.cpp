@@ -14,8 +14,8 @@
 int main()
 {
     OneRuleMap ruleMap;
-    ruleMap.init(FileUtils::readFile("../../src/analyzer/rule/one.rule"));
-    ruleMap.generateInitOne("../../src/analyzer/one/OneRuleMap.inl");
+    ruleMap.init(FileUtils::readFile("src/compiler/src/analyzer/rule/one.rule"));
+    ruleMap.generateInitOne("src/compiler/src/analyzer/one/OneRuleMap.inl");
 
     return 0;
 }

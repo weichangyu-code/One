@@ -355,13 +355,12 @@ codeblock=blockstart elements blockend
 codeblock(null)=blockstart blockend
 
 #文章
-block=codeblock
-block=ifblock
-block=forblock
-block=whileblock
-block=dowhileblock
 element(sentence)=sentence
-element(block)=codeblock
+element(codeblock)=codeblock
+element(ifblock)=ifblock
+element(forblock)=forblock
+element(whileblock)=whileblock
+element(dowhileblock)=dowhileblock
 element(classdef)=classdef
 elements=element
 elements(add)=elements element

@@ -13,5 +13,4 @@ public:
 
 public:
     list<SyntaxElement*> elements;
-    //list<SyntaxElement*> innerClasses;
 };

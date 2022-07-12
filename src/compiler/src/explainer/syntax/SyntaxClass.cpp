@@ -58,9 +58,10 @@ void SyntaxClass::addElements(ExplainContext* context, SyntaxMulti<SyntaxClassEl
             this->vars.push_back(varDef);
 
             //添加初始化代码块
-            SyntaxElement* element = new SyntaxElement(context);
             SyntaxSentence* sentence = new SyntaxSentence(context);
             sentence->exp = varDef->exp;
+            SyntaxElement* element = new SyntaxElement(context);
+            element->type = SyntaxElement::SENTENCE;
             element->sentence = sentence;
             if (varDef->isStatic)
             {
