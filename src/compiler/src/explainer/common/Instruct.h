@@ -69,6 +69,9 @@ enum INSTRUCT
     IF,
     ELSE_IF,
     ELSE,
+    WHILE,
+    DO,
+    DOWHILE,
 
     // MUL_ASSIGN,
     // DIV_ASSIGN,

@@ -5,6 +5,7 @@ class SyntaxSentence;
 class SyntaxBlock;
 class SyntaxClass;
 class SyntaxIfBlock;
+class SyntaxWhileBlock;
 class SyntaxElement : public SyntaxBase
 {
 public:
@@ -29,6 +30,7 @@ public:
         SyntaxSentence* sentence = nullptr;
         SyntaxBlock* block;
         SyntaxIfBlock* ifBlock;
+        SyntaxWhileBlock* whileBlock;
     };
     
 };

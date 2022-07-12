@@ -16,6 +16,8 @@ public:
         registe("element", "sentence", (MyRuleExecuteFunction)&onExplainElementSentence);
         registe("element", "codeblock", (MyRuleExecuteFunction)&onExplainElementCodeBlock);
         registe("element", "ifblock", (MyRuleExecuteFunction)&onExplainElementIfBlock);
+        registe("element", "whileblock", (MyRuleExecuteFunction)&onExplainElementWhileBlock);
+        registe("element", "dowhileblock", (MyRuleExecuteFunction)&onExplainElementWhileBlock);
         
         registe("elements", "", (MyRuleExecuteFunction)&onExplainElements);
         registe("elements", "add", (MyRuleExecuteFunction)&onExplainElementsAdd);
@@ -53,6 +55,17 @@ public:
         SyntaxElement* element = new SyntaxElement(context);
         element->type = SyntaxElement::IFBLOCK;
         element->ifBlock = block;
+        out.ptr = element;
+        return {};
+    }
+
+    Result onExplainElementWhileBlock(Rule* rule, vector<LexElement>& es, LexElement& out)
+    {
+        SyntaxWhileBlock* block = (SyntaxWhileBlock*)es[0].ptr;
+
+        SyntaxElement* element = new SyntaxElement(context);
+        element->type = SyntaxElement::WHILEBLOCK;
+        element->whileBlock = block;
         out.ptr = element;
         return {};
     }

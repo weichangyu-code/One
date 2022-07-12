@@ -1170,6 +1170,16 @@ Result CppGenerator::generateBlock(ofstream& f, const string& space, MetaBlock* 
                 }
             }
             break;
+        case BREAK:
+            {
+                instruct->cppCode = "break";
+            }
+            break;
+        case CONTINUE:
+            {
+                instruct->cppCode = "continue";
+            }
+            break;
         case NEW:
             {
                 ostringstream stream;
@@ -1292,6 +1302,21 @@ Result CppGenerator::generateBlock(ofstream& f, const string& space, MetaBlock* 
                 instruct->cppCode = "else";
             }
             break;
+        case WHILE:
+            {
+                instruct->cppCode = "while (" + generateData(instruct->params.front()) + ")";
+            }
+            break;
+        case DO:
+            {
+                instruct->cppCode = "do";
+            }
+            break;
+        case DOWHILE:
+            {
+                instruct->cppCode = "while (" + generateData(instruct->params.front()) + ")";
+            }
+            break;
         }
     }
 
@@ -1303,7 +1328,8 @@ Result CppGenerator::generateBlock(ofstream& f, const string& space, MetaBlock* 
             VR(generateBlock(f, space + KEY_TAB, instruct->block));
             f << space << "}" << endl;
         }
-        else if (instruct->cmd == IF || instruct->cmd == ELSE_IF || instruct->cmd == ELSE)
+        else if (instruct->cmd == IF || instruct->cmd == ELSE_IF || instruct->cmd == ELSE
+            || instruct->cmd == DO || instruct->cmd == WHILE)
         {
             f << space << instruct->cppCode << endl;
         }

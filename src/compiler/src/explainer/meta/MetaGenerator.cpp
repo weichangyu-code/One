@@ -24,6 +24,7 @@
 #include "../syntax/SyntaxVar.h"
 #include "../syntax/SyntaxBlock.h"
 #include "../syntax/SyntaxIfBlock.h"
+#include "../syntax/SyntaxWhileBlock.h"
 #include "StringUtils.h"
 #include "../common/Keyword.h"
 using namespace OneCommon;
@@ -418,6 +419,54 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
                     instruct = new MetaInstruct(metaContainer, nullptr);
                     instruct->cmd = BLOCK;
                     instruct->block = ifItemBlock;
+                    subBlock->instructs.push_back(instruct);
+                }
+            }
+            break;
+        case SyntaxElement::WHILEBLOCK:
+            {
+                SyntaxWhileBlock* syntaxWhileBlock = (SyntaxWhileBlock*)element->block;
+
+                MetaBlock* subBlock = new MetaBlock(block, metaContainer, nullptr);
+                MetaInstruct* instruct = new MetaInstruct(metaContainer, nullptr);
+                instruct->cmd = BLOCK;
+                instruct->block = subBlock;
+                block->instructs.push_back(instruct);
+
+                if (syntaxWhileBlock->dowhile)
+                {
+                    instruct = new MetaInstruct(metaContainer, nullptr);
+                    instruct->cmd = DO;
+                    subBlock->instructs.push_back(instruct);
+
+                    MetaBlock* whileBlock = new MetaBlock(subBlock, metaContainer, syntaxWhileBlock->block);
+                    VR(generateMetaBlockInstruct(whileBlock));
+                    instruct = new MetaInstruct(metaContainer, nullptr);
+                    instruct->cmd = BLOCK;
+                    instruct->block = whileBlock;
+                    subBlock->instructs.push_back(instruct);
+
+                    MetaData cond;
+                    VR(generateMetaExpInstruct(subBlock, syntaxWhileBlock->exp, &cond));
+                    instruct = new MetaInstruct(metaContainer, nullptr);
+                    instruct->cmd = DOWHILE;
+                    instruct->params.push_back(cond);
+                    subBlock->instructs.push_back(instruct);
+                }
+                else
+                {
+                    MetaData cond;
+                    VR(generateMetaExpInstruct(subBlock, syntaxWhileBlock->exp, &cond));
+                    instruct = new MetaInstruct(metaContainer, nullptr);
+                    instruct->cmd = WHILE;
+                    instruct->params.push_back(cond);
+                    subBlock->instructs.push_back(instruct);
+
+                    MetaBlock* whileBlock = new MetaBlock(subBlock, metaContainer, syntaxWhileBlock->block);
+                    VR(generateMetaBlockInstruct(whileBlock));
+                    instruct = new MetaInstruct(metaContainer, nullptr);
+                    instruct->cmd = BLOCK;
+                    instruct->block = whileBlock;
                     subBlock->instructs.push_back(instruct);
                 }
             }

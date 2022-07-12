@@ -167,14 +167,12 @@ forstart=FOR (multishortsentence ; multishortsentence ; multishortsentence)
 forblock=forstart codeblock
 
 #while语句
-whilestart=WHILE ( exp )
-whileblock=whilestart codeblock
-dowhilebody=DO codeblock
-dowhileblock=dowhilebody WHILE (exp)
+whileblock=WHILE ( exp ) codeblock
+dowhileblock=DO codeblock WHILE (exp)
 
-break=BREAK number
+break(number)=BREAK number
 break=BREAK
-continue=CONTINUE number
+continue(number)=CONTINUE number
 continue=CONTINUE
 
 #类型定义
