@@ -4,7 +4,7 @@ using namespace OneCoroutine;
 
 namespace One
 {
-    void System::createCoroutine(CoRunner* runner)
+    void System::createCoroutine(Runner* runner)
     {
         if (runner == nullptr)
         {
@@ -17,7 +17,7 @@ namespace One
         });
     }
     
-    void System::co(CoRunner* runner)
+    void System::co(Runner* runner)
     {
         createCoroutine(runner);
     }

@@ -1,13 +1,12 @@
 ﻿#pragma once
 #include "OneObject.h"
-#include "Reference.h"
 
 namespace One
 {
-    class CoRunner : public Interface
+    class Runner : public Interface
     {
     public:
-        CoRunner(Object* obj) : Interface(obj)
+        Runner(Object* obj) : Interface(obj)
         {}
     public:
         virtual void run() = 0;
@@ -16,8 +15,8 @@ namespace One
     class System : public Object
     {
     public:
-        static void createCoroutine(CoRunner* runner);
-        static void co(CoRunner* runner);
+        static void createCoroutine(Runner* runner);
+        static void co(Runner* runner);
 
         static void yield();
     };

@@ -95,6 +95,15 @@ MetaClass* MetaContainer::getArrayClass()
     return arrayClass;
 }
 
+MetaClass* MetaContainer::getIterableClass()
+{
+    if (iterableClass == nullptr)
+    {
+        iterableClass = getClass(KEY_ONE_ITERABLE_CLASS);
+    }
+    return iterableClass;
+}
+
 bool MetaContainer::isArray(const MetaType& type)
 {
     if (type.type != DT_CLASS || type.clazz == nullptr)
@@ -391,7 +400,7 @@ MetaVarRef* MetaContainer::searchVariable(MetaBoxBase* box, const string& name, 
     return nullptr;
 }
     
-bool MetaContainer::canAutoConvertType(MetaType& src, MetaType& dst)
+bool MetaContainer::canAutoConvertType(const MetaType& src, const MetaType& dst)
 {
     if (src.isVoid() && dst.isVoid())
     {

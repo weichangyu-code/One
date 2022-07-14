@@ -6,6 +6,8 @@
 #include "../syntax/SyntaxExp.h"
 #include "../syntax/SyntaxInstruct.h"
 #include "../syntax/SyntaxIfBlock.h"
+#include "../syntax/SyntaxWhileBlock.h"
+#include "../syntax/SyntaxForBlock.h"
 
 class ExplainCode : public ExplainBase
 {
@@ -18,6 +20,7 @@ public:
         registe("element", "ifblock", (MyRuleExecuteFunction)&onExplainElementIfBlock);
         registe("element", "whileblock", (MyRuleExecuteFunction)&onExplainElementWhileBlock);
         registe("element", "dowhileblock", (MyRuleExecuteFunction)&onExplainElementWhileBlock);
+        registe("element", "forblock", (MyRuleExecuteFunction)&onExplainElementForBlock);
         
         registe("elements", "", (MyRuleExecuteFunction)&onExplainElements);
         registe("elements", "add", (MyRuleExecuteFunction)&onExplainElementsAdd);
@@ -66,6 +69,17 @@ public:
         SyntaxElement* element = new SyntaxElement(context);
         element->type = SyntaxElement::WHILEBLOCK;
         element->whileBlock = block;
+        out.ptr = element;
+        return {};
+    }
+
+    Result onExplainElementForBlock(Rule* rule, vector<LexElement>& es, LexElement& out)
+    {
+        SyntaxForBlock* block = (SyntaxForBlock*)es[0].ptr;
+
+        SyntaxElement* element = new SyntaxElement(context);
+        element->type = SyntaxElement::FORBLOCK;
+        element->forBlock = block;
         out.ptr = element;
         return {};
     }

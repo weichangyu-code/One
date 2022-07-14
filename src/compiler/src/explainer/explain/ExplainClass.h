@@ -105,7 +105,7 @@ public:
         SyntaxClass* clazz = (SyntaxClass*)es[0].ptr;
         SyntaxMulti<SyntaxType*>* parents = (SyntaxMulti<SyntaxType*>*)es[2].ptr;
         clazz->parents = std::move(parents->items);
-        out.ptr = parents;
+        out.ptr = clazz;
         return {};
     }
 

@@ -162,7 +162,8 @@ ifblock(else)=ifblockstart else
 ifblock=ifblockstart
 
 #for语句
-forstart(range)=FOR (vardefnull : exp)					#自动循环
+forstart(range)=FOR (vardefnull : [exp, exp])
+forstart(each)=FOR (vardefnull : exp)					#自动循环
 forstart=FOR (multishortsentence ; multishortsentence ; multishortsentence)
 forblock=forstart codeblock
 

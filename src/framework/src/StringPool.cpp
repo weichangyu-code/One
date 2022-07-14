@@ -19,7 +19,7 @@ namespace One
         
     void StringPool::addString(int index, const char* str)
     {
-        String* obj = g_objectPool.createString(strlen(str)).detach();
+        String* obj = String::createString(strlen(str)).detach();
         memcpy(obj->_c, str, obj->_length);
         pool[index] = obj;
     }

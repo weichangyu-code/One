@@ -22,7 +22,7 @@ public:
         SyntaxWhileBlock* block = new SyntaxWhileBlock(context);
         block->exp = (SyntaxExp*)es[2].ptr;
         block->block = (SyntaxBlock*)es[4].ptr;
-        block->dowhile = false;
+        block->type = SyntaxWhileBlock::WHILE;
         out.ptr = block;
         return {};
     }
@@ -32,7 +32,7 @@ public:
         SyntaxWhileBlock* block = new SyntaxWhileBlock(context);
         block->exp = (SyntaxExp*)es[4].ptr;
         block->block = (SyntaxBlock*)es[1].ptr;
-        block->dowhile = true;
+        block->type = SyntaxWhileBlock::DOWHILE;
         out.ptr = block;
         return {};
     }

@@ -43,7 +43,17 @@
         {
             "oneClass":"one.std.Runner",
             "hPath":"framework/OneSystem.h",
-            "cppClass":"CoRunner"
+            "cppClass":"Runner"
+        },
+        {
+            "oneClass":"one.std.Iterator",
+            "hPath":"framework/OneIterator.h",
+            "cppClass":"Iterator"
+        },
+        {
+            "oneClass":"one.std.Iterable",
+            "hPath":"framework/OneIterable.h",
+            "cppClass":"Iterable"
         }
     ]
 }

@@ -12,6 +12,7 @@
 #define KEY_ONE_OBJECT_CLASS KEY_ONE_STD ".Object"
 #define KEY_ONE_STRING_CLASS KEY_ONE_STD ".String"
 #define KEY_ONE_ARRAY_CLASS  KEY_ONE_STD ".Array"
+#define KEY_ONE_ITERABLE_CLASS  KEY_ONE_STD ".Iterable"
 
 #define KEY_INIT_VAR_FUNC           "__initVar__"
 #define KEY_INIT_STATIC_VAR_FUNC    "__initStaticVar__"

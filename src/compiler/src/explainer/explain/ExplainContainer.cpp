@@ -15,6 +15,7 @@
 #include "ExplainLambda.h"
 #include "ExplainIfBlock.h"
 #include "ExplainWhileBlock.h"
+#include "ExplainForBlock.h"
 
 ExplainContainer::ExplainContainer(RuleContainer* ruleContainer, ExplainContext* context)
     :ruleContainer(ruleContainer)
@@ -38,6 +39,7 @@ ExplainContainer::ExplainContainer(RuleContainer* ruleContainer, ExplainContext*
     explains.push_back(new ExplainLambda(this, context));
     explains.push_back(new ExplainIfBlock(this, context));
     explains.push_back(new ExplainWhileBlock(this, context));
+    explains.push_back(new ExplainForBlock(this, context));
 }
 
 ExplainContainer::~ExplainContainer()

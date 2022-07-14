@@ -98,6 +98,23 @@ MetaClass* MetaClass::getParentClass(const string& name)
     return nullptr;
 }
     
+MetaClass* MetaClass::getParentTamplateClass(MetaClass* clazz)
+{
+    for (auto& parent2 : parents)
+    {
+        if (parent2 == clazz || parent2->templateClass == clazz)
+        {
+            return parent2;
+        }
+        MetaClass* parent3 = parent2->getParentClass(name);
+        if (parent3)
+        {
+            return parent3;
+        }
+    }
+    return nullptr;
+}
+    
 MetaVariable* MetaClass::createVeriable(const string& name, SyntaxBase* syntaxObj)
 {
     return new MetaVariable(name, VAR_MEMBER, this, metaContainer, syntaxObj);

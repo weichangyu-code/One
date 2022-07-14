@@ -1,0 +1,7 @@
+
+
+interface Iterator<T>
+{
+    virtual bool hasNext();
+    virtual T next();
+}

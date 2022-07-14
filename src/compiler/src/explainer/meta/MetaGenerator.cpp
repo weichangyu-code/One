@@ -25,6 +25,7 @@
 #include "../syntax/SyntaxBlock.h"
 #include "../syntax/SyntaxIfBlock.h"
 #include "../syntax/SyntaxWhileBlock.h"
+#include "../syntax/SyntaxForBlock.h"
 #include "StringUtils.h"
 #include "../common/Keyword.h"
 using namespace OneCommon;
@@ -386,7 +387,7 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
             break;
         case SyntaxElement::IFBLOCK:
             {
-                SyntaxIfBlock* syntaxIfBlock = (SyntaxIfBlock*)element->block;
+                SyntaxIfBlock* syntaxIfBlock = element->ifBlock;
 
                 MetaBlock* subBlock = new MetaBlock(block, metaContainer, nullptr);
                 MetaInstruct* instruct = new MetaInstruct(metaContainer, nullptr);
@@ -425,7 +426,7 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
             break;
         case SyntaxElement::WHILEBLOCK:
             {
-                SyntaxWhileBlock* syntaxWhileBlock = (SyntaxWhileBlock*)element->block;
+                SyntaxWhileBlock* syntaxWhileBlock = element->whileBlock;
 
                 MetaBlock* subBlock = new MetaBlock(block, metaContainer, nullptr);
                 MetaInstruct* instruct = new MetaInstruct(metaContainer, nullptr);
@@ -433,7 +434,7 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
                 instruct->block = subBlock;
                 block->instructs.push_back(instruct);
 
-                if (syntaxWhileBlock->dowhile)
+                if (syntaxWhileBlock->type == SyntaxWhileBlock::DOWHILE)
                 {
                     instruct = new MetaInstruct(metaContainer, nullptr);
                     instruct->cmd = DO;
@@ -469,6 +470,104 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
                     instruct->block = whileBlock;
                     subBlock->instructs.push_back(instruct);
                 }
+            }
+            break;
+        case SyntaxElement::FORBLOCK:
+            {
+                SyntaxForBlock* syntaxForBlock = element->forBlock;
+
+                MetaBlock* subBlock = new MetaBlock(block, metaContainer, nullptr);
+                MetaInstruct* instruct = new MetaInstruct(metaContainer, nullptr);
+                instruct->cmd = BLOCK;
+                instruct->block = subBlock;
+                block->instructs.push_back(instruct);
+
+                if (syntaxForBlock->type == SyntaxForBlock::FOR_RANGE)
+                {
+                    MetaVariable* var = subBlock->addVeriable(syntaxForBlock->varDef->name, syntaxForBlock->varDef);
+                    VR(generateMetaVarDefStruct(block, var));
+
+                    MetaData varData(var);
+                    
+                    MetaData param[2];
+                    VR(generateMetaExpInstruct(subBlock, syntaxForBlock->exp[0], &param[0]));
+                    VR(generateMetaExpInstruct(subBlock, syntaxForBlock->exp[1], &param[1]));
+                    MetaType paramType[2];
+                    paramType[0] = param[0].getType();
+                    paramType[1] = param[1].getType();
+                    if (paramType[0].isInteger() == false || paramType[1].isInteger() == false)
+                    {
+                        //必须是整数
+                        return R_FAILED;
+                    }
+                    VR(handleAutoVar(subBlock, varData, paramType[0]));
+                    
+                    if (metaContainer->canAutoConvertType(paramType[0], varData.getType()) == false)
+                    {
+                        return R_FAILED;
+                    }
+
+                    instruct = new MetaInstruct(metaContainer, nullptr);
+                    instruct->cmd = FOR_RANGE;
+                    instruct->params.push_back(varData);
+                    instruct->params.push_back(param[0]);
+                    instruct->params.push_back(param[1]);
+                    subBlock->instructs.push_back(instruct);
+                }
+                else if (syntaxForBlock->type == SyntaxForBlock::FOR_EACH)
+                {
+                    MetaVariable* var = block->addVeriable(syntaxForBlock->varDef->name, syntaxForBlock->varDef);
+                    VR(generateMetaVarDefStruct(block, var));
+
+                    MetaData varData(var);
+                    
+                    MetaData param;
+                    VR(generateMetaExpInstruct(subBlock, syntaxForBlock->exp[0], &param));
+                    MetaType paramType = param.getType();
+                    if (paramType.isClass() == false)
+                    {
+                        return R_FAILED;
+                    }
+                    MetaClass* iterClass = paramType.clazz->getParentTamplateClass(metaContainer->getIterableClass());
+                    if (iterClass == nullptr)
+                    {
+                        return R_FAILED;
+                    }
+                    MetaType varType = iterClass->params.front()->type;
+                    VR(handleAutoVar(subBlock, varData, varType));
+                    
+                    if (metaContainer->canAutoConvertType(varType, varData.getType()) == false)
+                    {
+                        return R_FAILED;
+                    }
+
+                    instruct = new MetaInstruct(metaContainer, nullptr);
+                    instruct->cmd = FOR_EACH;
+                    instruct->params.push_back(varData);
+                    instruct->params.push_back(param);
+                    subBlock->instructs.push_back(instruct);
+                }
+                else
+                {
+                    MetaData tmp[3];
+                    VR(generateMetaExpInstruct(subBlock, syntaxForBlock->exp[0], &tmp[0]));
+                    VR(generateMetaExpInstruct(subBlock, syntaxForBlock->exp[1], &tmp[1]));
+                    VR(generateMetaExpInstruct(subBlock, syntaxForBlock->exp[2], &tmp[2]));
+
+                    instruct = new MetaInstruct(metaContainer, nullptr);
+                    instruct->cmd = FOR;
+                    instruct->params.push_back(tmp[0]);
+                    instruct->params.push_back(tmp[1]);
+                    instruct->params.push_back(tmp[2]);
+                    subBlock->instructs.push_back(instruct);
+                }
+
+                MetaBlock* forBlock = new MetaBlock(subBlock, metaContainer, syntaxForBlock->block);
+                VR(generateMetaBlockInstruct(forBlock));
+                instruct = new MetaInstruct(metaContainer, nullptr);
+                instruct->cmd = BLOCK;
+                instruct->block = forBlock;
+                subBlock->instructs.push_back(instruct);
             }
             break;
         }
@@ -1043,13 +1142,19 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
         {
             if (block->getOuterFunc()->isInitVarFunc())
             {
-                return {};
+                MetaVariable* var = (MetaVariable*)syntaxInstruct->varDef->ptr;
+                instruct->var = var;
+                instruct->retType = var->type;
+                block->instructs.push_back(instruct);
             }
-            MetaVariable* var = block->addVeriable(syntaxInstruct->varDef->name, syntaxInstruct->varDef);
-            VR(generateMetaVarDefStruct(block, var));
-            instruct->var = var;
-            instruct->retType = var->type;
-            block->instructs.push_back(instruct);
+            else
+            {
+                MetaVariable* var = block->addVeriable(syntaxInstruct->varDef->name, syntaxInstruct->varDef);
+                VR(generateMetaVarDefStruct(block, var));
+                instruct->var = var;
+                instruct->retType = var->type;
+                block->instructs.push_back(instruct);
+            }
         }
         break;
     case BLOCK:

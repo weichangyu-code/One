@@ -22,6 +22,7 @@ public:
     MetaClass*   getStringClass();
     MetaClass*   getObjectClass();
     MetaClass*   getArrayClass();
+    MetaClass*   getIterableClass();
     bool         isArray(const MetaType& type);
 
     list<MetaClass*>& getClasses();
@@ -32,6 +33,7 @@ protected:
     MetaClass* stringClass = nullptr;
     MetaClass* objectClass = nullptr;
     MetaClass* arrayClass = nullptr;
+    MetaClass* iterableClass = nullptr;
 
 //对象管理
 public:
@@ -57,7 +59,7 @@ public:
     MetaVarRef* searchVariable(MetaBoxBase* box, const string& name, bool onlyStatic);
 
     //是否支持自动转换
-    bool canAutoConvertType(MetaType& src, MetaType& dst);
+    bool canAutoConvertType(const MetaType& src, const MetaType& dst);
 
 protected:
     MetaFunc* searchMatchFunction(MetaClass* clazz, const string& name, list<MetaData>& params, int& matchValue, bool onlyStatic);

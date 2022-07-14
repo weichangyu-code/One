@@ -15,7 +15,7 @@ namespace One
         Object* obj = (Object*)malloc(size);
         return obj;
     }
-        
+
     void ObjectPool::freeObject(Object* obj)
     {
         CALL_DESTRUCT(obj, Object);

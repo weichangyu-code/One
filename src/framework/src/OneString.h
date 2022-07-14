@@ -7,6 +7,8 @@ namespace One
     {
     public:
         int length();
+        
+        static Reference<String> createString(unsigned int length);
 
     public:
         unsigned int _length = 0;

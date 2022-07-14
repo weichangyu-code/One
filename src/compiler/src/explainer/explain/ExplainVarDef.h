@@ -36,17 +36,17 @@ public:
         varDef->name = es[1].remark;
         varDef->exp = exp;
 
-        SyntaxInstruct* instruct = new SyntaxInstruct(context);
-        instruct->cmd = VARDEF;
-        instruct->varDef = varDef;
-        exp->instructs.push_back(instruct);
+        SyntaxInstruct* instructLeft = new SyntaxInstruct(context);
+        instructLeft->cmd = VARDEF;
+        instructLeft->varDef = varDef;
+        exp->instructs.push_back(instructLeft);
 
-        instruct = new SyntaxInstruct(context);
+        SyntaxInstruct* instruct = new SyntaxInstruct(context);
         instruct->cmd = ASSIGN;
-        instruct->params.push_back(varDef);
+        instruct->params.push_back(instructLeft);
         instruct->params.push_back(exp->ret);
         exp->instructs.push_back(instruct);
-        exp->ret.setVarDef(varDef);
+        exp->ret.setInstruct(instruct);
         
         out.ptr = varDef;
         return {};
@@ -68,27 +68,26 @@ public:
         varDef->type = type;
         varDef->exp = exp;
 
-        SyntaxInstruct* instruct = new SyntaxInstruct(context);
-        instruct->cmd = NEW;
-        instruct->type = varDef->type;
+        SyntaxInstruct* instructRight = new SyntaxInstruct(context);
+        instructRight->cmd = NEW;
+        instructRight->type = varDef->type;
         for (auto& expTmp : multiExp->items)
         {
-            instruct->params.push_back(expTmp->ret);
+            instructRight->params.push_back(expTmp->ret);
         }
+        exp->instructs.push_back(instructRight);
+
+        SyntaxInstruct* instructLeft = new SyntaxInstruct(context);
+        instructLeft->cmd = VARDEF;
+        instructLeft->varDef = varDef;
+        exp->instructs.push_back(instructLeft);
+
+        SyntaxInstruct* instruct = new SyntaxInstruct(context);
+        instruct->cmd = ASSIGN;
+        instruct->params.push_back(instructLeft);
+        instruct->params.push_back(instructRight);
         exp->instructs.push_back(instruct);
         exp->ret.setInstruct(instruct);
-
-        instruct = new SyntaxInstruct(context);
-        instruct->cmd = VARDEF;
-        instruct->varDef = varDef;
-        exp->instructs.push_back(instruct);
-
-        instruct = new SyntaxInstruct(context);
-        instruct->cmd = ASSIGN;
-        instruct->params.push_back(varDef);
-        instruct->params.push_back(exp->ret);
-        exp->instructs.push_back(instruct);
-        exp->ret.setVarDef(varDef);
         
         out.ptr = varDef;
         return {};
@@ -103,17 +102,17 @@ public:
         varDef->type = (SyntaxType*)es[0].ptr;
         varDef->exp = exp;
 
-        SyntaxInstruct* instruct = new SyntaxInstruct(context);
-        instruct->cmd = VARDEF;
-        instruct->varDef = varDef;
-        exp->instructs.push_back(instruct);
+        SyntaxInstruct* instructLeft = new SyntaxInstruct(context);
+        instructLeft->cmd = VARDEF;
+        instructLeft->varDef = varDef;
+        exp->instructs.push_back(instructLeft);
 
-        instruct = new SyntaxInstruct(context);
+        SyntaxInstruct* instruct = new SyntaxInstruct(context);
         instruct->cmd = ASSIGN;
-        instruct->params.push_back(varDef);
+        instruct->params.push_back(instructLeft);
         instruct->params.push_back(exp->ret);
         exp->instructs.push_back(instruct);
-        exp->ret.setVarDef(varDef);
+        exp->ret.setInstruct(instruct);
         
         out.ptr = varDef;
         return {};
@@ -133,24 +132,24 @@ public:
         varDef->type = arrType;
         varDef->exp = exp;
         
+        SyntaxInstruct* instructRight = new SyntaxInstruct(context);
+        instructRight->cmd = NEW_ARRAY;
+        instructRight->type = type;          //类型已经数组加1了
+        instructRight->params.push_back(exp->ret);
+        exp->instructs.push_back(instructRight);
+
+        //
+        SyntaxInstruct* instructLeft = new SyntaxInstruct(context);
+        instructLeft->cmd = VARDEF;
+        instructLeft->varDef = varDef;
+        exp->instructs.push_back(instructLeft);
+
         SyntaxInstruct* instruct = new SyntaxInstruct(context);
-        instruct->cmd = NEW_ARRAY;
-        instruct->type = type;          //类型已经数组加1了
-        instruct->params.push_back(exp->ret);
+        instruct->cmd = ASSIGN;
+        instruct->params.push_back(instructLeft);
+        instruct->params.push_back(instructRight);
         exp->instructs.push_back(instruct);
         exp->ret.setInstruct(instruct);
-
-        instruct = new SyntaxInstruct(context);
-        instruct->cmd = VARDEF;
-        instruct->varDef = varDef;
-        exp->instructs.push_back(instruct);
-
-        instruct = new SyntaxInstruct(context);
-        instruct->cmd = ASSIGN;
-        instruct->params.push_back(varDef);
-        instruct->params.push_back(exp->ret);
-        exp->instructs.push_back(instruct);
-        exp->ret.setVarDef(varDef);
         
         out.ptr = varDef;
         return {};
@@ -169,7 +168,7 @@ public:
         instruct->cmd = VARDEF;
         instruct->varDef = varDef;
         exp->instructs.push_back(instruct);
-        exp->ret.setVarDef(varDef);
+        exp->ret.setInstruct(instruct);
         
         out.ptr = varDef;
         return {};
@@ -198,7 +197,7 @@ public:
         instruct->cmd = VARDEF;
         instruct->varDef = varDef;
         exp->instructs.push_back(instruct);
-        exp->ret.setVarDef(varDef);
+        exp->ret.setInstruct(instruct);
 
         out.ptr = varDef;
         return {};

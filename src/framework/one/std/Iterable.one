@@ -1,0 +1,5 @@
+
+interface Iterable<T>
+{
+    virtual Iterator<T> iterator();
+}

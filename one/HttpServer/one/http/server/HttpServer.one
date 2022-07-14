@@ -2,13 +2,13 @@
 
 class HttpServer
 {
+    String _str = "hello member str";
     void main()
     {
         String str = "hello HttpServer";
         System.co(() {
-
-            
             Out.println(str);
+            Out.println(_str);
 
             if (str != null)
             {
@@ -34,6 +34,21 @@ class HttpServer
                 Out.println("do while");
                 continue;
             } while (0)
+
+            for (int i = 0;i < 2;i++)
+            {
+                Out.println("for");
+            }
+            for (auto i : [0, 2])
+            {
+                Out.println("for range");
+            }
+            int[] arr = new int[2];
+            for (auto i : arr)
+            {
+                Out.println("for each");
+            }
         });
+        System.yield();
     }
 }

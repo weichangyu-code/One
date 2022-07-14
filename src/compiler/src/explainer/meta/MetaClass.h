@@ -22,6 +22,7 @@ public:
     bool isBaseOf(MetaClass* parent);
     MetaClass* getParentClass();
     MetaClass* getParentClass(const string& name);
+    MetaClass* getParentTamplateClass(MetaClass* clazz);
 
     MetaVariable*   createVeriable(const string& name, SyntaxBase* syntaxObj);
     MetaFunc*       createFunction(const string& name, SyntaxBase* syntaxObj);

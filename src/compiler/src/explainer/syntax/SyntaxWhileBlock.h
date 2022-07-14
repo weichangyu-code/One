@@ -14,7 +14,12 @@ public:
     }
 
 public:
-    bool dowhile = false;
+    enum
+    {
+        WHILE,
+        DOWHILE,
+    };
+    int type = WHILE;
     SyntaxExp* exp = nullptr;
     SyntaxBlock* block = nullptr;
 };

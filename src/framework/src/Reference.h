@@ -150,7 +150,7 @@ namespace One
             set(r, true);
             return *this;
         }
-        Reference<T>& operator = (const T* r)
+        Reference<T>& operator = (T* r)
         {
             set(r, false, true);
             return *this;

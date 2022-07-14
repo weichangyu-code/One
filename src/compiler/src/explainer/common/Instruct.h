@@ -72,6 +72,9 @@ enum INSTRUCT
     WHILE,
     DO,
     DOWHILE,
+    FOR,
+    FOR_RANGE,
+    FOR_EACH,
 
     // MUL_ASSIGN,
     // DIV_ASSIGN,

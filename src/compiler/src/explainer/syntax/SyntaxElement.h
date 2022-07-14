@@ -6,6 +6,7 @@ class SyntaxBlock;
 class SyntaxClass;
 class SyntaxIfBlock;
 class SyntaxWhileBlock;
+class SyntaxForBlock;
 class SyntaxElement : public SyntaxBase
 {
 public:
@@ -31,6 +32,7 @@ public:
         SyntaxBlock* block;
         SyntaxIfBlock* ifBlock;
         SyntaxWhileBlock* whileBlock;
+        SyntaxForBlock* forBlock;
     };
     
 };
