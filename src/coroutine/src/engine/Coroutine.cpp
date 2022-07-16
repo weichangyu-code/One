@@ -18,6 +18,7 @@ namespace OneCoroutine
     
     Coroutine::Coroutine(Engine* engine)
         :wakeupTimer(engine->timerManager)
+        ,joinCond(engine), sleepCond(engine)
     {
         this->engine = engine;
 

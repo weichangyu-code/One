@@ -7,15 +7,18 @@
 #include "../socket/epoll/Epoll.h"
 #include "../socket/iocp/Iocp.h"
 
+//寄存器行不通，其他库可能为用到这个寄存器
+//#define DEFINE_CUR_ENGINE() register Engine* curEngine asm ("r15")
+
 namespace OneCoroutine
 {
     thread_local Engine* curEngine;
 
     Engine::Engine()
     {
-        one_coctx_init(&mainCoctx);
-
         curEngine = this;
+
+        one_coctx_init(&mainCoctx);
 
         timerManager = new TimerManager(this);
 
@@ -56,7 +59,9 @@ namespace OneCoroutine
         
     void Engine::run()
     {
-        curEngine = this;
+        //Engine的构造和run必须在同一个线程
+        assert(curEngine == this);
+
         while (lifeList.empty() == false)
         {
             scheduleOnMain();
