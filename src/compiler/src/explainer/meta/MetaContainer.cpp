@@ -85,6 +85,15 @@ MetaClass* MetaContainer::getObjectClass()
     }
     return objectClass;
 }
+    
+MetaClass* MetaContainer::getInterfaceClass()
+{
+    if (interfaceClass == nullptr)
+    {
+        interfaceClass = getClass(KEY_ONE_INTERFACE_CLASS);
+    }
+    return interfaceClass;
+}
 
 MetaClass* MetaContainer::getArrayClass()
 {

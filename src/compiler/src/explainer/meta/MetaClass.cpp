@@ -352,6 +352,11 @@ Result MetaClass::verifyAndRepair()
                 return R_FAILED;
             }
         }
+        if (parents.empty() && metaContainer->getInterfaceClass() != this)
+        {
+            //确保接口从Interface继承
+            parents.push_front(metaContainer->getInterfaceClass());
+        }
 
         if (innerClasses.empty() == false)
         {
@@ -395,7 +400,7 @@ Result MetaClass::verifyAndRepair()
         {
             //如果没有实体父类，默认从Object继承
             super_->type.setClass(metaContainer->getObjectClass());
-            parents.push_back(metaContainer->getObjectClass());
+            parents.push_front(metaContainer->getObjectClass());
         }
 
         // 看有没有构造函数和析构函数，不然补充一个空的
@@ -432,6 +437,14 @@ Result MetaClass::verifyAndRepair()
             func->isVirtual = true;
         }
     }
+
+    if (this == metaContainer->getObjectClass() || this == metaContainer->getInterfaceClass())
+    {
+        //添加隐藏的销毁函数
+        MetaFunc* func = addFunction("~", ((SyntaxClass*)syntaxObj)->createFunc("~", FUNC_DESTROY));
+        func->isHidden = true;
+    }
+
     return {};
 }
     

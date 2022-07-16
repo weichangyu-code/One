@@ -15,13 +15,6 @@ namespace One
 
         }
 
-        static Reference<Array<T>> createArray(unsigned int length)
-        {
-            Array<T>* arr = g_objectPool.createObjectT<Array<T>>(sizeof(Array<T>) + length * sizeof(Array<T>::_data));
-            arr->_length = length;
-            return Reference<Array<T>>(arr, false, false);
-        }
-
         typename TemplateType<T>::VarType& operator [] (int index)
         {
             if (index < 0 || index >= _length)
@@ -41,6 +34,18 @@ namespace One
         }
 
         virtual Reference<Iterator<T>> iterator();
+
+    public:
+        virtual void __destruct__()
+        {
+            _length = 0;
+        }
+        static Reference<Array<T>> createArray(unsigned int length)
+        {
+            Array<T>* arr = g_objectPool.createObjectT<Array<T>>(sizeof(Array<T>) + length * sizeof(Array<T>::_data));
+            arr->_length = length;
+            return Reference<Array<T>>(arr, false, false);
+        }
 
     public:
         unsigned int _length = 0;

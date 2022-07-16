@@ -10,6 +10,7 @@
 
 #define KEY_ONE_STD     "one.std"
 #define KEY_ONE_OBJECT_CLASS KEY_ONE_STD ".Object"
+#define KEY_ONE_INTERFACE_CLASS KEY_ONE_STD ".Interface"
 #define KEY_ONE_STRING_CLASS KEY_ONE_STD ".String"
 #define KEY_ONE_ARRAY_CLASS  KEY_ONE_STD ".Array"
 #define KEY_ONE_ITERABLE_CLASS  KEY_ONE_STD ".Iterable"
@@ -20,5 +21,6 @@
 #define KEY_CONSTRUCT_FUNC          "__construct__"
 #define KEY_CREATE_OBJECT_FUNC      "__createObject__"
 #define KEY_CLEAR_VAR_FUNC          "__clearVar__"
+#define KEY_DESTROY_FUNC            "__destroy__"
 
 #define KEY_TAB         "    "

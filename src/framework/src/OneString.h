@@ -8,6 +8,10 @@ namespace One
     public:
         int length();
         
+    //内部接口
+    public:
+        virtual void __destruct__();
+        void setData(const char* str);
         static Reference<String> createString(unsigned int length);
 
     public:

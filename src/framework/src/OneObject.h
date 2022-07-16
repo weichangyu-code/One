@@ -33,6 +33,6 @@ namespace One
     };
 } // namespace One
 
-#include "Interface.h"
+#include "OneInterface.h"
 #include "Reference.h"
 #include "TemplateType.h"

@@ -21,6 +21,7 @@ public:
     MetaClass*   getClass(const string& path);
     MetaClass*   getStringClass();
     MetaClass*   getObjectClass();
+    MetaClass*   getInterfaceClass();
     MetaClass*   getArrayClass();
     MetaClass*   getIterableClass();
     bool         isArray(const MetaType& type);
@@ -32,6 +33,7 @@ protected:
     list<MetaClass*> classes;
     MetaClass* stringClass = nullptr;
     MetaClass* objectClass = nullptr;
+    MetaClass* interfaceClass = nullptr;
     MetaClass* arrayClass = nullptr;
     MetaClass* iterableClass = nullptr;
 

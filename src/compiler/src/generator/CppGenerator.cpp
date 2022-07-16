@@ -282,6 +282,10 @@ void CppGenerator::generateCppInfoFunc(const string& path, const string& namePre
     {
         cppFunc->cppName = KEY_DESTRUCT_FUNC;
     }
+    else if (metaFunc->funcType == FUNC_DESTROY)
+    {
+        cppFunc->cppName = KEY_DESTROY_FUNC;
+    }
     else
     {
         cppFunc->cppName = metaFunc->name;
@@ -584,10 +588,6 @@ Result CppGenerator::generateInterface(const string& root, MetaClass* metaClass)
             h << "public " << CppClass::getCppClass(parent)->cppName;
         }
     }
-    else
-    {
-        h << " : public Interface";
-    }
     h << endl;
     h << "{" << endl;
     h << "public:" << endl;
@@ -605,15 +605,15 @@ Result CppGenerator::generateInterface(const string& root, MetaClass* metaClass)
             h << CppClass::getCppClass(parent)->cppName << "(obj)";
         }
     }
-    else
-    {
-        h << "Interface(obj)";
-    }
     h << " {}" << endl;
 
     //方法
     for (auto& metaFunc : metaClass->funcs)
     {
+        if (metaFunc->isHidden)
+        {
+            continue;
+        }
         VR(generateFuncDeclare(h, metaFunc));
     }
 
@@ -823,6 +823,10 @@ Result CppGenerator::generateClass(const string& root, MetaClass* metaClass)
     //方法
     for (auto& metaFunc : metaClass->funcs)
     {
+        if (metaFunc->isHidden)
+        {
+            continue;
+        }
         VR(generateFuncDeclare(h, metaFunc));
     }
 
@@ -871,6 +875,10 @@ Result CppGenerator::generateClass(const string& root, MetaClass* metaClass)
         VR(generateFuncImpl(cpp, "", metaClass->staticVarInitFunc, true));
         for (auto& metaFunc : metaClass->funcs)
         {
+            if (metaFunc->isHidden)
+            {
+                continue;
+            }
             VR(generateFuncImpl(cpp, "", metaFunc, true));
         }
 

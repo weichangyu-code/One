@@ -2,6 +2,8 @@
 #include "ExplainBase.h"
 #include "../syntax/SyntaxFunc.h"
 #include "../syntax/SyntaxMulti.h"
+#include "../syntax/SyntaxVar.h"
+#include "../syntax/SyntaxType.h"
 
 class ExplainFunc : public ExplainBase
 {
@@ -27,6 +29,7 @@ public:
 
         registe("callfuncparam", "null", (MyRuleExecuteFunction)&onExplainCallFuncParamNull);
         registe("callfuncparam", "", (MyRuleExecuteFunction)&onExplainCallFuncParam);
+        registe("callfunc", "destruct", (MyRuleExecuteFunction)&onExplainCallFuncDestruct);
         registe("callfunc", "", (MyRuleExecuteFunction)&onExplainCallFunc);
 
         registe("return", "", (MyRuleExecuteFunction)&onExplainReturn);
@@ -188,6 +191,25 @@ public:
         SyntaxMulti<SyntaxExp*>* multiExp = (SyntaxMulti<SyntaxExp*>*)es[1].ptr;
         
         out.ptr = multiExp;
+        return {};
+    }
+
+    Result onExplainCallFuncDestruct(Rule* rule, vector<LexElement>& es, LexElement& out)
+    {
+        SyntaxVar* var = (SyntaxVar*)es[0].ptr;
+        
+        SyntaxTypePathItem* item = new SyntaxTypePathItem(context);
+        item->typeName = "~";
+        var->items.push_back(item);
+        
+        SyntaxExp* exp = new SyntaxExp(context);
+
+        SyntaxInstruct* instruct = new SyntaxInstruct(context);
+        instruct->cmd = CALL;
+        instruct->func = var;
+        exp->instructs.push_back(instruct);
+
+        out.ptr = exp;
         return {};
     }
 

@@ -21,6 +21,11 @@
             "cppClass":"Object"
         },
         {
+            "oneClass":"one.std.Interface",
+            "hPath":"framework/OneInterface.h",
+            "cppClass":"Interface"
+        },
+        {
             "oneClass":"one.std.String",
             "hPath":"framework/OneString.h",
             "cppClass":"String"

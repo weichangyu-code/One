@@ -20,7 +20,7 @@ namespace One
     void StringPool::addString(int index, const char* str)
     {
         String* obj = String::createString(strlen(str)).detach();
-        memcpy(obj->_c, str, obj->_length);
+        obj->setData(str);
         pool[index] = obj;
     }
 

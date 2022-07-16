@@ -7,4 +7,5 @@ enum FUNC_TYPE
     FUNC_STATIC_INIT,//静态初始化
     FUNC_CONSTRUCT,  //构造
     FUNC_DESTRUCT,   //析构
+    FUNC_DESTROY,    //销毁函数
 };

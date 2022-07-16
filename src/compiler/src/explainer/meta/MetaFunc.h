@@ -26,6 +26,7 @@ public:
     string name;
     bool isStatic = false;
     bool isVirtual = false;
+    bool isHidden = false;             //隐藏函数
 
     list<MetaVariable*> params;
     MetaType return_;

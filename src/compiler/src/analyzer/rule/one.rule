@@ -129,6 +129,7 @@ operatordef(virtual)=operatordefheader sentenceend
 #函数调用
 callfuncparam(null)=()
 callfuncparam=( multiexp )
+callfunc(destruct)=var.~()
 callfunc=var callfuncparam
 
 #符号路径，可以作为变量、函数、类型用
