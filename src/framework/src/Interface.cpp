@@ -5,7 +5,7 @@ namespace One
 {
     Interface::Interface(Object* obj)
     {
-        this->_obj = obj;
+        this->__obj__ = obj;
     }
     
     Interface::~Interface()
@@ -13,13 +13,13 @@ namespace One
         
     }
 
-    void Interface::acquireObj(bool inner)
+    void Interface::__acquireObj__(bool inner)
     {
-        _obj->acquire(inner);
+        __obj__->__acquire__(inner);
     }
         
-    void Interface::releaseObj(bool inner)
+    void Interface::__releaseObj__(bool inner)
     {
-        _obj->release(inner);
+        __obj__->__release__(inner);
     }
 } // namespace One

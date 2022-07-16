@@ -3,37 +3,60 @@
 
 namespace One
 {
-    void Object::acquire(bool inner)
+    void Object::__acquire__(bool inner)
     {
+        if (this == nullptr)
+        {
+            return;
+        }
+
         if (inner)
         {
-            innerRefNum++;
+            __innerRefNum__++;
         }
         else
         {
-            refNum++;
+            __refNum__++;
         }
     }
 
-    void Object::release(bool inner)
+    void Object::__release__(bool inner)
     {
+        if (this == nullptr)
+        {
+            return;
+        }
+
         if (inner)
         {
-            innerRefNum--;
-            if (innerRefNum == 0)
+            if (--__innerRefNum__ == 0)
             {
                 g_objectPool.freeObject(this);
             }
         }
         else
         {
-            refNum--;
-            if (refNum == 0)
+            if (--__refNum__ == 0)
             {
                 // 外部引用已结束，假析构
-                __destruct__();
-                release(true);
+                __destroy__();
+                __release__(true);
             }
         }
-    } 
+    }
+
+    void Object::__destroy__()
+    {
+        if (this == nullptr)
+        {
+            return;
+        }
+
+        if (!(__flag__ & FLAG_DESTRUCT))
+        {
+            __flag__ |= FLAG_DESTRUCT;
+            __destruct__();
+        }
+    }
+
 } // namespace One

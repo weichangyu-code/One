@@ -17,14 +17,19 @@ namespace One
         virtual void __destruct__(){}    //假析构
 
     public:
-        void acquire(bool inner);
-        void release(bool inner);
+        void __acquire__(bool inner);
+        void __release__(bool inner);
+        void __destroy__();              //强制析构
 
-    public:
-        RunClass* runClass = nullptr;
-        int flag = 0;         //存放一些标志位
-        int refNum = 1;
-        int innerRefNum = 1;
+    protected:
+        RunClass* __runClass__ = nullptr;
+        enum
+        {
+            FLAG_DESTRUCT = 0x1
+        };
+        int __flag__ = 0;         //存放一些标志位
+        int __refNum__ = 1;
+        int __innerRefNum__ = 1;
     };
 } // namespace One
 

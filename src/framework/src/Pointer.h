@@ -127,13 +127,13 @@ namespace One
             if (std::is_base_of<Object, T>::value)
             {
                 Object* obj = (Object*)(void*)getObject();
-                obj->acquire(isInner());
+                obj->__acquire__(isInner());
             }
             else
             {
                 //规避多重继承的歧义问题
                 Interface* i = (Interface*)(void*)getObject();
-                i->acquireObj(isInner());
+                i->__acquireObj__(isInner());
             }
         }
         
@@ -142,13 +142,13 @@ namespace One
             if (std::is_base_of<Object, T>::value)
             {
                 Object* obj = (Object*)(void*)getObject();
-                obj->release(isInner());
+                obj->__release__(isInner());
             }
             else
             {
                 //规避多重继承的歧义问题
                 Interface* i = (Interface*)(void*)getObject();
-                i->releaseObj(isInner());
+                i->__releaseObj__(isInner());
             }
         }
         

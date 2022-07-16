@@ -10,11 +10,11 @@ namespace One
         virtual ~Interface();
 
     public:
-        void acquireObj(bool inner);
-        void releaseObj(bool inner);
+        void __acquireObj__(bool inner);
+        void __releaseObj__(bool inner);
 
     protected:
-        Object* _obj;
+        Object* __obj__;
     };
 } // namespace One
 
