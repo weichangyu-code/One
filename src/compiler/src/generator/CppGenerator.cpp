@@ -191,7 +191,7 @@ Result CppGenerator::generateCMakeList(const string& root, const string& exeName
 
     f << "cmake_minimum_required(VERSION 3.0.0)" << endl;
     f << "project(" << exeName << " VERSION 0.1.0)" << endl;
-    f << "add_definitions(-std=c++11)" << endl;
+    f << "add_definitions(-std=c++11 -ffixed-r15)" << endl;
 
     //f << "include_directories(./ " << FileUtils::appendFileName(depend, "framework/src") << " " << FileUtils::appendFileName(depend, "coroutine/src") << ")" << endl;
     f << "include_directories(./)" << endl;

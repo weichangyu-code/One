@@ -22,8 +22,11 @@ namespace OneCoroutine
         typedef AutoPtr<Coroutine> Ptr;
 
     public:
-        static Coroutine* getCurCoroutine();
-        Engine* getEngine();
+        //static Coroutine* getCurCoroutine();
+        inline Engine* getEngine()
+        {
+            return engine;
+        }
 
         void setRunner(const CoroutineRunner& runner);
 

@@ -19,7 +19,7 @@ namespace OneCoroutine
     {
         if (timeout > 0)
         {
-            Coroutine* co = engine->getCurCoroutine();
+            Coroutine* co = engine->getMyCurCoroutine();
 
             //不能在主线程等待，不然会崩溃。co=nullptr
             if (timeout != UINT_MAX)

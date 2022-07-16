@@ -1,12 +1,16 @@
 ﻿#pragma once
 #include "../coctx/coctx.h"
 #include "List.h"
-#include "Coroutine.h"
 #include "TimerManager.h"
 #include <functional>
+#include "Coroutine.h"
 
 namespace OneCoroutine
 {
+    //使用r15保持curEngine，编译的时候通过-ffixed-r15，禁用r15
+    class Engine;
+    register Engine* curEngine asm ("r15");
+
     class Iocp;
     class Epoll;
     class CoCondition;
@@ -20,8 +24,18 @@ namespace OneCoroutine
         ~Engine();
 
         //获取当前线程下的引擎
-        static Engine* getCurEngine();
-        Coroutine* getCurCoroutine();
+        inline static Engine* getCurEngine()
+        {
+            return curEngine;
+        }
+        inline static Coroutine* getCurCoroutine()
+        {
+            return curEngine->curCo;
+        }
+        inline Coroutine* getMyCurCoroutine()
+        {
+            return curCo;
+        }
 
         //创建协程
         Coroutine::Ptr createCoroutine(const CoroutineRunner& runner);

@@ -5,7 +5,7 @@ namespace OneCoroutine
 {
     void CoSystem::sleep(unsigned int msec)
     {
-        Coroutine::getCurCoroutine()->sleep(msec);
+        Engine::getCurCoroutine()->sleep(msec);
     }
     
     void CoSystem::yield()

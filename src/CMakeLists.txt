@@ -1,4 +1,4 @@
-add_definitions(-std=c++11)
+add_definitions(-std=c++11 -ffixed-r15)
 
 add_subdirectory(./common)
 add_subdirectory(./compiler)

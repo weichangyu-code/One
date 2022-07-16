@@ -7,12 +7,9 @@
 #include "../socket/epoll/Epoll.h"
 #include "../socket/iocp/Iocp.h"
 
-//寄存器行不通，其他库可能为用到这个寄存器
-//#define DEFINE_CUR_ENGINE() register Engine* curEngine asm ("r15")
-
 namespace OneCoroutine
 {
-    thread_local Engine* curEngine;
+    //thread_local Engine* curEngine;
 
     Engine::Engine()
     {
@@ -42,15 +39,15 @@ namespace OneCoroutine
 #endif
     }
     
-    Engine* Engine::getCurEngine()
-    {
-        return curEngine;
-    }
+    // Engine* Engine::getCurEngine()
+    // {
+    //     return curEngine;
+    // }
 
-    Coroutine* Engine::getCurCoroutine()
-    {
-        return curCo;
-    }
+    // Coroutine* Engine::getCurCoroutine()
+    // {
+    //     return curCo;
+    // }
         
     void Engine::yield()
     {

@@ -35,10 +35,10 @@ namespace OneCoroutine
         //VirtualFree(costack, COSTACK_SIZE, MEM_RELEASE);
     }
         
-    Coroutine* Coroutine::getCurCoroutine()
-    {
-        return Engine::getCurEngine()->getCurCoroutine();
-    }
+    // Coroutine* Coroutine::getCurCoroutine()
+    // {
+    //     return Engine::getCurEngine()->getCurCoroutine();
+    // }
 
     void Coroutine::run(void* data)
     {
@@ -83,7 +83,7 @@ namespace OneCoroutine
         {
             return;
         }
-        if (getCurCoroutine() == this)
+        if (engine->getMyCurCoroutine() == this)
         {
             //不能自己等自己
             return;
@@ -108,10 +108,10 @@ namespace OneCoroutine
         engine->yield();
     }
         
-    Engine* Coroutine::getEngine()
-    {
-        return engine;
-    }
+    // Engine* Coroutine::getEngine()
+    // {
+    //     return engine;
+    // }
         
     char* Coroutine::getStack()
     {

@@ -14,7 +14,7 @@ one_coctx_swap:
     movq %r12, 96(%rcx)
     movq %r13, 104(%rcx)
     movq %r14, 112(%rcx)
-    movq %r15, 120(%rcx)
+    //movq %r15, 120(%rcx)
 
     movq (%rdx), %rax
     movq 8(%rdx), %rbx
@@ -29,7 +29,7 @@ one_coctx_swap:
     movq 96(%rdx), %r12
     movq 104(%rdx), %r13
     movq 112(%rdx), %r14
-    movq 120(%rdx), %r15
+    //movq 120(%rdx), %r15
     
     movq 16(%rdx), %rcx
     movq 24(%rdx), %rdx
