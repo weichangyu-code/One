@@ -8,25 +8,25 @@ namespace One
     
     StringPool::StringPool()
     {
-        pool = nullptr;
-    }
-
-    void StringPool::reserve(unsigned int size)
-    {
-        pool = new String*[size + 1];
-        memset(pool, 0, (size + 1) * sizeof(String*));
     }
         
-    void StringPool::addString(int index, const char* str)
+    void StringPool::setStringArray(const char** stringArray, unsigned int size)
     {
-        String* obj = String::createString(strlen(str)).detach();
-        obj->setData(str);
-        pool[index] = obj;
+        this->_stringArray = stringArray;
+        this->_pool = new String*[size + 1];
+        memset(this->_pool, 0, (size + 1) * sizeof(String*));
     }
 
     Reference<String> StringPool::getString(int index)
     {
-        return Reference<String>(pool[index], false, true);
+        String*& string = _pool[index];
+        if (string == nullptr)
+        {
+            const char* str = _stringArray[index];
+            string = String::createString(strlen(str)).detach();
+            string->setData(str);
+        }
+        return Reference<String>(string, false, true);
     }
 
 } // namespace One

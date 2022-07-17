@@ -113,17 +113,30 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
         }
     }
     cpp << "#include \"" << "engine/Engine.h" << "\"" << endl;
+    cpp << endl;
+
+    //插入字符串
+    vector<string> stringArray;
+    stringArray.resize(stringMap.size());
+    for (auto& pair : stringMap)
+    {
+        stringArray[pair.second] = pair.first;
+    }
+    cpp << "const char* stringArray[] = " << endl;
+    cpp << "{" << endl;
+    for (auto& str : stringArray)
+    {
+        cpp << KEY_TAB << "\"" << str << "\"," << endl;
+    }
+    cpp << KEY_TAB << "\"\"" << endl;
+    cpp << "};" << endl;
+    cpp << endl;
 
     cpp << endl;
     cpp << "int main()" << endl;
     cpp << "{" << endl;
 
-    //插入字符串
-    cpp << "    One::g_stringPool.reserve(" << stringMap.size() << ");" << endl;
-    for (auto& pair : stringMap)
-    {
-        cpp << "    One::g_stringPool.addString(" << pair.second << ", \"" << pair.first << "\");" << endl;
-    }
+    cpp << "    One::g_stringPool.setStringArray(stringArray, sizeof(stringArray)/sizeof(char*));" << endl;
     cpp << endl;
 
     cpp << "    int ret = 0;" << endl;

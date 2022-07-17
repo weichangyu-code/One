@@ -8,12 +8,12 @@ namespace One
     public:
         StringPool();
 
-        void reserve(unsigned int size);
-        void addString(int index, const char* str);
+        void setStringArray(const char** stringArray, unsigned int size);
         Reference<String> getString(int index);
 
     protected:
-        String** pool;
+        const char** _stringArray = nullptr;
+        String** _pool = nullptr;
     };
 
     extern StringPool g_stringPool;
