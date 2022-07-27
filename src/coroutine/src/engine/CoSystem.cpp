@@ -13,7 +13,7 @@ namespace OneCoroutine
         Engine::getCurEngine()->yield();
     }
     
-    void CoSystem::executeOnMain(const AsyncFunction& func)
+    void CoSystem::executeOnMain(const SimpleFunction& func)
     {
         Engine::getCurEngine()->executeOnMain(func);
     }

@@ -45,7 +45,12 @@
         "typeinfo": "cpp",
         "cstring": "cpp",
         "ctime": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "condition_variable": "cpp",
+        "thread": "cpp",
+        "chrono": "cpp",
+        "ratio": "cpp",
+        "mutex": "cpp"
     },
     "cmake.debugConfig": {
         "args": ["./one/HttpServer"],

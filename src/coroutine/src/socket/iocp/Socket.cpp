@@ -9,7 +9,7 @@ namespace OneCoroutine
 {
     void Socket::onEvent(OperateOverlapped* oo)
     {
-        if (oo->type == OperateOverlapped::TYPE_ACCEPT)
+        if (oo->type == OperateOverlapped::TYPE_SOCKET_ACCEPT)
         {
             if (oo->error != 0)
             {
@@ -18,7 +18,7 @@ namespace OneCoroutine
             oo->cb(oo);
             delete oo->buffer;
         }
-        else if (oo->type == OperateOverlapped::TYPE_CONNECT)
+        else if (oo->type == OperateOverlapped::TYPE_SOCKET_CONNECT)
         {
             if (oo->error != 0)
             {
@@ -26,7 +26,7 @@ namespace OneCoroutine
             }
             oo->cb(oo);
         }
-        else if (oo->type == OperateOverlapped::TYPE_RECV)
+        else if (oo->type == OperateOverlapped::TYPE_SOCKET_RECV)
         {
             if (oo->error == 0 && oo->trans == 0)
             {
@@ -108,7 +108,7 @@ namespace OneCoroutine
         iocp->registerEvent(this);
         
         OperateOverlapped* oo = iocp->mallocFromPool();
-        oo->type = OperateOverlapped::TYPE_CONNECT;
+        oo->type = OperateOverlapped::TYPE_SOCKET_CONNECT;
         oo->socket = this;
         oo->cb = cb;
         *ooOut = oo;
@@ -159,7 +159,7 @@ namespace OneCoroutine
         iocp->registerEvent(this);
 
         OperateOverlapped* oo = iocp->mallocFromPool();
-        oo->type = OperateOverlapped::TYPE_ACCEPT;
+        oo->type = OperateOverlapped::TYPE_SOCKET_ACCEPT;
         oo->socket = this;
         oo->cb = cb;
         oo->buffer = new char[128];
@@ -207,7 +207,7 @@ namespace OneCoroutine
         wsaBuf.len = len;
 
         OperateOverlapped* oo = iocp->mallocFromPool();
-        oo->type = OperateOverlapped::TYPE_SEND;
+        oo->type = OperateOverlapped::TYPE_SOCKET_SEND;
         oo->socket = this;
         oo->cb = cb;
         *ooOut = oo;
@@ -242,7 +242,7 @@ namespace OneCoroutine
         wsaBuf.len = len;
 
         OperateOverlapped* oo = iocp->mallocFromPool();
-        oo->type = OperateOverlapped::TYPE_RECV;
+        oo->type = OperateOverlapped::TYPE_SOCKET_RECV;
         oo->socket = this;
         oo->cb = cb;
         *ooOut = oo;

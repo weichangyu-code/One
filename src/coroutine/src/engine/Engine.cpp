@@ -6,10 +6,14 @@
 #include "SystemUtils.h"
 #include "../socket/epoll/Epoll.h"
 #include "../socket/iocp/Iocp.h"
+#include "../socket/iocp/OperateOverlapped.h"
+#include "../multithread/ThreadPool.h"
 
 namespace OneCoroutine
 {
     //thread_local Engine* curEngine;
+    ThreadPool g_threadPool;
+
 
     Engine::Engine()
     {
@@ -63,11 +67,14 @@ namespace OneCoroutine
         {
             scheduleOnMain();
 
+            //异步消息处理
+            asyncQueue.run();
+
             //没调度程序，休眠1ms
 #ifdef _WIN32
-            iocp->wait(scheduleList.empty() ? 10 : 0);
+            iocp->wait(scheduleList.empty() ? 1 : 0);
 #else
-            epoll->wait(scheduleList.empty() ? 10 : 0);
+            epoll->wait(scheduleList.empty() ? 1 : 0);
 #endif
 
             //定时器在主线程跑的，不能在定时器回调里面切换协程
@@ -86,6 +93,9 @@ namespace OneCoroutine
         lifeList.pop(&co->lifeNode);
         co->release();
 
+        //co->release()，必须放在scheduleOnCoNoRun的前面。
+        //scheduleOnCoNoRun切到另一个协程
+        //co->release()不会立刻释放，co->coctx还会保留协程信息
         scheduleOnCoNoRun();
     }
         
@@ -104,6 +114,7 @@ namespace OneCoroutine
 
     bool Engine::onCoConditionActive(CoCondition* cond, bool all)
     {
+        assert(false);
         if (all)
         {
             bool ret = cond->waitCos.empty() == false;
@@ -132,6 +143,25 @@ namespace OneCoroutine
         }
         return false;
     }
+        
+    void Engine::onCoCancel(Coroutine* co)
+    {
+        //只有还未开始执行的协程，可以取消
+        if (co->state == Coroutine::READY)
+        {
+            //协程取消，不执行
+            co->state = Coroutine::IDLE;
+
+            //移到删除队列
+            lifeList.pop(&co->lifeNode);
+
+            //
+            co->scheduleNode.pop();
+            
+            //
+            co->release();
+        }
+    }
 
     Coroutine::Ptr Engine::createCoroutine(const CoroutineRunner& runner)
     {
@@ -139,7 +169,7 @@ namespace OneCoroutine
         co->setRunner(runner);
 
         lifeList.pushTail(&co->lifeNode);
-        pushToSchedule(co, 0);
+        pushToSchedule(co, true, 0);
 
         return co;
     }
@@ -153,7 +183,7 @@ namespace OneCoroutine
         }
         
         register coctx_t* from = &curCo->coctx;
-        pushToSchedule(curCo, 0);
+        pushToSchedule(curCo, false, 0);
 
         //取出下一个要执行的协程
         curCo = popFromSchedule(Coroutine::RUN);
@@ -193,7 +223,7 @@ namespace OneCoroutine
             register coctx_t* from = &curCo->coctx;
             if (curCo->state == Coroutine::RUN)
             {
-                pushToSchedule(curCo, 0);
+                pushToSchedule(curCo, false, 0);
             }
             curCo = nullptr;
 
@@ -236,10 +266,10 @@ namespace OneCoroutine
         }
 
         co->scheduleNode.pop();
-        pushToSchedule(co, param);
+        pushToSchedule(co, false, param);
     }
         
-    void Engine::executeOnMain(const AsyncFunction& func)
+    void Engine::executeOnMain(const SimpleFunction& func)
     {
         if (curCo)
         {
@@ -252,16 +282,30 @@ namespace OneCoroutine
         }
     }
         
+    void Engine::executeOnPool(const SimpleFunction& func)
+    {
+        CoCondition cond(this);
+
+        //参数控制在16个字节
+        g_threadPool.execute([&func, &cond]() {
+            func();
+            cond.getEngine()->asyncQueue.push([&cond]() {
+                cond.active();
+            });
+        });
+        cond.wait();
+    }
+        
     void Engine::pushToScheduleFront(Coroutine* co)
     {
-        co->state = Coroutine::READY;
+        co->state = Coroutine::BACK;
         scheduleList.pushHead(&co->scheduleNode);
     }
 
-    void Engine::pushToSchedule(Coroutine* co, int param)
+    void Engine::pushToSchedule(Coroutine* co, bool first, int param)
     {
         co->scheduleParam = param;
-        co->state = Coroutine::READY;
+        co->state = first ? Coroutine::READY : Coroutine::BACK;
         scheduleList.pushTail(&co->scheduleNode);
     }
 

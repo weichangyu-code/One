@@ -1,5 +1,6 @@
 ﻿#pragma once 
 #include "Timer.h"
+#include "Coroutine.h"
 
 namespace OneCoroutine
 {
@@ -17,6 +18,8 @@ namespace OneCoroutine
         Engine* getEngine();
 
     protected:
-        Timer timer;
+        Timer _timer;
+        TimerCB _cb;
+        Coroutine::Ptr _coroutine;
     };
 } // namespace One

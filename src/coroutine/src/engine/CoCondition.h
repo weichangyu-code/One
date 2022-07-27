@@ -18,6 +18,8 @@ namespace OneCoroutine
 
         bool haveWaiter();
 
+        Engine* getEngine();
+
     protected:
         Engine* engine;
         ListHead waitCos;           //等待这个时间的协程

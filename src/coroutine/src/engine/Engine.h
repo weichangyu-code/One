@@ -4,6 +4,7 @@
 #include "TimerManager.h"
 #include <functional>
 #include "Coroutine.h"
+#include "../multithread/AsyncQueue.h"
 
 namespace OneCoroutine
 {
@@ -45,13 +46,19 @@ namespace OneCoroutine
 
         //
         void yield();
-        void executeOnMain(const AsyncFunction& func);
+
+        //切到主线程执行，和协程在同一个线程里
+        void executeOnMain(const SimpleFunction& func);
+
+        //切到线程池执行，跨线程，要注意数据包含，不要涉及可变数据
+        void executeOnPool(const SimpleFunction& func);
 
     protected:
         void onCoRunExit(Coroutine* co);
         void onCoDestruct(Coroutine* co);
         void onCoConditionWait(CoCondition* cond);
         bool onCoConditionActive(CoCondition* cond, bool all);
+        void onCoCancel(Coroutine* co);
 
         void scheduleOnCoRun();
         void scheduleOnCoNoRun();
@@ -61,7 +68,7 @@ namespace OneCoroutine
         void wakeup(Coroutine* co, int param);
 
         void pushToScheduleFront(Coroutine* co);
-        void pushToSchedule(Coroutine* co, int param);
+        void pushToSchedule(Coroutine* co, bool first, int param);
         Coroutine* popFromSchedule(int state);
 
         void freeToPool(Coroutine* co);
@@ -72,6 +79,9 @@ namespace OneCoroutine
     public:
         //定时器
         TimerManager* timerManager;
+
+        //异步消息
+        AsyncQueue asyncQueue;
 
         //网络
 #ifdef _WIN32
@@ -92,7 +102,7 @@ namespace OneCoroutine
         ListHead lifeList;
 
         //
-        AsyncFunction funcOnMain;
+        SimpleFunction funcOnMain;
 
         //协程池
         static const int MAX_POOL_SIZE = 100;

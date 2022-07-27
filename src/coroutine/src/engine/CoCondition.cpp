@@ -49,5 +49,10 @@ namespace OneCoroutine
     {
         return waitCos.empty() == false;
     }
+        
+    Engine* CoCondition::getEngine()
+    {
+        return engine;
+    }
     
 } // namespace One

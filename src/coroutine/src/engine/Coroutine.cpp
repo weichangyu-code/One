@@ -108,10 +108,10 @@ namespace OneCoroutine
         engine->yield();
     }
         
-    // Engine* Coroutine::getEngine()
-    // {
-    //     return engine;
-    // }
+    void Coroutine::cancel()
+    {
+        engine->onCoCancel(this);
+    }
         
     char* Coroutine::getStack()
     {

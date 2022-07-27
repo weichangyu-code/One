@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Common.h"
 #include "../coctx/coctx.h"
 #include "List.h"
 #include "CoCondition.h"
@@ -9,7 +10,6 @@ namespace OneCoroutine
 {
     class Coroutine;
     typedef std::function<void(Coroutine* co)> CoroutineRunner;
-    typedef std::function<void()> AsyncFunction;
 
     class Engine;
     class Coroutine : public AutoObject
@@ -22,7 +22,6 @@ namespace OneCoroutine
         typedef AutoPtr<Coroutine> Ptr;
 
     public:
-        //static Coroutine* getCurCoroutine();
         inline Engine* getEngine()
         {
             return engine;
@@ -35,6 +34,7 @@ namespace OneCoroutine
         void join();
         void sleep(unsigned int msec);
         void yield();
+        void cancel();                                          //对于还未执行的协程，可以取消
 
     protected:
         static void coRun(void* s1, void* s2);
@@ -52,9 +52,10 @@ namespace OneCoroutine
         enum
         {
             IDLE = 0,
-            READY,      //在等待队列
+            READY,      //在等待队列，准备开始第一次执行
             WAIT,
             RUN,
+            BACK,       //切到后台等待队列
         };
         int state = IDLE;
         ListNode scheduleNode;          //调度节点

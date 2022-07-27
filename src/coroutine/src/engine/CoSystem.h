@@ -12,7 +12,7 @@ namespace OneCoroutine
         
         static Coroutine::Ptr createCoroutine(const CoroutineRunner& runner);
 
-        static void executeOnMain(const AsyncFunction& func);
+        static void executeOnMain(const SimpleFunction& func);
     };
 } // namespace One
 

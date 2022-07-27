@@ -25,6 +25,8 @@ namespace OneCoroutine
 
         void cancelIo(Socket* socket, OperateOverlapped* oo);
 
+        void post(OperateOverlapped* oo);
+
         OperateOverlapped* mallocFromPool();
         void freeToPool(OperateOverlapped* oo);
         void clearOoPool();

@@ -10,7 +10,8 @@ namespace OneCoroutine
 		va_list ap;
 		va_start(ap, fmt);
         
-        Engine::getCurEngine()->executeOnMain([&ap, fmt]() {
+        //TODO:先放线程池里，后续用异步IO替代
+        Engine::getCurEngine()->executeOnPool([&ap, fmt]() {
             vprintf(fmt, ap);
         });
 

@@ -34,34 +34,9 @@ namespace OneCoroutine
         //清空队列
         while (num < NUM_ONE_TIME)
         {
-            if (dealwithOperateOverlapped(0))
+            if (dealwithOperateOverlapped(timeout))
             {
-                num++;
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        //如果已经有数据处理，不用等待，直接返回
-        if ((num > 0) || (timeout == 0))
-        {
-            return;
-        }
-
-        //等待
-        if (dealwithOperateOverlapped(timeout) == false)
-        {
-            //等待超时，返回
-            return;
-        }
-
-        //再次清空队列
-        while (num < NUM_ONE_TIME)
-        {
-            if (dealwithOperateOverlapped(0))
-            {
+                timeout = 0;
                 num++;
             }
             else
@@ -90,7 +65,14 @@ namespace OneCoroutine
                 int err = getOperateOverlappedError(oo);
                 oo->error = SOCKET_ERR_ERROR;
             }
-            oo->socket->onEvent(oo);
+            if (oo->socket)
+            {
+                oo->socket->onEvent(oo);
+            }
+            else
+            {
+                oo->cb(oo);
+            }
             return true;
         }
         return false;
@@ -124,6 +106,11 @@ namespace OneCoroutine
         ::CancelIoEx((HANDLE)(intptr_t)socket->sockFd, &oo->ol);
     }
         
+    void Iocp::post(OperateOverlapped* oo)
+    {
+        ::PostQueuedCompletionStatus(cpHandle, 0, 0, &oo->ol);
+    }
+        
     OperateOverlapped* Iocp::mallocFromPool()
     {
         OperateOverlapped* oo;
@@ -138,6 +125,7 @@ namespace OneCoroutine
         {
             oo = new OperateOverlapped();
         }
+        oo->socket = nullptr;
         memset(&oo->ol, 0, sizeof(oo->ol));
         oo->trans = 0;
         oo->error = 0;

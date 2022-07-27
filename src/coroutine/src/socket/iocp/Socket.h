@@ -5,40 +5,11 @@
 #include "../Network.h"
 #include <functional>
 #include "List.h"
+#include "OperateOverlapped.h"
 using namespace OneCommon;
 
 namespace OneCoroutine
 {
-    class Socket;
-    class OperateOverlapped;
-
-    typedef std::function<void(OperateOverlapped* oo)> SocketCompleteCB;
-
-    class OperateOverlapped
-    {
-    public:
-        OVERLAPPED ol;
-
-        enum
-        {
-            TYPE_NONE = 0,
-            TYPE_ACCEPT,
-            TYPE_CONNECT,
-            TYPE_SEND,
-            TYPE_RECV,
-        };
-        int type = 0;
-
-        Socket* socket = nullptr;
-        int trans = 0;
-        int error = 0;
-        char* buffer = nullptr;
-
-        SocketCompleteCB cb;
-
-        ListNode poolNode;
-    };
-
     class Engine;
     class Iocp;
     class Socket
