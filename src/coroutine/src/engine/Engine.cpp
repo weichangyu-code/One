@@ -266,6 +266,7 @@ namespace OneCoroutine
         
     void Engine::executeOnMain(const SimpleFunction& func)
     {
+        assert(getCurEngine() == this);
         if (curCo)
         {
             funcOnMain = func;
@@ -279,6 +280,7 @@ namespace OneCoroutine
         
     void Engine::executeOnPool(const SimpleFunction& func)
     {
+        assert(getCurEngine() == this);
         //规避new
         struct
         {
