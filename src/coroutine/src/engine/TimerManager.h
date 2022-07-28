@@ -3,19 +3,16 @@
 
 namespace OneCoroutine
 {
-    class Engine;
     class TimerManager
     {
         friend class Timer;
     public:
-        TimerManager(Engine* engine);
+        TimerManager();
 
         void startTimer(Timer* timer, unsigned int delay);
         void stopTimer(Timer* timer);
 
         void run();
-
-        Engine* getEngine();
 
     protected:
         unsigned int getSystemTime();
@@ -25,7 +22,6 @@ namespace OneCoroutine
         void rollTimerMap(unsigned int time);
 
     protected:
-        Engine* engine = nullptr;
         unsigned int curTime;               //当前时间
         ListHead microSecArr[1024];
         ListHead secondArr[1024];

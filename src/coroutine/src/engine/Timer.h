@@ -24,8 +24,6 @@ namespace OneCoroutine
         void stop();
         bool isStart();
 
-        Engine* getEngine();
-
     protected:
         void onTime();
 

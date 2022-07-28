@@ -7,41 +7,6 @@
 
 namespace OneCoroutine
 {
-    void Socket::onEvent(OperateOverlapped* oo)
-    {
-        if (oo->type == OperateOverlapped::TYPE_SOCKET_ACCEPT)
-        {
-            if (oo->error != 0)
-            {
-                close();
-            }
-            oo->cb(oo);
-            delete oo->buffer;
-        }
-        else if (oo->type == OperateOverlapped::TYPE_SOCKET_CONNECT)
-        {
-            if (oo->error != 0)
-            {
-                close();
-            }
-            oo->cb(oo);
-        }
-        else if (oo->type == OperateOverlapped::TYPE_SOCKET_RECV)
-        {
-            if (oo->error == 0 && oo->trans == 0)
-            {
-                //trans=0代表断线
-                oo->error = SOCKET_ERR_ERROR;
-            }
-            oo->cb(oo);
-        }
-        else
-        {
-            oo->cb(oo);
-        }
-        iocp->freeToPool(oo);
-    }
-        
     Socket::Socket(Iocp* iocp)
     {
         this->iocp = iocp;
@@ -71,18 +36,18 @@ namespace OneCoroutine
         if (::bind(sockFd, (const struct sockaddr*)&saddr, sizeof(saddr)) != 0)
         {
             close();
-            return SOCKET_ERR_BIND_FAILED;
+            return ERR_SOCKET_BIND_FAILED;
         }
 
         if (::listen(sockFd, backlog) != 0)
         {
             close();
-            return SOCKET_ERR_BIND_FAILED;
+            return ERR_SOCKET_BIND_FAILED;
         }
 
-        iocp->registerEvent(this);
+        iocp->registerEvent((HANDLE)(intptr_t)sockFd);
 
-        return SOCKET_ERR_SUCCESS;
+        return ERR_SUCCESS;
     }
         
     LPFN_CONNECTEX Socket::getConnectExFunc()
@@ -98,19 +63,26 @@ namespace OneCoroutine
         return funcConnectEx;
     }
         
-    void Socket::connect(const char* addr, int port, OperateOverlapped** ooOut, const SocketCompleteCB& cb)
+    void Socket::connect(const char* addr, int port, OperateOverlapped** ooOut, const OOCompleteCB& cb)
     {
         close();
     
         sockFd = createSocket(true);
         setSocketAsync(sockFd);
         
-        iocp->registerEvent(this);
+        iocp->registerEvent((HANDLE)(intptr_t)sockFd);
         
         OperateOverlapped* oo = iocp->mallocFromPool();
-        oo->type = OperateOverlapped::TYPE_SOCKET_CONNECT;
-        oo->socket = this;
-        oo->cb = cb;
+        oo->handle = (HANDLE)(intptr_t)sockFd;
+        oo->cbUser = cb;
+        oo->cb = [this](OperateOverlapped* oo) {
+            if (oo->error != 0)
+            {
+                close();
+            }
+            oo->cbUser(oo);
+            iocp->freeToPool(oo);
+        };
         *ooOut = oo;
 
         sockaddr_in laddr;
@@ -120,8 +92,8 @@ namespace OneCoroutine
         laddr.sin_port = 0;
         if (::bind(sockFd, (sockaddr*)&laddr, sizeof(laddr)) < 0)
         {
-            oo->error = SOCKET_ERR_BIND_FAILED;
-            onEvent(oo);
+            oo->error = ERR_SOCKET_BIND_FAILED;
+            oo->cb(oo);
             return;
         }
 
@@ -138,30 +110,38 @@ namespace OneCoroutine
             int err = GetLastError();
             if (err != WSA_IO_PENDING)
             {
-                oo->error = SOCKET_ERR_ERROR;
-                onEvent(oo);
+                oo->error = ERR_ERROR;
+                oo->cb(oo);
                 return;
             }
         }
         else
         {
-            onEvent(oo);
+            oo->cb(oo);
         }
     }
         
-    void Socket::accept(Socket* listenSocket, OperateOverlapped** ooOut, const SocketCompleteCB& cb)
+    void Socket::accept(Socket* listenSocket, OperateOverlapped** ooOut, const OOCompleteCB& cb)
     {
         close();
 
         sockFd = createSocket(true);
         setSocketAsync(sockFd);
         
-        iocp->registerEvent(this);
+        iocp->registerEvent((HANDLE)(intptr_t)sockFd);
 
         OperateOverlapped* oo = iocp->mallocFromPool();
-        oo->type = OperateOverlapped::TYPE_SOCKET_ACCEPT;
-        oo->socket = this;
-        oo->cb = cb;
+        oo->handle = (HANDLE)(intptr_t)listenSocket->sockFd;
+        oo->cbUser = cb;
+        oo->cb = [this](OperateOverlapped* oo) {
+            if (oo->error != 0)
+            {
+                close();
+            }
+            oo->cbUser(oo);
+            delete oo->buffer;
+            iocp->freeToPool(oo);
+        };
         oo->buffer = new char[128];
         *ooOut = oo;
 
@@ -173,14 +153,14 @@ namespace OneCoroutine
             int err = GetLastError();
             if (err != WSA_IO_PENDING)
             {
-                oo->error = SOCKET_ERR_ERROR;
-                onEvent(oo);
+                oo->error = ERR_ERROR;
+                oo->cb(oo);
                 return;
             }
         }
         else
         {
-            onEvent(oo);
+            oo->cb(oo);
         }
     }
         
@@ -188,17 +168,33 @@ namespace OneCoroutine
     {
         if (sockFd != -1)
         {
-            iocp->unregisterEvent(this);
+            iocp->unregisterEvent((HANDLE)(intptr_t)sockFd);
 
             closesocket(sockFd);
             sockFd = -1;
         }
     }       
     
-    void Socket::send(const char* data, unsigned int len, OperateOverlapped** ooOut, const SocketCompleteCB& cb)
+    void Socket::send(const char* data, unsigned int len, OperateOverlapped** ooOut, const OOCompleteCB& cb)
     {
+        OperateOverlapped* oo = iocp->mallocFromPool();
+        oo->handle = (HANDLE)(intptr_t)sockFd;
+        oo->cbUser = cb;
+        oo->cb = [this](OperateOverlapped* oo) {
+            if (oo->error != 0)
+            {
+                close();
+            }
+            oo->cbUser(oo);
+            iocp->freeToPool(oo);
+        };
+        *ooOut = oo;
+
         if (sockFd == -1)
         {
+            //统一返回
+            oo->error = ERR_ERROR;
+            oo->cb(oo);
             return;
         }
 
@@ -206,46 +202,55 @@ namespace OneCoroutine
         wsaBuf.buf = (char*)data;
         wsaBuf.len = len;
 
-        OperateOverlapped* oo = iocp->mallocFromPool();
-        oo->type = OperateOverlapped::TYPE_SOCKET_SEND;
-        oo->socket = this;
-        oo->cb = cb;
-        *ooOut = oo;
-
         int ret = ::WSASend(sockFd, &wsaBuf, 1, (LPDWORD)&oo->trans, 0, &oo->ol, NULL);
         if (ret < 0)
         {
             int err = GetLastError();
             if (err != WSA_IO_PENDING)
             {
-                oo->error = SOCKET_ERR_ERROR;
-                onEvent(oo);
+                oo->error = ERR_ERROR;
+                oo->cb(oo);
                 return;
             }
         }
         else
         {
             //成功也会通过GetQueuedCompletionStatus回调
-            //onEvent(oo);
+            //oo->cb(oo);
         }
     }
         
-    void Socket::recv(char* data, unsigned int len, OperateOverlapped** ooOut, const SocketCompleteCB& cb)
+    void Socket::recv(char* data, unsigned int len, OperateOverlapped** ooOut, const OOCompleteCB& cb)
     {
+        OperateOverlapped* oo = iocp->mallocFromPool();
+        oo->handle = (HANDLE)(intptr_t)sockFd;
+        oo->cbUser = cb;
+        oo->cb = [this](OperateOverlapped* oo) {
+            if (oo->error == 0 && oo->trans == 0)
+            {
+                //trans=0代表断线
+                oo->error = ERR_ERROR;
+            }
+            if (oo->error != 0)
+            {
+                close();
+            }
+            oo->cbUser(oo);
+            iocp->freeToPool(oo);
+        };
+        *ooOut = oo;
+
         if (sockFd == -1)
         {
+            //统一返回
+            oo->error = ERR_ERROR;
+            oo->cb(oo);
             return;
         }
 
         WSABUF wsaBuf;
         wsaBuf.buf = data;
         wsaBuf.len = len;
-
-        OperateOverlapped* oo = iocp->mallocFromPool();
-        oo->type = OperateOverlapped::TYPE_SOCKET_RECV;
-        oo->socket = this;
-        oo->cb = cb;
-        *ooOut = oo;
 
         DWORD flags = 0;
         int ret = ::WSARecv(sockFd, &wsaBuf, 1, (LPDWORD)&oo->trans, &flags, &oo->ol, nullptr);
@@ -254,15 +259,15 @@ namespace OneCoroutine
             int err = GetLastError();
             if (err != WSA_IO_PENDING)
             {
-                oo->error = SOCKET_ERR_ERROR;
-                onEvent(oo);
+                oo->error = ERR_ERROR;
+                oo->cb(oo);
                 return;
             }
         }
         else
         {
             //成功也会通过GetQueuedCompletionStatus回调
-            //onEvent(oo);
+            //oo->cb(oo);
         }
     }
         
@@ -293,7 +298,7 @@ namespace OneCoroutine
         
     void Socket::cancelIo(OperateOverlapped* oo)
     {
-        iocp->cancelIo(this, oo);
+        iocp->cancelIo(oo);
     }
 
 

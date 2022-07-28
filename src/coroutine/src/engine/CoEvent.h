@@ -7,7 +7,6 @@ namespace OneCoroutine
     {
     public:
         CoEvent(bool autoReset = true);
-        CoEvent(Engine* engine, bool autoReset = true);
 
 		void signal(bool sig = true);
         bool wait(unsigned int timeout = UINT_MAX);

@@ -10,6 +10,11 @@ namespace One
         return _length;
     }
         
+    const char* String::str()
+    {
+        return _c;
+    }
+        
     void String::__destruct__()
     {
         _length = 0;

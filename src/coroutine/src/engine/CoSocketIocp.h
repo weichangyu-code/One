@@ -11,7 +11,6 @@ namespace OneCoroutine
     {
     public:
         CoSocket();
-        CoSocket(Engine* engine);
         ~CoSocket();
 
         int listen(const char* localAddr, int port, bool reuseaddr, int backlog);
@@ -24,8 +23,6 @@ namespace OneCoroutine
         
         void setSendBuf(unsigned int sendBuf);
         void setRecvBuf(unsigned int recvBuf);
-
-        Engine* getEngine();
 
     protected:
         void cancelIo(OperateOverlapped* oo);

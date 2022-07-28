@@ -7,6 +7,7 @@ namespace One
     {
     public:
         int length();
+        const char* str();
         
     //内部接口
     public:

@@ -9,13 +9,10 @@ namespace OneCoroutine
     {
     public:
         CoTimer();
-        CoTimer(Engine* engine);
 
         void start(const TimerCB& cb, unsigned int delay, unsigned int interval);
         void stop();
         bool isStart();
-
-        Engine* getEngine();
 
     protected:
         Timer _timer;

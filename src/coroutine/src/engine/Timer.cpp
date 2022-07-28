@@ -37,11 +37,6 @@ namespace OneCoroutine
     {
         return _start;
     }
-        
-    Engine* Timer::getEngine()
-    {
-        return mananger->getEngine();
-    }
     
     void Timer::onTime()
     {

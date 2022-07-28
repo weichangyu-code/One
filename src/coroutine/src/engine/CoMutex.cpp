@@ -6,12 +6,6 @@ namespace OneCoroutine
     {
 
     }
-        
-    CoMutex::CoMutex(Engine* engine)
-        :cond(engine)
-    {
-
-    }
 
     bool CoMutex::lock(unsigned int timeout)
     {

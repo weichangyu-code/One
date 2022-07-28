@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "../common/Error.h"
 
 #ifdef _WIN32
 
@@ -24,16 +25,3 @@
 #include <netdb.h>
 
 #endif
-
-namespace OneCoroutine
-{
-    enum
-    {
-        SOCKET_ERR_SUCCESS = 0,
-        SOCKET_ERR_ERROR = -1,
-        SOCKET_ERR_TIMEOUT = -2,
-        SOCKET_ERR_AGAIN = -3,                  //忙，重试
-        SOCKET_ERR_INPROGRESS = -4,             //表示正在连接
-        SOCKET_ERR_BIND_FAILED = -5,
-    };
-}

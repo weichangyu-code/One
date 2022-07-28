@@ -8,12 +8,7 @@
 namespace OneCoroutine
 {
     CoSocket::CoSocket()
-        :CoSocket(Engine::getCurEngine())
-    {
-
-    }
-    CoSocket::CoSocket(Engine* engine)
-        :socket(engine->iocp)
+        :socket(Engine::getCurEngine()->iocp)
     {
 
     }
@@ -24,9 +19,9 @@ namespace OneCoroutine
 
     int CoSocket::listen(const char* localAddr, int port, bool reuseaddr, int backlog)
     {
-        int ret;
+        int ret = ERR_SUCCESS;
         //windows下要切到主线程，不然16K的堆栈不够用
-        getEngine()->executeOnMain([=, &ret]() {
+        Engine::getCurEngine()->executeOnMain([=, &ret]() {
             ret = socket.listen(localAddr, port, reuseaddr, backlog);
         });
         return ret;
@@ -35,10 +30,10 @@ namespace OneCoroutine
     int CoSocket::connect(const char* addr, int port, unsigned int timeout)
     {
         //连接
-        int ret;
-        OperateOverlapped* oo;
-        CoEvent event(getEngine());
-        getEngine()->executeOnMain([=, &ret, &oo, &event]() {
+        int ret = ERR_SUCCESS;
+        OperateOverlapped* oo = nullptr;
+        CoEvent event;
+        Engine::getCurEngine()->executeOnMain([=, &ret, &oo, &event]() {
             socket.connect(addr, port, &oo, [&ret, &event](OperateOverlapped* oo) {
                 ret = oo->error;
                 event.signal();
@@ -57,10 +52,10 @@ namespace OneCoroutine
         
     int CoSocket::accept(CoSocket* listenSocket, unsigned int timeout)
     {
-        int ret;
-        OperateOverlapped* oo;
-        CoEvent event(getEngine());
-        getEngine()->executeOnMain([=, &ret, &oo, &event]() {
+        int ret = ERR_SUCCESS;
+        OperateOverlapped* oo = nullptr;
+        CoEvent event;
+        Engine::getCurEngine()->executeOnMain([=, &ret, &oo, &event]() {
             socket.accept(&listenSocket->socket, &oo, [&ret, &event](OperateOverlapped* oo) {
                 ret = oo->error;
                 event.signal();
@@ -79,17 +74,17 @@ namespace OneCoroutine
         
     void CoSocket::close()
     {
-        getEngine()->executeOnMain([this]() {
+        Engine::getCurEngine()->executeOnMain([this]() {
             socket.close();
         });
     }
 
     int CoSocket::send(const char* data, unsigned int len, unsigned int timeout)
     {
-        int ret;
-        OperateOverlapped* oo;
-        CoEvent event(getEngine());
-        getEngine()->executeOnMain([=, &ret, &oo, &event]() {
+        int ret = ERR_SUCCESS;
+        OperateOverlapped* oo = nullptr;
+        CoEvent event;
+        Engine::getCurEngine()->executeOnMain([=, &ret, &oo, &event]() {
             socket.send(data, len, &oo, [&ret, &event](OperateOverlapped* oo) {
                 if (oo->error == 0)
                 {
@@ -115,10 +110,10 @@ namespace OneCoroutine
         
     int CoSocket::recv(char* data, unsigned int len, unsigned int timeout)
     {
-        int ret;
-        OperateOverlapped* oo;
-        CoEvent event(getEngine());
-        getEngine()->executeOnMain([=, &ret, &oo, &event]() {
+        int ret = ERR_SUCCESS;
+        OperateOverlapped* oo = nullptr;
+        CoEvent event;
+        Engine::getCurEngine()->executeOnMain([=, &ret, &oo, &event]() {
             socket.recv(data, len, &oo, [&ret, &event](OperateOverlapped* oo) {
                 if (oo->error == 0)
                 {
@@ -144,26 +139,21 @@ namespace OneCoroutine
         
     void CoSocket::setSendBuf(unsigned int sendBuf)
     {
-        getEngine()->executeOnMain([=]() {
+        Engine::getCurEngine()->executeOnMain([=]() {
             socket.setSendBuf(sendBuf);
         });
     }
         
     void CoSocket::setRecvBuf(unsigned int recvBuf)
     {
-        getEngine()->executeOnMain([=]() {
+        Engine::getCurEngine()->executeOnMain([=]() {
             socket.setRecvBuf(recvBuf);
         });
-    }
-
-    Engine* CoSocket::getEngine()
-    {
-        return socket.getEngine();
     }
         
     void CoSocket::cancelIo(OperateOverlapped* oo)
     {
-        getEngine()->executeOnMain([this, oo]() {
+        Engine::getCurEngine()->executeOnMain([this, oo]() {
             socket.cancelIo(oo);
         });
     }

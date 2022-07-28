@@ -20,11 +20,9 @@ namespace OneCoroutine
     public:
         void wait(unsigned int timeout);
 
-        void registerEvent(Socket* socket);
-        void unregisterEvent(Socket* socket);
-
-        void cancelIo(Socket* socket, OperateOverlapped* oo);
-
+        void registerEvent(HANDLE handle);
+        void unregisterEvent(HANDLE handle);
+        void cancelIo(OperateOverlapped* oo);
         void post(OperateOverlapped* oo);
 
         OperateOverlapped* mallocFromPool();

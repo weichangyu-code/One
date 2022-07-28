@@ -21,8 +21,6 @@ namespace OneCoroutine
 
         one_coctx_init(&mainCoctx);
 
-        timerManager = new TimerManager(this);
-
 #ifdef _WIN32
         iocp = new Iocp(this);
 #else
@@ -33,8 +31,6 @@ namespace OneCoroutine
     Engine::~Engine()
     {
         clearPool();
-
-        delete timerManager;
 
 #ifdef _WIN32
         delete iocp;
@@ -78,7 +74,7 @@ namespace OneCoroutine
 #endif
 
             //定时器在主线程跑的，不能在定时器回调里面切换协程
-            timerManager->run();
+            timerManager.run();
         }
     }
 
@@ -114,7 +110,6 @@ namespace OneCoroutine
 
     bool Engine::onCoConditionActive(CoCondition* cond, bool all)
     {
-        assert(false);
         if (all)
         {
             bool ret = cond->waitCos.empty() == false;
@@ -284,16 +279,24 @@ namespace OneCoroutine
         
     void Engine::executeOnPool(const SimpleFunction& func)
     {
-        CoCondition cond(this);
+        //规避new
+        struct
+        {
+            const SimpleFunction* func;
+            Engine* engine;
+            CoCondition cond;
+        } data;
+        data.func = &func;
+        data.engine = this;
 
         //参数控制在16个字节
-        g_threadPool.execute([&func, &cond]() {
-            func();
-            cond.getEngine()->asyncQueue.push([&cond]() {
-                cond.active();
+        g_threadPool.execute([&data]() {
+            (*data.func)();
+            data.engine->asyncQueue.push([&data]() {
+                data.cond.active();
             });
         });
-        cond.wait();
+        data.cond.wait();
     }
         
     void Engine::pushToScheduleFront(Coroutine* co)

@@ -19,7 +19,7 @@ int main()
     Engine engine;
     CoEvent event(false);
     engine.createCoroutine([&timer, &sendSumLen, &event](Coroutine* co){
-        for (int i = 0;i < 30000;i++)
+        for (int i = 0;i < 3;i++)
         {
             if (i % 1000 == 0)
             {
@@ -29,7 +29,8 @@ int main()
             CoSystem::createCoroutine([i, &timer, &sendSumLen, &event](Coroutine* co) {
                 CoSocket newSocket;
                 //int ret = newSocket.connect("10.10.4.111", 12345, 10000);
-                int ret = newSocket.connect("10.12.1.189", 12346, 30000);
+                //int ret = newSocket.connect("10.12.1.189", 12346, 30000);
+                int ret = newSocket.connect("127.0.0.1", 12346, 10000);
                 if (ret < 0)
                 {
                     CoStdOut::print("connect failed %d\n", i);
@@ -37,7 +38,7 @@ int main()
                 }
                 CoStdOut::print("connect success %d\n", i);
                 //CoSystem::sleep(100000);
-                event.wait();
+                //event.wait();
                 while (1)
                 {
                     static char buf[4096];

@@ -11,17 +11,13 @@ namespace OneCoroutine
         friend class Engine;
     public:
         CoCondition();
-        CoCondition(Engine* engine);
 
         bool wait(unsigned int timeout = UINT_MAX);
         bool active(bool all = false);      //激活一个协程还是所有协程
 
         bool haveWaiter();
 
-        Engine* getEngine();
-
     protected:
-        Engine* engine;
         ListHead waitCos;           //等待这个时间的协程
     };
 } // namespace One

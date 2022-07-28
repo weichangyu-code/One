@@ -11,16 +11,7 @@
 namespace OneCoroutine
 {
     CoSocket::CoSocket()
-        :CoSocket(Engine::getCurEngine())
-    {
-
-    }
-    CoSocket::CoSocket(Engine* engine)
-        : socket(engine->epoll, this)
-        , connectEvent(engine)
-        , writeEvent(engine)
-        , readEvent(engine, false)      //等接手失败，手动变状态
-        , exceptEvent(engine)
+        : socket(Engine::getCurEngine()->epoll, this)
     {
 
     }
@@ -38,14 +29,14 @@ namespace OneCoroutine
     {
         //连接
         int ret = socket.connect(addr, port);
-        if (ret != SOCKET_ERR_INPROGRESS)
+        if (ret != ERR_SOCKET_INPROGRESS)
         {
             return ret;
         }
         if (connectEvent.wait(timeout) == false)
         {
             close();
-            return SOCKET_ERR_TIMEOUT;
+            return ERR_SOCKET_TIMEOUT;
         }
 
         //等待成功
@@ -53,10 +44,10 @@ namespace OneCoroutine
         {
             //失败
             close();
-            return SOCKET_ERR_ERROR;
+            return ERR_ERROR;
         }
 
-        return SOCKET_ERR_SUCCESS;
+        return ERR_SUCCESS;
     }
         
     int CoSocket::accept(CoSocket* listenSocket, unsigned int timeout)
@@ -65,14 +56,14 @@ namespace OneCoroutine
         while (1)
         {
             ret = socket.accept(&listenSocket->socket);
-            if (ret != SOCKET_ERR_AGAIN)
+            if (ret != ERR_SOCKET_AGAIN)
             {
                 return ret;
             }
             listenSocket->readEvent.signal(false);
             if (listenSocket->readEvent.wait(timeout) == false)
             {
-                return SOCKET_ERR_TIMEOUT;
+                return ERR_SOCKET_TIMEOUT;
             }
         }
         return ret;
@@ -104,7 +95,7 @@ namespace OneCoroutine
             {
                 break;
             }
-            else if (ret == SOCKET_ERR_AGAIN)
+            else if (ret == ERR_SOCKET_AGAIN)
             {
                 if (writeEvent.wait(timeout) == false)
                 {
@@ -128,11 +119,11 @@ namespace OneCoroutine
         {
             if (readEvent.wait(timeout) == false)
             {
-                return SOCKET_ERR_TIMEOUT;
+                return ERR_SOCKET_TIMEOUT;
             }
             ret = socket.recv(data, len);
             if (ret != len) readEvent.signal(false);
-            if (ret != SOCKET_ERR_AGAIN)
+            if (ret != ERR_SOCKET_AGAIN)
             {
                 return ret;
             }

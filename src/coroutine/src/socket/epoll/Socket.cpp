@@ -43,18 +43,18 @@ namespace OneCoroutine
         if (::bind(sockFd, (const struct sockaddr*)&saddr, sizeof(saddr)) != 0)
         {
             close();
-            return SOCKET_ERR_BIND_FAILED;
+            return ERR_SOCKET_BIND_FAILED;
         }
 
         if (::listen(sockFd, backlog) != 0)
         {
             close();
-            return SOCKET_ERR_BIND_FAILED;
+            return ERR_SOCKET_BIND_FAILED;
         }
 
         epoll->registerEvent(this, true);
 
-        return SOCKET_ERR_SUCCESS;
+        return ERR_SUCCESS;
     }
         
     int Socket::connect(const char* addr, int port)
@@ -75,13 +75,13 @@ namespace OneCoroutine
             if (errno != EINPROGRESS)
             {
                 close();
-                return SOCKET_ERR_ERROR;
+                return ERR_ERROR;
             }
         }
 
         epoll->registerEvent(this, false);
 
-        return (ret == 0) ? SOCKET_ERR_SUCCESS : SOCKET_ERR_INPROGRESS;
+        return (ret == 0) ? ERR_SUCCESS : ERR_SOCKET_INPROGRESS;
     }
         
     int Socket::accept(Socket* listenSocket)
@@ -94,13 +94,13 @@ namespace OneCoroutine
         sockFd = ::accept(listenSocket->sockFd, (sockaddr*)&saddr, &saddr_len);
         if (sockFd == -1)
         {
-            return (errno == EAGAIN) ? SOCKET_ERR_AGAIN : SOCKET_ERR_ERROR;
+            return (errno == EAGAIN) ? ERR_SOCKET_AGAIN : ERR_ERROR;
         }
         setSocketAsync(sockFd);
 
         epoll->registerEvent(this, false);
 
-        return SOCKET_ERR_SUCCESS;
+        return ERR_SUCCESS;
     }
         
     void Socket::close()
@@ -118,12 +118,12 @@ namespace OneCoroutine
     {
         if (sockFd == -1)
         {
-            return SOCKET_ERR_ERROR;
+            return ERR_ERROR;
         }
         int ret = ::send(sockFd, data, len, 0);
         if (ret == -1)
         {
-            return (errno == EAGAIN) ? SOCKET_ERR_AGAIN : SOCKET_ERR_ERROR;
+            return (errno == EAGAIN) ? ERR_SOCKET_AGAIN : ERR_ERROR;
         }
         return ret;
     }
@@ -132,17 +132,17 @@ namespace OneCoroutine
     {
         if (sockFd == -1)
         {
-            return SOCKET_ERR_ERROR;
+            return ERR_ERROR;
         }
         int ret = ::recv(sockFd, data, len, 0);
         if (ret == -1)
         {
-            return (errno == EAGAIN) ? SOCKET_ERR_AGAIN : SOCKET_ERR_ERROR;
+            return (errno == EAGAIN) ? ERR_SOCKET_AGAIN : ERR_ERROR;
         }
         else if (ret == 0)
         {
             //表示断开
-            return SOCKET_ERR_ERROR;
+            return ERR_ERROR;
         }
         return ret;
     }

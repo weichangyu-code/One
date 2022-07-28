@@ -6,12 +6,6 @@ namespace OneCoroutine
     {
         _autoReset = autoReset;
     }
-        
-    CoEvent::CoEvent(Engine* engine, bool autoReset)
-        :cond(engine)
-    {
-        _autoReset = autoReset;
-    }
 
 	void CoEvent::signal(bool sig)
     {

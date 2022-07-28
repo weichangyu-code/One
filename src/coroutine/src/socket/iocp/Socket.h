@@ -20,12 +20,12 @@ namespace OneCoroutine
         ~Socket();
 
         int listen(const char* localAddr, int port, bool reuseaddr, int backlog);
-        void connect(const char* addr, int port, OperateOverlapped** ooOut, const SocketCompleteCB& cb);
-        void accept(Socket* listenSocket, OperateOverlapped** ooOut, const SocketCompleteCB& cb);
+        void connect(const char* addr, int port, OperateOverlapped** ooOut, const OOCompleteCB& cb);
+        void accept(Socket* listenSocket, OperateOverlapped** ooOut, const OOCompleteCB& cb);
         void close();
 
-        void send(const char* data, unsigned int len, OperateOverlapped** ooOut, const SocketCompleteCB& cb);
-        void recv(char* data, unsigned int len, OperateOverlapped** ooOut, const SocketCompleteCB& cb);
+        void send(const char* data, unsigned int len, OperateOverlapped** ooOut, const OOCompleteCB& cb);
+        void recv(char* data, unsigned int len, OperateOverlapped** ooOut, const OOCompleteCB& cb);
         
         void cancelIo(OperateOverlapped* oo);
 
@@ -35,8 +35,6 @@ namespace OneCoroutine
         Engine* getEngine();
 
     protected:
-        void onEvent(OperateOverlapped* oo);
-
         LPFN_CONNECTEX getConnectExFunc();
 
     protected:

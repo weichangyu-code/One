@@ -63,16 +63,10 @@ namespace OneCoroutine
             {
                 //如果发送对方没有反应，会发送RST包并关闭
                 int err = getOperateOverlappedError(oo);
-                oo->error = SOCKET_ERR_ERROR;
+                oo->error = ERR_ERROR;
             }
-            if (oo->socket)
-            {
-                oo->socket->onEvent(oo);
-            }
-            else
-            {
-                oo->cb(oo);
-            }
+            
+            oo->cb(oo);
             return true;
         }
         return false;
@@ -80,30 +74,37 @@ namespace OneCoroutine
         
     int Iocp::getOperateOverlappedError(OperateOverlapped* oo)
     {
+        if (oo->handle == INVALID_HANDLE_VALUE)
+        {
+            return -1;
+        }
         DWORD dwTrans;  
         DWORD dwFlags;
         int err = 0;
-        if(FALSE == WSAGetOverlappedResult(oo->socket->sockFd, &oo->ol, &dwTrans, FALSE, &dwFlags))
+        if(FALSE == WSAGetOverlappedResult((intptr_t)oo->handle, &oo->ol, &dwTrans, FALSE, &dwFlags))
         {
             err = WSAGetLastError();
         }
         return err;
     }
-
-    void Iocp::registerEvent(Socket* socket)
+        
+    void Iocp::registerEvent(HANDLE handle)
     {
-		HANDLE handle = ::CreateIoCompletionPort((HANDLE)(intptr_t)socket->sockFd, cpHandle, (ULONG_PTR)0, 0);
-        assert(handle != 0);
+		handle = ::CreateIoCompletionPort(handle, cpHandle, (ULONG_PTR)0, 0);
     }
         
-    void Iocp::unregisterEvent(Socket* socket)
+    void Iocp::unregisterEvent(HANDLE handle)
     {
-        ::CancelIoEx((HANDLE)(intptr_t)socket->sockFd, nullptr);
+        ::CancelIoEx(handle, nullptr);
     }
         
-    void Iocp::cancelIo(Socket* socket, OperateOverlapped* oo)
+    void Iocp::cancelIo(OperateOverlapped* oo)
     {
-        ::CancelIoEx((HANDLE)(intptr_t)socket->sockFd, &oo->ol);
+        if (oo->handle == INVALID_HANDLE_VALUE)
+        {
+            return;
+        }
+        ::CancelIoEx(oo->handle, &oo->ol);
     }
         
     void Iocp::post(OperateOverlapped* oo)
@@ -125,7 +126,7 @@ namespace OneCoroutine
         {
             oo = new OperateOverlapped();
         }
-        oo->socket = nullptr;
+        oo->handle = INVALID_HANDLE_VALUE;
         memset(&oo->ol, 0, sizeof(oo->ol));
         oo->trans = 0;
         oo->error = 0;

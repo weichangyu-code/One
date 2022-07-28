@@ -78,7 +78,7 @@ namespace OneCoroutine
 
     public:
         //定时器
-        TimerManager* timerManager;
+        TimerManager timerManager;
 
         //异步消息
         AsyncQueue asyncQueue;

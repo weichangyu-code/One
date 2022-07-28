@@ -4,9 +4,8 @@ using namespace OneCommon;
 
 namespace OneCoroutine
 {
-    TimerManager::TimerManager(Engine* engine)
+    TimerManager::TimerManager()
     {
-        this->engine = engine;
         this->curTime = SystemUtils::getMSTick();
     }
     
@@ -154,11 +153,6 @@ namespace OneCoroutine
                 break;
             }
         }
-    }
-        
-    Engine* TimerManager::getEngine()
-    {
-        return engine;
     }
         
     unsigned int TimerManager::getSystemTime()

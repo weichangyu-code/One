@@ -4,13 +4,7 @@
 namespace OneCoroutine
 {
     CoTimer::CoTimer()
-        :CoTimer(Engine::getCurEngine())
-    {
-
-    }
-        
-    CoTimer::CoTimer(Engine* engine)
-        :_timer(engine->timerManager)
+        :_timer(&Engine::getCurEngine()->timerManager)
     {
 
     }
@@ -19,7 +13,7 @@ namespace OneCoroutine
     {      
         _cb = cb;  
         _timer.start([this]() {
-            _coroutine = getEngine()->createCoroutine([this](Coroutine* co) {
+            _coroutine = Engine::getCurEngine()->createCoroutine([this](Coroutine* co) {
                 _cb();
             });
         }, delay, interval);
@@ -39,8 +33,5 @@ namespace OneCoroutine
     {
         return _timer.isStart();
     }
-    Engine* CoTimer::getEngine()
-    {
-        return _timer.getEngine();
-    }
+    
 } // namespace One
