@@ -1,11 +1,13 @@
-#include "CoFileIocp.h"
+#include "CoFile.h"
 #include "Engine.h"
 #include "CoEvent.h"
 
 namespace OneCoroutine
 {
     CoFile::CoFile()
+#ifdef _WIN32
         :_file(Engine::getCurEngine()->iocp)
+#endif
     {
 
     }
@@ -15,14 +17,14 @@ namespace OneCoroutine
         close();
     }
 
-    int  CoFile::open(const char* path, int openFlag)
+    int  CoFile::open(const char* path, int openFlag, int mode)
     {
         //加协程锁，不会知道整个线程堵塞。如果在_file内部加真锁，会堵塞
         CoMutexGuard g(_mtx);
 
         int ret = 0;
-        Engine::getCurEngine()->executeOnPool([this, path, &ret, openFlag]() {
-            ret = _file.open(path, openFlag);
+        Engine::getCurEngine()->executeOnPool([this, path, &ret, openFlag, mode]() {
+            ret = _file.open(path, openFlag, mode);
         });
         return ret;
     }
@@ -38,6 +40,8 @@ namespace OneCoroutine
             _file.close();
         });
     }
+    
+#ifdef _WIN32
     int  CoFile::write(const char* data, unsigned int len)
     {
         CoMutexGuard g(_mtx);
@@ -84,5 +88,25 @@ namespace OneCoroutine
         event.wait();
         return ret;
     }
+#else
+    int  CoFile::write(const char* data, unsigned int len)
+    {
+        CoMutexGuard g(_mtx);
+        int ret;
+        Engine::getCurEngine()->executeOnPool([this, &ret, data, len]() {
+            ret = _file.write(data, len);
+        });
+        return ret;
+    }
+    int  CoFile::read(char* data, unsigned int len)
+    {
+        CoMutexGuard g(_mtx);
+        int ret;
+        Engine::getCurEngine()->executeOnPool([this, &ret, data, len]() {
+            ret = _file.read(data, len);
+        });
+        return ret;
+    }
+#endif
 
 }

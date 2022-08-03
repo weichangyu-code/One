@@ -13,16 +13,16 @@ public:
     ExplainSentence(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-        registe("shortsentence", "exp", (MyRuleExecuteFunction)&onExplainShortSentenceExp);
-        registe("shortsentence", "vardef", (MyRuleExecuteFunction)&onExplainShortSentenceVarDef);
-        registe("multishortsentence", "", (MyRuleExecuteFunction)&onExplainMultiShortSentence);
-        registe("multishortsentence", "add", (MyRuleExecuteFunction)&onExplainMultiShortSentenceAdd);
+        registe("shortsentence", "exp", (MyRuleExecuteFunction)&ExplainSentence::onExplainShortSentenceExp);
+        registe("shortsentence", "vardef", (MyRuleExecuteFunction)&ExplainSentence::onExplainShortSentenceVarDef);
+        registe("multishortsentence", "", (MyRuleExecuteFunction)&ExplainSentence::onExplainMultiShortSentence);
+        registe("multishortsentence", "add", (MyRuleExecuteFunction)&ExplainSentence::onExplainMultiShortSentenceAdd);
 
-        registe("sentence", "return", (MyRuleExecuteFunction)&onExplainSentenceReturn);
-        registe("sentence", "break", (MyRuleExecuteFunction)&onExplainSentenceBreak);
-        registe("sentence", "continue", (MyRuleExecuteFunction)&onExplainSentenceContinue);
-        registe("sentence", "short", (MyRuleExecuteFunction)&onExplainSentenceShort);
-        registe("sentence", "end", (MyRuleExecuteFunction)&onExplainSentenceEnd);
+        registe("sentence", "return", (MyRuleExecuteFunction)&ExplainSentence::onExplainSentenceReturn);
+        registe("sentence", "break", (MyRuleExecuteFunction)&ExplainSentence::onExplainSentenceBreak);
+        registe("sentence", "continue", (MyRuleExecuteFunction)&ExplainSentence::onExplainSentenceContinue);
+        registe("sentence", "short", (MyRuleExecuteFunction)&ExplainSentence::onExplainSentenceShort);
+        registe("sentence", "end", (MyRuleExecuteFunction)&ExplainSentence::onExplainSentenceEnd);
     }
     
     Result onExplainShortSentenceExp(Rule* rule, vector<LexElement>& es, LexElement& out)

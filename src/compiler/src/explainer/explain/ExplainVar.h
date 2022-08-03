@@ -10,13 +10,13 @@ public:
     ExplainVar(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-        registe("var", "identifier", (MyRuleExecuteFunction)&onExplainVarIdentifier);
-        registe("var", "typepath", (MyRuleExecuteFunction)&onExplainVarTypePath);
-        registe("var", "exp", (MyRuleExecuteFunction)&onExplainVarExp);
-        registe("var", "expthis", (MyRuleExecuteFunction)&onExplainVarExp);
-        registe("var", "expsuper", (MyRuleExecuteFunction)&onExplainVarExp);
-        registe("var", "this", (MyRuleExecuteFunction)&onExplainVarThis);
-        registe("var", "super", (MyRuleExecuteFunction)&onExplainVarSuper);
+        registe("var", "identifier", (MyRuleExecuteFunction)&ExplainVar::onExplainVarIdentifier);
+        registe("var", "typepath", (MyRuleExecuteFunction)&ExplainVar::onExplainVarTypePath);
+        registe("var", "exp", (MyRuleExecuteFunction)&ExplainVar::onExplainVarExp);
+        registe("var", "expthis", (MyRuleExecuteFunction)&ExplainVar::onExplainVarExp);
+        registe("var", "expsuper", (MyRuleExecuteFunction)&ExplainVar::onExplainVarExp);
+        registe("var", "this", (MyRuleExecuteFunction)&ExplainVar::onExplainVarThis);
+        registe("var", "super", (MyRuleExecuteFunction)&ExplainVar::onExplainVarSuper);
     }
 
     Result onExplainVarIdentifier(Rule* rule, vector<LexElement>& es, LexElement& out)

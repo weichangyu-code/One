@@ -60,7 +60,7 @@ Result CppGenerator::generate(const string& exeName, const string& mainClass, co
     
 void CppGenerator::addNativeClass(const string& oneClassPath, const string& hPath, const string& cppClass)
 {
-    natives.push_back({oneClassPath, hPath, cppClass});
+    natives.push_back(tuple<string, string, string>(oneClassPath, hPath, cppClass));
 }
     
 void CppGenerator::addIncludeFolder(const string& include)

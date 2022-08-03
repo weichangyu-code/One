@@ -1,4 +1,5 @@
 #include <atomic>
+#include <limits.h>
 
 namespace OneCoroutine
 {

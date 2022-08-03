@@ -11,5 +11,4 @@ namespace OneCoroutine
         CREATE = 0x10,          //不存在则创建
         TRUNCATE = 0x20,        //清空文件内容
     };
-
 }

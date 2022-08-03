@@ -10,10 +10,10 @@ public:
     ExplainForBlock(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-        registe("forstart", "range", (MyRuleExecuteFunction)&onExplainForStartRange);
-        registe("forstart", "each", (MyRuleExecuteFunction)&onExplainForStartEach);
-        registe("forstart", "", (MyRuleExecuteFunction)&onExplainForStart);
-        registe("forblock", "", (MyRuleExecuteFunction)&onExplainFor);
+        registe("forstart", "range", (MyRuleExecuteFunction)&ExplainForBlock::onExplainForStartRange);
+        registe("forstart", "each", (MyRuleExecuteFunction)&ExplainForBlock::onExplainForStartEach);
+        registe("forstart", "", (MyRuleExecuteFunction)&ExplainForBlock::onExplainForStart);
+        registe("forblock", "", (MyRuleExecuteFunction)&ExplainForBlock::onExplainFor);
     }
     
     Result onExplainForStartRange(Rule* rule, vector<LexElement>& es, LexElement& out)

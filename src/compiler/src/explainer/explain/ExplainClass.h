@@ -16,28 +16,28 @@ public:
     ExplainClass(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-        registe("templatedef", "", (MyRuleExecuteFunction)&onExplainTemplateDef);
+        registe("templatedef", "", (MyRuleExecuteFunction)&ExplainClass::onExplainTemplateDef);
 
-        registe("classidentifier", "identifier", (MyRuleExecuteFunction)&onExplainClassIdentifier);
-        registe("classidentifier", "templatedef", (MyRuleExecuteFunction)&onExplainClassIdentifierTemplate);
-        registe("classheaderstart", "class", (MyRuleExecuteFunction)&onExplainClassHeaderStartClass);
-        registe("classheaderstart", "interface", (MyRuleExecuteFunction)&onExplainClassHeaderStartInterface);
-        registe("classparents", "", (MyRuleExecuteFunction)&onExplainClassParents);
-        registe("classparents", "add", (MyRuleExecuteFunction)&onExplainClassParentsAdd);
-        registe("classheader", "parents", (MyRuleExecuteFunction)&onExplainClassHeaderParents);
-        registe("classheader", "", (MyRuleExecuteFunction)&onExplainClassHeader);
-        registe("classdef", "", (MyRuleExecuteFunction)&onExplainClassDef);
+        registe("classidentifier", "identifier", (MyRuleExecuteFunction)&ExplainClass::onExplainClassIdentifier);
+        registe("classidentifier", "templatedef", (MyRuleExecuteFunction)&ExplainClass::onExplainClassIdentifierTemplate);
+        registe("classheaderstart", "class", (MyRuleExecuteFunction)&ExplainClass::onExplainClassHeaderStartClass);
+        registe("classheaderstart", "interface", (MyRuleExecuteFunction)&ExplainClass::onExplainClassHeaderStartInterface);
+        registe("classparents", "", (MyRuleExecuteFunction)&ExplainClass::onExplainClassParents);
+        registe("classparents", "add", (MyRuleExecuteFunction)&ExplainClass::onExplainClassParentsAdd);
+        registe("classheader", "parents", (MyRuleExecuteFunction)&ExplainClass::onExplainClassHeaderParents);
+        registe("classheader", "", (MyRuleExecuteFunction)&ExplainClass::onExplainClassHeader);
+        registe("classdef", "", (MyRuleExecuteFunction)&ExplainClass::onExplainClassDef);
         
-        registe("classelement", "vardeftype", (MyRuleExecuteFunction)&onExplainClassElementVarDef);
-        registe("classelement", "funcdef", (MyRuleExecuteFunction)&onExplainClassElementFuncDef);
-        registe("classelement", "classdef", (MyRuleExecuteFunction)&onExplainClassElementClassDef);
-        registe("classelement", "constructdef", (MyRuleExecuteFunction)&onExplainClassElementConstructDef);
-        registe("classelement", "destructdef", (MyRuleExecuteFunction)&onExplainClassElementDestructDef);
+        registe("classelement", "vardeftype", (MyRuleExecuteFunction)&ExplainClass::onExplainClassElementVarDef);
+        registe("classelement", "funcdef", (MyRuleExecuteFunction)&ExplainClass::onExplainClassElementFuncDef);
+        registe("classelement", "classdef", (MyRuleExecuteFunction)&ExplainClass::onExplainClassElementClassDef);
+        registe("classelement", "constructdef", (MyRuleExecuteFunction)&ExplainClass::onExplainClassElementConstructDef);
+        registe("classelement", "destructdef", (MyRuleExecuteFunction)&ExplainClass::onExplainClassElementDestructDef);
 
-        registe("classelements", "", (MyRuleExecuteFunction)&onExplainClassElements);
-        registe("classelements", "add", (MyRuleExecuteFunction)&onExplainClassElementsAdd);
-        registe("classbody", "", (MyRuleExecuteFunction)&onExplainClassBody);
-        registe("classbody", "null", (MyRuleExecuteFunction)&onExplainClassBodyNull);
+        registe("classelements", "", (MyRuleExecuteFunction)&ExplainClass::onExplainClassElements);
+        registe("classelements", "add", (MyRuleExecuteFunction)&ExplainClass::onExplainClassElementsAdd);
+        registe("classbody", "", (MyRuleExecuteFunction)&ExplainClass::onExplainClassBody);
+        registe("classbody", "null", (MyRuleExecuteFunction)&ExplainClass::onExplainClassBodyNull);
     }
 
 public:

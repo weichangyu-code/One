@@ -15,6 +15,8 @@ set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 #
 aux_source_directory(./file/iocp SEARCH_LIST)
 set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
+aux_source_directory(./file/posix SEARCH_LIST)
+set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 
 #
 aux_source_directory(./engine SEARCH_LIST)

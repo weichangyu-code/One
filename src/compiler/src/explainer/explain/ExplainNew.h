@@ -11,9 +11,9 @@ public:
     ExplainNew(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-		registe("newobject", "param", (MyRuleExecuteFunction)&onExeNewObjectParam);
-		registe("newobject", "", (MyRuleExecuteFunction)&onExeNewObject);
-		registe("newarray", "", (MyRuleExecuteFunction)&onExeNewArray);
+		registe("newobject", "param", (MyRuleExecuteFunction)&ExplainNew::onExeNewObjectParam);
+		registe("newobject", "", (MyRuleExecuteFunction)&ExplainNew::onExeNewObject);
+		registe("newarray", "", (MyRuleExecuteFunction)&ExplainNew::onExeNewArray);
     }
 
 	Result onExeNewObjectParam(Rule* rule, vector<LexElement>& es, LexElement& out)

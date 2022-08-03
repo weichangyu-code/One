@@ -9,12 +9,12 @@ public:
     ExplainWhileBlock(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-        registe("whileblock", "", (MyRuleExecuteFunction)&onExplainWhileBlock);
-        registe("dowhileblock", "", (MyRuleExecuteFunction)&onExplainDoWhileBlock);
-        registe("break", "number", (MyRuleExecuteFunction)&onExplainBreak);
-        registe("break", "", (MyRuleExecuteFunction)&onExplainBreak);
-        registe("continue", "number", (MyRuleExecuteFunction)&onExplainContinue);
-        registe("continue", "", (MyRuleExecuteFunction)&onExplainContinue);
+        registe("whileblock", "", (MyRuleExecuteFunction)&ExplainWhileBlock::onExplainWhileBlock);
+        registe("dowhileblock", "", (MyRuleExecuteFunction)&ExplainWhileBlock::onExplainDoWhileBlock);
+        registe("break", "number", (MyRuleExecuteFunction)&ExplainWhileBlock::onExplainBreak);
+        registe("break", "", (MyRuleExecuteFunction)&ExplainWhileBlock::onExplainBreak);
+        registe("continue", "number", (MyRuleExecuteFunction)&ExplainWhileBlock::onExplainContinue);
+        registe("continue", "", (MyRuleExecuteFunction)&ExplainWhileBlock::onExplainContinue);
     }
     
     Result onExplainWhileBlock(Rule* rule, vector<LexElement>& es, LexElement& out)

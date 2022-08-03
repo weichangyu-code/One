@@ -10,16 +10,16 @@ public:
         : ExplainBase(container, context)
     {
         
-        registe("calltemplate", "", (MyRuleExecuteFunction)&onExplainCallTemplate);
-        registe("calltemplate", "null", (MyRuleExecuteFunction)&onExplainCallTemplateNull);
+        registe("calltemplate", "", (MyRuleExecuteFunction)&ExplainType::onExplainCallTemplate);
+        registe("calltemplate", "null", (MyRuleExecuteFunction)&ExplainType::onExplainCallTemplateNull);
 
-        registe("typepathitem", "template", (MyRuleExecuteFunction)&onExplainTypePathItemTemplate);
-        registe("typepathitem", "identifier", (MyRuleExecuteFunction)&onExplainTypePathItem);
-        registe("typepath", "", (MyRuleExecuteFunction)&onExplainTypePath);
-        registe("typepath", "add", (MyRuleExecuteFunction)&onExplainTypePathAdd);
-        registe("type", "arr", (MyRuleExecuteFunction)&onExplainTypeArr);
-        registe("multitype", "", (MyRuleExecuteFunction)&onExplainMultiType);
-        registe("multitype", "add", (MyRuleExecuteFunction)&onExplainMultiTypeAdd);
+        registe("typepathitem", "template", (MyRuleExecuteFunction)&ExplainType::onExplainTypePathItemTemplate);
+        registe("typepathitem", "identifier", (MyRuleExecuteFunction)&ExplainType::onExplainTypePathItem);
+        registe("typepath", "", (MyRuleExecuteFunction)&ExplainType::onExplainTypePath);
+        registe("typepath", "add", (MyRuleExecuteFunction)&ExplainType::onExplainTypePathAdd);
+        registe("type", "arr", (MyRuleExecuteFunction)&ExplainType::onExplainTypeArr);
+        registe("multitype", "", (MyRuleExecuteFunction)&ExplainType::onExplainMultiType);
+        registe("multitype", "add", (MyRuleExecuteFunction)&ExplainType::onExplainMultiTypeAdd);
     }
 
     Result onExplainCallTemplate(Rule* rule, vector<LexElement>& es, LexElement& out)

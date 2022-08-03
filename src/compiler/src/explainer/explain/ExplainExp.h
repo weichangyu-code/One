@@ -15,67 +15,67 @@ public:
     ExplainExp(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-		registe("exp", "number", (MyRuleExecuteFunction)&onExeExpNumber);
-		registe("exp", "string", (MyRuleExecuteFunction)&onExeExpString);
-		registe("exp", "char", (MyRuleExecuteFunction)&onExeExpChar);
-		registe("exp", "boolean", (MyRuleExecuteFunction)&onExeExpBoolean);
-		registe("exp", "null", (MyRuleExecuteFunction)&onExeExpNull);
+		registe("exp", "number", (MyRuleExecuteFunction)&ExplainExp::onExeExpNumber);
+		registe("exp", "string", (MyRuleExecuteFunction)&ExplainExp::onExeExpString);
+		registe("exp", "char", (MyRuleExecuteFunction)&ExplainExp::onExeExpChar);
+		registe("exp", "boolean", (MyRuleExecuteFunction)&ExplainExp::onExeExpBoolean);
+		registe("exp", "null", (MyRuleExecuteFunction)&ExplainExp::onExeExpNull);
 
-		registe("exp", "multishortsentence", (MyRuleExecuteFunction)&onExeExpMultiShortSentence);
-		registe("exp", "exp", (MyRuleExecuteFunction)&onExeExpExp);
+		registe("exp", "multishortsentence", (MyRuleExecuteFunction)&ExplainExp::onExeExpMultiShortSentence);
+		registe("exp", "exp", (MyRuleExecuteFunction)&ExplainExp::onExeExpExp);
 
-		registe("exp", "callfunc", (MyRuleExecuteFunction)&onExeExpCallFunc);
-		registe("exp", "var", (MyRuleExecuteFunction)&onExeExpVar);
+		registe("exp", "callfunc", (MyRuleExecuteFunction)&ExplainExp::onExeExpCallFunc);
+		registe("exp", "var", (MyRuleExecuteFunction)&ExplainExp::onExeExpVar);
 
-		registe("exp", "forcetype", (MyRuleExecuteFunction)&onExeExpForceType);
+		registe("exp", "forcetype", (MyRuleExecuteFunction)&ExplainExp::onExeExpForceType);
 
-		registe("exp", "index", (MyRuleExecuteFunction)&onExeExpIndex);
+		registe("exp", "index", (MyRuleExecuteFunction)&ExplainExp::onExeExpIndex);
 
-		registe("exp", "linc", (MyRuleExecuteFunction)&onExeExpLInc);
-		registe("exp", "ldec", (MyRuleExecuteFunction)&onExeExpLDec);
-		registe("exp", "rinc", (MyRuleExecuteFunction)&onExeExpRInc);
-		registe("exp", "rdec", (MyRuleExecuteFunction)&onExeExpRDec);
+		registe("exp", "linc", (MyRuleExecuteFunction)&ExplainExp::onExeExpLInc);
+		registe("exp", "ldec", (MyRuleExecuteFunction)&ExplainExp::onExeExpLDec);
+		registe("exp", "rinc", (MyRuleExecuteFunction)&ExplainExp::onExeExpRInc);
+		registe("exp", "rdec", (MyRuleExecuteFunction)&ExplainExp::onExeExpRDec);
 
-		registe("exp", "positive", (MyRuleExecuteFunction)&onExeExpPositive);
-		registe("exp", "negative", (MyRuleExecuteFunction)&onExeExpNegative);
+		registe("exp", "positive", (MyRuleExecuteFunction)&ExplainExp::onExeExpPositive);
+		registe("exp", "negative", (MyRuleExecuteFunction)&ExplainExp::onExeExpNegative);
 
-		registe("exp", "not", (MyRuleExecuteFunction)&onExeExpNot);
-		registe("exp", "bitnot", (MyRuleExecuteFunction)&onExeExpBitNot);
+		registe("exp", "not", (MyRuleExecuteFunction)&ExplainExp::onExeExpNot);
+		registe("exp", "bitnot", (MyRuleExecuteFunction)&ExplainExp::onExeExpBitNot);
 
-		registe("exp", "mul", (MyRuleExecuteFunction)&onExeExpMul);
-		registe("exp", "div", (MyRuleExecuteFunction)&onExeExpDiv);
-		registe("exp", "rec", (MyRuleExecuteFunction)&onExeExpRec);
+		registe("exp", "mul", (MyRuleExecuteFunction)&ExplainExp::onExeExpMul);
+		registe("exp", "div", (MyRuleExecuteFunction)&ExplainExp::onExeExpDiv);
+		registe("exp", "rec", (MyRuleExecuteFunction)&ExplainExp::onExeExpRec);
 
-		registe("exp", "add", (MyRuleExecuteFunction)&onExeExpAdd);
-		registe("exp", "sub", (MyRuleExecuteFunction)&onExeExpSub);
+		registe("exp", "add", (MyRuleExecuteFunction)&ExplainExp::onExeExpAdd);
+		registe("exp", "sub", (MyRuleExecuteFunction)&ExplainExp::onExeExpSub);
 
-		registe("exp", "rbitmov", (MyRuleExecuteFunction)&onExeExpRbitmov);
-		registe("exp", "rbitmov2", (MyRuleExecuteFunction)&onExeExpRbitmov2);
-		registe("exp", "lbitmov", (MyRuleExecuteFunction)&onExeExpLbitmov);
+		registe("exp", "rbitmov", (MyRuleExecuteFunction)&ExplainExp::onExeExpRbitmov);
+		registe("exp", "rbitmov2", (MyRuleExecuteFunction)&ExplainExp::onExeExpRbitmov2);
+		registe("exp", "lbitmov", (MyRuleExecuteFunction)&ExplainExp::onExeExpLbitmov);
 
-		registe("exp", "gt", (MyRuleExecuteFunction)&onExeExpGT);
-		registe("exp", "gte", (MyRuleExecuteFunction)&onExeExpGTE);
-		registe("exp", "lt", (MyRuleExecuteFunction)&onExeExpLT);
-		registe("exp", "lte", (MyRuleExecuteFunction)&onExeExpLTE);
+		registe("exp", "gt", (MyRuleExecuteFunction)&ExplainExp::onExeExpGT);
+		registe("exp", "gte", (MyRuleExecuteFunction)&ExplainExp::onExeExpGTE);
+		registe("exp", "lt", (MyRuleExecuteFunction)&ExplainExp::onExeExpLT);
+		registe("exp", "lte", (MyRuleExecuteFunction)&ExplainExp::onExeExpLTE);
 
-		registe("exp", "eq", (MyRuleExecuteFunction)&onExeExpEQ);
-		registe("exp", "neq", (MyRuleExecuteFunction)&onExeExpNEQ);
-		registe("exp", "eqd", (MyRuleExecuteFunction)&onExeExpEQDeep);
-		registe("exp", "neqd", (MyRuleExecuteFunction)&onExeExpNEQDeep);
+		registe("exp", "eq", (MyRuleExecuteFunction)&ExplainExp::onExeExpEQ);
+		registe("exp", "neq", (MyRuleExecuteFunction)&ExplainExp::onExeExpNEQ);
+		registe("exp", "eqd", (MyRuleExecuteFunction)&ExplainExp::onExeExpEQDeep);
+		registe("exp", "neqd", (MyRuleExecuteFunction)&ExplainExp::onExeExpNEQDeep);
 
-		registe("exp", "bitand", (MyRuleExecuteFunction)&onExeExpBitAnd);
-		registe("exp", "bitxor", (MyRuleExecuteFunction)&onExeExpBitXor);
-		registe("exp", "bitor", (MyRuleExecuteFunction)&onExeExpBitOr);
+		registe("exp", "bitand", (MyRuleExecuteFunction)&ExplainExp::onExeExpBitAnd);
+		registe("exp", "bitxor", (MyRuleExecuteFunction)&ExplainExp::onExeExpBitXor);
+		registe("exp", "bitor", (MyRuleExecuteFunction)&ExplainExp::onExeExpBitOr);
 
-		registe("exp", "and", (MyRuleExecuteFunction)&onExeExpAnd);
-		registe("exp", "or", (MyRuleExecuteFunction)&onExeExpOr);
+		registe("exp", "and", (MyRuleExecuteFunction)&ExplainExp::onExeExpAnd);
+		registe("exp", "or", (MyRuleExecuteFunction)&ExplainExp::onExeExpOr);
 
-		registe("exp", "cond", (MyRuleExecuteFunction)&onExeExpCond);
+		registe("exp", "cond", (MyRuleExecuteFunction)&ExplainExp::onExeExpCond);
 
-		registe("exp", "assign", (MyRuleExecuteFunction)&onExeExpAssign);
+		registe("exp", "assign", (MyRuleExecuteFunction)&ExplainExp::onExeExpAssign);
 
-		registe("multiexp", "", (MyRuleExecuteFunction)&onExeMultiExp);
-		registe("multiexp", "add", (MyRuleExecuteFunction)&onExeMultiExpAdd);
+		registe("multiexp", "", (MyRuleExecuteFunction)&ExplainExp::onExeMultiExp);
+		registe("multiexp", "add", (MyRuleExecuteFunction)&ExplainExp::onExeMultiExpAdd);
     }
 
 	Result onExeExpNumber(Rule* rule, vector<LexElement>& es, LexElement& out)

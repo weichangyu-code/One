@@ -54,7 +54,7 @@ namespace OneCoroutine
             //控制1ms调用一次
             if (timeout > 0)
             {
-                SystamUtils::sleep(1);
+                SystemUtils::sleep(1);
             }
             return;
         }

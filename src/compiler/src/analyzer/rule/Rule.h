@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Common/Element.h"
+#include "../common/Element.h"
 #include "Common.h"
 
 class Rule

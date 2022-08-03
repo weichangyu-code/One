@@ -1,7 +1,7 @@
 #include "../../src/analyzer/rule/RuleAnalyzer.cpp"
 #include "../../src/analyzer/lex/LexElement.cpp"
 #include "../../src/analyzer/lex/LexAnalyzer.cpp"
-#include "../../Common/src/StringUtils.cpp"
+#include "../../common/src/StringUtils.cpp"
 #include "../../common/src/FileUtils.cpp"
 
 int main()

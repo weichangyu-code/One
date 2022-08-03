@@ -140,11 +140,6 @@ namespace OneCoroutine
     {
         socket.setRecvBuf(recvBuf);
     }
-
-    Engine* CoSocket::getEngine()
-    {
-        return socket.getEngine();
-    }
     
     void CoSocket::onEvent(bool read, bool write, bool exception)
     {

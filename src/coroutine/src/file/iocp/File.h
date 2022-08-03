@@ -20,7 +20,7 @@ namespace OneCoroutine
         ~File();
 
     public:
-        int  open(const char* path, int openFlag);
+        int  open(const char* path, int openFlag, int mode);
         void close();
         bool isOpen();
 

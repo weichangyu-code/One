@@ -34,7 +34,13 @@ void MetaType::setNull()
 }
 
 //pair<int, string>
-std::tuple<int, string, string> ONE_BASE_TYPES[] = {
+struct ONE_BASE_TYPE
+{
+    int type;
+    const char* oneType;
+    const char* cppType;
+};
+ONE_BASE_TYPE ONE_BASE_TYPES[] = {
     {DT_VOID , "void", "void"},
     {DT_BOOL , "bool", "bool"},
     {DT_CHAR , "char", "signed char"},
@@ -47,11 +53,11 @@ std::tuple<int, string, string> ONE_BASE_TYPES[] = {
     
 int MetaType::stringToType(const string& type)
 {
-    for (auto& p : ONE_BASE_TYPES)
+    for (auto& t : ONE_BASE_TYPES)
     {
-        if (std::get<1>(p) == type)
+        if (type == t.oneType)
         {
-            return std::get<0>(p);
+            return t.type;
         }
     }
     return DT_NONE;
@@ -59,11 +65,11 @@ int MetaType::stringToType(const string& type)
     
 string MetaType::typeToString(int type)
 {
-    for (auto& p : ONE_BASE_TYPES)
+    for (auto& t : ONE_BASE_TYPES)
     {
-        if (std::get<0>(p) == type)
+        if (t.type == type)
         {
-            return std::get<1>(p);
+            return t.oneType;
         }
     }
     return "";
@@ -71,11 +77,11 @@ string MetaType::typeToString(int type)
     
 string MetaType::typeToCppString(int type)
 {
-    for (auto& p : ONE_BASE_TYPES)
+    for (auto& t : ONE_BASE_TYPES)
     {
-        if (std::get<0>(p) == type)
+        if (t.type == type)
         {
-            return std::get<2>(p);
+            return t.cppType;
         }
     }
     return "";

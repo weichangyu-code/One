@@ -15,18 +15,18 @@ public:
     ExplainCode(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-        registe("element", "sentence", (MyRuleExecuteFunction)&onExplainElementSentence);
-        registe("element", "codeblock", (MyRuleExecuteFunction)&onExplainElementCodeBlock);
-        registe("element", "ifblock", (MyRuleExecuteFunction)&onExplainElementIfBlock);
-        registe("element", "whileblock", (MyRuleExecuteFunction)&onExplainElementWhileBlock);
-        registe("element", "dowhileblock", (MyRuleExecuteFunction)&onExplainElementWhileBlock);
-        registe("element", "forblock", (MyRuleExecuteFunction)&onExplainElementForBlock);
+        registe("element", "sentence", (MyRuleExecuteFunction)&ExplainCode::onExplainElementSentence);
+        registe("element", "codeblock", (MyRuleExecuteFunction)&ExplainCode::onExplainElementCodeBlock);
+        registe("element", "ifblock", (MyRuleExecuteFunction)&ExplainCode::onExplainElementIfBlock);
+        registe("element", "whileblock", (MyRuleExecuteFunction)&ExplainCode::onExplainElementWhileBlock);
+        registe("element", "dowhileblock", (MyRuleExecuteFunction)&ExplainCode::onExplainElementWhileBlock);
+        registe("element", "forblock", (MyRuleExecuteFunction)&ExplainCode::onExplainElementForBlock);
         
-        registe("elements", "", (MyRuleExecuteFunction)&onExplainElements);
-        registe("elements", "add", (MyRuleExecuteFunction)&onExplainElementsAdd);
+        registe("elements", "", (MyRuleExecuteFunction)&ExplainCode::onExplainElements);
+        registe("elements", "add", (MyRuleExecuteFunction)&ExplainCode::onExplainElementsAdd);
 
-        registe("codeblock", "", (MyRuleExecuteFunction)&onExplainCodeBlock);
-        registe("codeblock", "null", (MyRuleExecuteFunction)&onExplainCodeBlockNull);
+        registe("codeblock", "", (MyRuleExecuteFunction)&ExplainCode::onExplainCodeBlock);
+        registe("codeblock", "null", (MyRuleExecuteFunction)&ExplainCode::onExplainCodeBlockNull);
     }
 
     Result onExplainElementSentence(Rule* rule, vector<LexElement>& es, LexElement& out)

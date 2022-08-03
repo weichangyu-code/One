@@ -11,29 +11,29 @@ public:
     ExplainFunc(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-        registe("multifuncparamdef", "", (MyRuleExecuteFunction)&onExplainMultiFuncParamDef);
-        registe("multifuncparamdef", "add", (MyRuleExecuteFunction)&onExplainMultiFuncParamDefAdd);
+        registe("multifuncparamdef", "", (MyRuleExecuteFunction)&ExplainFunc::onExplainMultiFuncParamDef);
+        registe("multifuncparamdef", "add", (MyRuleExecuteFunction)&ExplainFunc::onExplainMultiFuncParamDefAdd);
 
-        registe("funcdefparam", "", (MyRuleExecuteFunction)&onExplainFuncDefParam);
-        registe("funcdefparam", "null", (MyRuleExecuteFunction)&onExplainFuncDefParamNull);
-        registe("funcdefname", "identifier", (MyRuleExecuteFunction)&onExplainFuncDefName);
-        //registe("funcdefname", "templatedef", (MyRuleExecuteFunction)&onExplainFuncDefTemplate);
-        registe("funcdefheader", "", (MyRuleExecuteFunction)&onExplainFuncDefHeader);
-        registe("funcdef", "normal", (MyRuleExecuteFunction)&onExplainFuncDefNormal);
-        registe("funcdef", "static", (MyRuleExecuteFunction)&onExplainFuncDefStatic);
-        registe("funcdef", "vnormal", (MyRuleExecuteFunction)&onExplainFuncDefVirtualNormal);
-        registe("funcdef", "virtual", (MyRuleExecuteFunction)&onExplainFuncDefVirtual);
+        registe("funcdefparam", "", (MyRuleExecuteFunction)&ExplainFunc::onExplainFuncDefParam);
+        registe("funcdefparam", "null", (MyRuleExecuteFunction)&ExplainFunc::onExplainFuncDefParamNull);
+        registe("funcdefname", "identifier", (MyRuleExecuteFunction)&ExplainFunc::onExplainFuncDefName);
+        //registe("funcdefname", "templatedef", (MyRuleExecuteFunction)&ExplainFunc::onExplainFuncDefTemplate);
+        registe("funcdefheader", "", (MyRuleExecuteFunction)&ExplainFunc::onExplainFuncDefHeader);
+        registe("funcdef", "normal", (MyRuleExecuteFunction)&ExplainFunc::onExplainFuncDefNormal);
+        registe("funcdef", "static", (MyRuleExecuteFunction)&ExplainFunc::onExplainFuncDefStatic);
+        registe("funcdef", "vnormal", (MyRuleExecuteFunction)&ExplainFunc::onExplainFuncDefVirtualNormal);
+        registe("funcdef", "virtual", (MyRuleExecuteFunction)&ExplainFunc::onExplainFuncDefVirtual);
 
-        registe("constructdef", "", (MyRuleExecuteFunction)&onExplainConstructDef);
-        registe("destructdef", "", (MyRuleExecuteFunction)&onExplainDestructDef);
+        registe("constructdef", "", (MyRuleExecuteFunction)&ExplainFunc::onExplainConstructDef);
+        registe("destructdef", "", (MyRuleExecuteFunction)&ExplainFunc::onExplainDestructDef);
 
-        registe("callfuncparam", "null", (MyRuleExecuteFunction)&onExplainCallFuncParamNull);
-        registe("callfuncparam", "", (MyRuleExecuteFunction)&onExplainCallFuncParam);
-        registe("callfunc", "destruct", (MyRuleExecuteFunction)&onExplainCallFuncDestruct);
-        registe("callfunc", "", (MyRuleExecuteFunction)&onExplainCallFunc);
+        registe("callfuncparam", "null", (MyRuleExecuteFunction)&ExplainFunc::onExplainCallFuncParamNull);
+        registe("callfuncparam", "", (MyRuleExecuteFunction)&ExplainFunc::onExplainCallFuncParam);
+        registe("callfunc", "destruct", (MyRuleExecuteFunction)&ExplainFunc::onExplainCallFuncDestruct);
+        registe("callfunc", "", (MyRuleExecuteFunction)&ExplainFunc::onExplainCallFunc);
 
-        registe("return", "", (MyRuleExecuteFunction)&onExplainReturn);
-        registe("return", "null", (MyRuleExecuteFunction)&onExplainReturnNull);
+        registe("return", "", (MyRuleExecuteFunction)&ExplainFunc::onExplainReturn);
+        registe("return", "null", (MyRuleExecuteFunction)&ExplainFunc::onExplainReturnNull);
     }
     
     Result onExplainMultiFuncParamDef(Rule* rule, vector<LexElement>& es, LexElement& out)

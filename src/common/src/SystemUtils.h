@@ -1,8 +1,6 @@
 #pragma once
 #include "Common.h"
 
-#define compilerBarrier()	asm volatile("" ::: "memory")
-
 namespace OneCommon
 {
     class SystemUtils

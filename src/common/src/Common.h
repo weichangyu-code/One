@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <functional>
+#include <limits>
+#include <limits.h>
 using namespace std;
 
 #define SAFE_DELETE(ptr) \

@@ -8,11 +8,11 @@ public:
     ExplainIdentifier(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-        registe("multiidentifier", "", (MyRuleExecuteFunction)&onExplainMultiIdentifier);
-        registe("multiidentifier", "add", (MyRuleExecuteFunction)&onExplainMultiIdentifierAdd);
+        registe("multiidentifier", "", (MyRuleExecuteFunction)&ExplainIdentifier::onExplainMultiIdentifier);
+        registe("multiidentifier", "add", (MyRuleExecuteFunction)&ExplainIdentifier::onExplainMultiIdentifierAdd);
 
-        registe("identifierpath", "", (MyRuleExecuteFunction)&onExplainIdentifierPath);
-        registe("identifierpath", "add", (MyRuleExecuteFunction)&onExplainIdentifierPathAdd);
+        registe("identifierpath", "", (MyRuleExecuteFunction)&ExplainIdentifier::onExplainIdentifierPath);
+        registe("identifierpath", "add", (MyRuleExecuteFunction)&ExplainIdentifier::onExplainIdentifierPathAdd);
     }
 
     Result onExplainMultiIdentifier(Rule* rule, vector<LexElement>& es, LexElement& out)

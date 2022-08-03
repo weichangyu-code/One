@@ -11,21 +11,21 @@ public:
     ExplainVarDef(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-        registe("vardefstart", "auto", (MyRuleExecuteFunction)&onExplainVarDefStartAuto);
-        registe("vardefstart", "new", (MyRuleExecuteFunction)&onExplainVarDefStartNew);
-        registe("vardefstart", "assign", (MyRuleExecuteFunction)&onExplainVarDefStartAssign);
-        registe("vardefstart", "array", (MyRuleExecuteFunction)&onExplainVarDefStartArray);
-        registe("vardefstart", "normal", (MyRuleExecuteFunction)&onExplainVarDefStartNormal);
-        registe("vardef", "prefix", (MyRuleExecuteFunction)&onExplainVarDefPrefix);
+        registe("vardefstart", "auto", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefStartAuto);
+        registe("vardefstart", "new", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefStartNew);
+        registe("vardefstart", "assign", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefStartAssign);
+        registe("vardefstart", "array", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefStartArray);
+        registe("vardefstart", "normal", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefStartNormal);
+        registe("vardef", "prefix", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefPrefix);
 
-        registe("vardefnull", "auto", (MyRuleExecuteFunction)&onExplainVarDefNullAuto);
-        registe("vardefnull", "normal", (MyRuleExecuteFunction)&onExplainVarDefNullNormal);
+        registe("vardefnull", "auto", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefNullAuto);
+        registe("vardefnull", "normal", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefNullNormal);
         
-        registe("vardeftypestart", "new", (MyRuleExecuteFunction)&onExplainVarDefTypeStartNew);
-        registe("vardeftypestart", "normal", (MyRuleExecuteFunction)&onExplainVarDefTypeStartNormal);
-        registe("vardeftypestart", "assign", (MyRuleExecuteFunction)&onExplainVarDefTypeStartAssign);
-        registe("vardeftypestart", "array", (MyRuleExecuteFunction)&onExplainVarDefTypeStartArray);
-        registe("vardeftype", "prefix", (MyRuleExecuteFunction)&onExplainVarDefTypePrefix);
+        registe("vardeftypestart", "new", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefTypeStartNew);
+        registe("vardeftypestart", "normal", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefTypeStartNormal);
+        registe("vardeftypestart", "assign", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefTypeStartAssign);
+        registe("vardeftypestart", "array", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefTypeStartArray);
+        registe("vardeftype", "prefix", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefTypePrefix);
     }
 
     Result onExplainVarDefStartAuto(Rule* rule, vector<LexElement>& es, LexElement& out)

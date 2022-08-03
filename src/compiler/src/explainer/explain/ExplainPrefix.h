@@ -8,8 +8,8 @@ public:
     ExplainPrefix(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-		registe("vardefprefix", "", (MyRuleExecuteFunction)&onExeFuncPrefix);
-		registe("vardefprefix", "add", (MyRuleExecuteFunction)&onExeFuncPrefixAdd);
+		registe("vardefprefix", "", (MyRuleExecuteFunction)&ExplainPrefix::onExeFuncPrefix);
+		registe("vardefprefix", "add", (MyRuleExecuteFunction)&ExplainPrefix::onExeFuncPrefixAdd);
     }
 
 	Result onExeFuncPrefix(Rule* rule, vector<LexElement>& es, LexElement& out)

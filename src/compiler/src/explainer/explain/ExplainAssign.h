@@ -9,22 +9,22 @@ public:
     ExplainAssign(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-		registe("assign", "deepassign", (MyRuleExecuteFunction)&onExeDeepAssign);
-		registe("assign", "refassign", (MyRuleExecuteFunction)&onExeRefAssign);
+		registe("assign", "deepassign", (MyRuleExecuteFunction)&ExplainAssign::onExeDeepAssign);
+		registe("assign", "refassign", (MyRuleExecuteFunction)&ExplainAssign::onExeRefAssign);
 
-		registe("assign", "addassign", (MyRuleExecuteFunction)&onExeAddAssign);
-		registe("assign", "subassign", (MyRuleExecuteFunction)&onExeSubAssign);
-		registe("assign", "mulassign", (MyRuleExecuteFunction)&onExeMulAssign);
-		registe("assign", "divassign", (MyRuleExecuteFunction)&onExeDivAssign);
-		registe("assign", "recassign", (MyRuleExecuteFunction)&onExeRecAssign);
-		registe("assign", "rbitmovassign", (MyRuleExecuteFunction)&onExeRbitmovAssign);
-		registe("assign", "rbitmov2assign", (MyRuleExecuteFunction)&onExeRbitmov2Assign);
-		registe("assign", "lbitmovassign", (MyRuleExecuteFunction)&onExeLbitmovAssign);
-		registe("assign", "bitandassign", (MyRuleExecuteFunction)&onExeBitAndAssign);
-		registe("assign", "bitxorassign", (MyRuleExecuteFunction)&onExeBitXorAssign);
-		registe("assign", "bitorassign", (MyRuleExecuteFunction)&onExeBitOrAssign);
-		registe("assign", "andassign", (MyRuleExecuteFunction)&onExeAndAssign);
-		registe("assign", "orassign", (MyRuleExecuteFunction)&onExeOrAssign);
+		registe("assign", "addassign", (MyRuleExecuteFunction)&ExplainAssign::onExeAddAssign);
+		registe("assign", "subassign", (MyRuleExecuteFunction)&ExplainAssign::onExeSubAssign);
+		registe("assign", "mulassign", (MyRuleExecuteFunction)&ExplainAssign::onExeMulAssign);
+		registe("assign", "divassign", (MyRuleExecuteFunction)&ExplainAssign::onExeDivAssign);
+		registe("assign", "recassign", (MyRuleExecuteFunction)&ExplainAssign::onExeRecAssign);
+		registe("assign", "rbitmovassign", (MyRuleExecuteFunction)&ExplainAssign::onExeRbitmovAssign);
+		registe("assign", "rbitmov2assign", (MyRuleExecuteFunction)&ExplainAssign::onExeRbitmov2Assign);
+		registe("assign", "lbitmovassign", (MyRuleExecuteFunction)&ExplainAssign::onExeLbitmovAssign);
+		registe("assign", "bitandassign", (MyRuleExecuteFunction)&ExplainAssign::onExeBitAndAssign);
+		registe("assign", "bitxorassign", (MyRuleExecuteFunction)&ExplainAssign::onExeBitXorAssign);
+		registe("assign", "bitorassign", (MyRuleExecuteFunction)&ExplainAssign::onExeBitOrAssign);
+		registe("assign", "andassign", (MyRuleExecuteFunction)&ExplainAssign::onExeAndAssign);
+		registe("assign", "orassign", (MyRuleExecuteFunction)&ExplainAssign::onExeOrAssign);
     }
 
     Result onExeRefAssign(Rule* rule, vector<LexElement>& es, LexElement& out)

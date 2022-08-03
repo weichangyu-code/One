@@ -10,9 +10,9 @@ public:
     ExplainFile(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-        registe("fileelement", "classdef", (MyRuleExecuteFunction)&onExplainClassDef);
+        registe("fileelement", "classdef", (MyRuleExecuteFunction)&ExplainFile::onExplainClassDef);
 
-        registe("import", "", (MyRuleExecuteFunction)&onExplainImport);
+        registe("import", "", (MyRuleExecuteFunction)&ExplainFile::onExplainImport);
     }
 
     Result onExplainClassDef(Rule* rule, vector<LexElement>& es, LexElement& out)

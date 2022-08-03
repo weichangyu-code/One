@@ -1,3 +1,6 @@
+
+#ifdef _WIN32
+
 #include "File.h"
 #include "../FileFlag.h"
 #include "../../socket/iocp/Iocp.h"
@@ -15,7 +18,7 @@ namespace OneCoroutine
 
     }
 
-    int File::open(const char* path, int openFlag)
+    int File::open(const char* path, int openFlag, int mode)
     {
         close();
 
@@ -161,3 +164,5 @@ namespace OneCoroutine
         }
     }
 }
+
+#endif

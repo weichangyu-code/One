@@ -9,14 +9,14 @@ public:
     ExplainIfBlock(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-        registe("ifstart", "", (MyRuleExecuteFunction)&onExplainIfStart);
-        registe("if", "", (MyRuleExecuteFunction)&onExplainIf);
-        registe("else", "", (MyRuleExecuteFunction)&onExplainElse);
-        registe("elseifstart", "", (MyRuleExecuteFunction)&onExplainElseIfStart);
-        registe("elseif", "", (MyRuleExecuteFunction)&onExplainElseIf);
-        registe("ifblockstart", "", (MyRuleExecuteFunction)&onExplainIfBlockStart);
-        registe("ifblockstart", "elseif", (MyRuleExecuteFunction)&onExplainIfBlockStartElseIf);
-        registe("ifblock", "else", (MyRuleExecuteFunction)&onExplainIfBlockElse);
+        registe("ifstart", "", (MyRuleExecuteFunction)&ExplainIfBlock::onExplainIfStart);
+        registe("if", "", (MyRuleExecuteFunction)&ExplainIfBlock::onExplainIf);
+        registe("else", "", (MyRuleExecuteFunction)&ExplainIfBlock::onExplainElse);
+        registe("elseifstart", "", (MyRuleExecuteFunction)&ExplainIfBlock::onExplainElseIfStart);
+        registe("elseif", "", (MyRuleExecuteFunction)&ExplainIfBlock::onExplainElseIf);
+        registe("ifblockstart", "", (MyRuleExecuteFunction)&ExplainIfBlock::onExplainIfBlockStart);
+        registe("ifblockstart", "elseif", (MyRuleExecuteFunction)&ExplainIfBlock::onExplainIfBlockStartElseIf);
+        registe("ifblock", "else", (MyRuleExecuteFunction)&ExplainIfBlock::onExplainIfBlockElse);
         //registe("ifblock", "", (MyRuleExecuteFunction)&onExplainIfBlock);
     }
     

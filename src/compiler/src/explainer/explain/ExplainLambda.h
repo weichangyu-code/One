@@ -12,9 +12,9 @@ public:
     ExplainLambda(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-        registe("lambda", "", (MyRuleExecuteFunction)&onExplainLambda);
-        registe("lambda", "null", (MyRuleExecuteFunction)&onExplainLambdaNull);
-        registe("newanony", "", (MyRuleExecuteFunction)&onExplainNewAnony);
+        registe("lambda", "", (MyRuleExecuteFunction)&ExplainLambda::onExplainLambda);
+        registe("lambda", "null", (MyRuleExecuteFunction)&ExplainLambda::onExplainLambdaNull);
+        registe("newanony", "", (MyRuleExecuteFunction)&ExplainLambda::onExplainNewAnony);
     }
 
     Result onExplainLambda(Rule* rule, vector<LexElement>& es, LexElement& out)

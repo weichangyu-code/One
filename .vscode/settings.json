@@ -50,7 +50,8 @@
         "thread": "cpp",
         "chrono": "cpp",
         "ratio": "cpp",
-        "mutex": "cpp"
+        "mutex": "cpp",
+        "numeric": "cpp"
     },
     "cmake.debugConfig": {
         "args": ["./one/HttpServer"],

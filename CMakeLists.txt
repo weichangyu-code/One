@@ -3,4 +3,6 @@ project(One VERSION 0.1.0)
 
 add_subdirectory(./src)
 add_subdirectory(./depend)
+if(EXISTS ./one/HttpServer/build)
 add_subdirectory(./one/HttpServer/build)
+endif()
