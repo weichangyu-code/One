@@ -29,8 +29,6 @@ namespace OneCoroutine
         void freeToPool(OperateOverlapped* oo);
         void clearOoPool();
 
-        Engine* getEngine();
-
     protected:
         bool dealwithOperateOverlapped(unsigned int timeout);
         int  getOperateOverlappedError(OperateOverlapped* oo);

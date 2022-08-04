@@ -155,12 +155,6 @@ namespace OneCoroutine
             delete GET_ENTRY(OperateOverlapped, poolNode, node);
         }
     }
-        
-    Engine* Iocp::getEngine()
-    {
-        return engine;
-    }
-
     
 } // namespace One
 

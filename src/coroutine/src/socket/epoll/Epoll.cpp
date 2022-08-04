@@ -69,11 +69,6 @@ namespace OneCoroutine
                 (event.events & EPOLLERR) || (event.events & EPOLLHUP));
         }
     }
-        
-    Engine* Epoll::getEngine()
-    {
-        return engine;
-    }
     
 } // namespace One
 

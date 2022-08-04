@@ -12,6 +12,7 @@ namespace OneCoroutine
 {
     CoSocket::CoSocket()
         : socket(Engine::getCurEngine()->epoll, this)
+        , readEvent(false)
     {
 
     }

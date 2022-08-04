@@ -67,7 +67,7 @@ namespace OneCoroutine
 	template <class PUSH_LOCK_TYPE, class POP_LOCK_TYPE, class TYPE>
 	LockFreeQueue<PUSH_LOCK_TYPE, POP_LOCK_TYPE, TYPE>::LockFreeQueue(unsigned int maxSize)
 	{
-		//必须是2的N次方
+		//必须是2的N次方，设置成UINT_MAX - 100，可以提前暴露跨界的问题
 		_read.set(UINT_MAX - 100);
 		_write.set(UINT_MAX - 100);
 
@@ -92,7 +92,7 @@ namespace OneCoroutine
 		_write_mtx.lock();
 
 		unsigned int write = (unsigned int)_write.load();
-		unsigned int left = write - _read.load();
+		unsigned int left = write - (unsigned int)_read.load();
 
 		//保证都可以放入队列，所以满了就堵塞。
 		if ((_reserve.empty() && ((left + 101) < _max_size)))
@@ -115,8 +115,8 @@ namespace OneCoroutine
 	{
 		_read_mtx.lock();
 
-		unsigned int read = _read.load();
-		unsigned int left = _write.load() - read;	//必须先计算下
+		unsigned int read = (unsigned int)_read.load();
+		unsigned int left = (unsigned int)_write.load() - read;	//必须先计算下
 		if (left > 0)
 		{
 			data = _data[read & (_max_size - 1)];

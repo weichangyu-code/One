@@ -19,8 +19,6 @@ namespace OneCoroutine
 
         void wait(unsigned int timeout);
 
-        Engine* getEngine();
-
     protected:
         Engine* engine = nullptr;
         int epollFd = -1;

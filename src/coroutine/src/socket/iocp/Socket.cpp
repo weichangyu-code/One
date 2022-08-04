@@ -291,11 +291,6 @@ namespace OneCoroutine
         setSocketRecvBuf(sockFd, recvBuf);
     }
         
-    Engine* Socket::getEngine()
-    {
-        return iocp->getEngine();
-    }
-        
     void Socket::cancelIo(OperateOverlapped* oo)
     {
         iocp->cancelIo(oo);

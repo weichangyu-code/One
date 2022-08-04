@@ -30,8 +30,6 @@ namespace OneCoroutine
         void setSendBuf(unsigned int sendBuf);
         void setRecvBuf(unsigned int recvBuf);
 
-        Engine* getEngine();
-
     protected:
         void onEvent(bool read, bool write, bool exception);
 

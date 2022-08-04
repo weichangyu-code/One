@@ -32,8 +32,6 @@ namespace OneCoroutine
         void setSendBuf(unsigned int sendBuf);
         void setRecvBuf(unsigned int recvBuf);
 
-        Engine* getEngine();
-
     protected:
         LPFN_CONNECTEX getConnectExFunc();
 

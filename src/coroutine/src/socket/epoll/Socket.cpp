@@ -167,12 +167,6 @@ namespace OneCoroutine
         setSocketRecvBuf(sockFd, recvBuf);
     }
 
-    Engine* Socket::getEngine()
-    {
-        return epoll->getEngine();
-    }
-
-
 } // namespace One
 
 #endif

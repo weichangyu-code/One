@@ -13,7 +13,7 @@ namespace OneCoroutine
         CoFile();
         ~CoFile();
 
-        int  open(const char* path, int openFlag = 0, int mode = 0);
+        int  open(const char* path, int openFlag = 0, int mode = 0777);     //mode是8进制的
         void close();
         int  write(const char* data, unsigned int len);
         int  read(char* data, unsigned int len);

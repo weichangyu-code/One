@@ -81,7 +81,7 @@ namespace OneCoroutine
         }
 
     protected:
-        volatile unsigned int _d = 0;
+        volatile intptr_t _d = 0;
     };
 
     // class Atomic
