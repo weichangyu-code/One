@@ -29,7 +29,7 @@ namespace OneCoroutine
             LockFreeNode* head = _head.get();
             node->_next.set(head);
             //直接访问node->next有一定的风险，所以要求node不能销毁
-            if (_head.comp_exchange(head, node))
+            if (_head.comp_exchange(head, node) == head)
             {
                 return;
             }

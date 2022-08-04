@@ -17,6 +17,12 @@ namespace OneCoroutine
 
 	    signal(SIGPIPE, SIG_IGN);
         epollFd = epoll_create(1);
+
+        pipe(pipefd);
+        struct epoll_event ev;
+        ev.data.ptr = nullptr;
+        ev.events = EPOLLIN|EPOLLET;
+        epoll_ctl(epollFd, EPOLL_CTL_ADD, pipefd[0], &ev);
     }
 
     Epoll::~Epoll()
@@ -60,13 +66,37 @@ namespace OneCoroutine
         }
         lastWaitTime = time;
 
+        if (timeout > 0)
+        {
+            waitState.store(1);
+        }
         int eventNum = epoll_wait(epollFd, events, EVENT_NUM, timeout);
+        if (timeout > 0)
+        {
+            waitState.store(0);
+        }
+
         for (int i = 0;i < eventNum;i++)
         {
             epoll_event& event = events[i];
             Socket* socket  = (Socket*)event.data.ptr;
-            socket->onEvent(event.events & EPOLLIN, event.events & EPOLLOUT, 
-                (event.events & EPOLLERR) || (event.events & EPOLLHUP));
+            if (socket)
+            {
+                socket->onEvent(event.events & EPOLLIN, event.events & EPOLLOUT, 
+                    (event.events & EPOLLERR) || (event.events & EPOLLHUP));
+            }
+        }
+    }
+        
+    void Epoll::active()
+    {
+        if (waitState.load() == 1)
+        {
+            // struct epoll_event ev;
+            // ev.data.ptr = nullptr;
+            // ev.events = EPOLLOUT|EPOLLET;
+            // epoll_ctl(epollFd, EPOLL_CTL_MOD, pipefd[1], &ev);
+            ::write(pipefd[1], "", 1);
         }
     }
     

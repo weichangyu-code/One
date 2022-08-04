@@ -285,18 +285,21 @@ namespace OneCoroutine
         struct
         {
             const SimpleFunction* func;
-            Engine* engine;
             CoCondition cond;
         } data;
         data.func = &func;
-        data.engine = this;
 
         //参数控制在16个字节
-        g_threadPool.execute([&data]() {
+        g_threadPool.execute([&data, this]() {
             (*data.func)();
-            data.engine->asyncQueue.push([&data]() {
+            asyncQueue.push([&data]() {
                 data.cond.active();
             });
+
+#ifdef _WIN32
+#else
+            epoll->active();
+#endif
         });
         data.cond.wait();
     }

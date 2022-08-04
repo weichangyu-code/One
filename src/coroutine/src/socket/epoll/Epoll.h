@@ -2,6 +2,7 @@
 #ifndef _WIN32
 
 #include "../Network.h"
+#include "../../multithread/Atomic.h"
 
 namespace OneCoroutine
 {
@@ -18,10 +19,15 @@ namespace OneCoroutine
         void unregisterEvent(Socket* socket);
 
         void wait(unsigned int timeout);
+        void active();                                      //  激活等待
 
     protected:
         Engine* engine = nullptr;
         int epollFd = -1;
+
+        //pipe用于激活wait
+        AtomicInt waitState;
+        int pipefd[2] = {-1, -1};
         
         unsigned int lastWaitTime = 0;
         static const int EVENT_NUM = 1000;

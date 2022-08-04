@@ -12,14 +12,19 @@ int main()
 {
     Engine engine;
     engine.createCoroutine([](Coroutine* co){
+
+        unsigned int start = SystemUtils::getMSTick();
+
         CoFile file;
         file.open("./a.out");
-        file.write("hello world\n", 13);
+        char buf[4*1024];
+        for (int i = 0;i < 10000;i++)
+        {
+            file.write(buf, sizeof(buf));
+        }
         file.close();
-        char c[32];
-        file.open("./a.out");
-        int ret = file.read(c, sizeof(c));
-        ret = 0;
+
+        CoStdOut::print("use time=%d\n", SystemUtils::getMSTick() - start);
     });
     engine.run();
 
