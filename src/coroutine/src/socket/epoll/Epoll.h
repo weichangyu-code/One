@@ -2,7 +2,7 @@
 #ifndef _WIN32
 
 #include "../Network.h"
-#include "../../multithread/Atomic.h"
+#include "../../thread/Atomic.h"
 
 namespace OneCoroutine
 {

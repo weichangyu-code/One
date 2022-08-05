@@ -103,7 +103,12 @@ namespace OneCoroutine
         OperateOverlapped* oo = iocp->mallocFromPool();
         oo->handle = hFile;
         oo->cbUser = cb;
+        oo->ol.Pointer = (PVOID)writePos;
         oo->cb = [this](OperateOverlapped* oo) {
+            if (oo->error == 0)
+            {
+                writePos += oo->trans;
+            }
             oo->cbUser(oo);
             iocp->freeToPool(oo);
         };
@@ -136,7 +141,12 @@ namespace OneCoroutine
         OperateOverlapped* oo = iocp->mallocFromPool();
         oo->handle = hFile;
         oo->cbUser = cb;
+        oo->ol.Pointer = (PVOID)readPos;
         oo->cb = [this](OperateOverlapped* oo) {
+            if (oo->error == 0)
+            {
+                readPos += oo->trans;
+            }
             oo->cbUser(oo);
             iocp->freeToPool(oo);
         };

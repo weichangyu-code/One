@@ -30,6 +30,8 @@ namespace OneCoroutine
     protected:
         Iocp* iocp = nullptr;
         HANDLE hFile = INVALID_HANDLE_VALUE;
+        unsigned long long readPos = 0;
+        unsigned long long writePos = 0;
     };
 }
 
