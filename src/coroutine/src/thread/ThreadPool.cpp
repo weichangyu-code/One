@@ -5,9 +5,10 @@ namespace OneCoroutine
     Worker::Worker(ThreadPool* pool)
     {
         this->pool = pool;
+        printf("new work\n");
     }
         
-    bool Worker::execute(const SimpleFunction& func)
+    void Worker::execute(const SimpleFunction& func)
     {
         if (running == false)
         {
@@ -23,29 +24,22 @@ namespace OneCoroutine
                         continue;
                     }
                     
-                    unique_lock<mutex> l(mtx);
                     pool->freeWorker(this);
-                    cond.wait(l);
+                    sema.wait();
                 } while (running);
             });
         }
         else
         {
             //必须加锁，确保线程已经在等待
-            if (mtx.try_lock() == false)
-            {
-                //锁冲突了，放弃这个WORKER
-                return false;
-            }
             task = func;
-            cond.notify_one();
-            mtx.unlock();
+            sema.post();
         }
-        return true;
     }
 
 
     ThreadPool::ThreadPool()
+        :workerNum(0)
     {
         //threads.size
     }
@@ -105,30 +99,15 @@ namespace OneCoroutine
     
     void ThreadPool::execute(const SimpleFunction& func)
     {
-        LockFreeStackHead head;
-
         //有空闲线程，直接触发
         //没空闲线程，新建线程
         //线程数达到最大后，进入队列等待
         Worker* worker = getWorker();
-        while (worker)
+        if (worker)
         {
-            if (worker->execute(func))
-            {
-                break;
-            }
-
-            head.pushUnsafe(&worker->node);
-            worker = getWorker();
+            worker->execute(func);
         }
-
-        for (LockFreeNode* next = head.head();next != nullptr;next = next->next())
-        {
-            freeWorker(GET_ENTRY(Worker, node, next));
-        }
-
-        //最后没成功，还是放到队列
-        if (worker == nullptr)
+        else
         {
             pushTask(func);
         }

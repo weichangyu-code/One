@@ -3,7 +3,11 @@
 #include <mutex>
 #include <condition_variable>
 #include <semaphore.h>
+#include "Atomic.h"
 
+/*
+Event signal内部有很大概率锁冲突，性能不是很好
+*/
 
 namespace OneCoroutine
 {

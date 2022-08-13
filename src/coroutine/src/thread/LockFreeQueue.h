@@ -44,7 +44,7 @@ namespace OneCoroutine
 	class LockFreeQueue
 	{
 	public:
-		LockFreeQueue(unsigned int maxSize);
+		LockFreeQueue(unsigned int maxSize = 4096);
 		~LockFreeQueue();
 
 	public:

@@ -54,17 +54,17 @@ namespace OneCoroutine
     void Epoll::wait(unsigned int timeout)
     {
         //控制调用频率，同1ms只调用一次
-        unsigned int time = SystemUtils::getMSTick();
-        if (lastWaitTime == time)
-        {
-            //控制1ms调用一次
-            if (timeout > 0)
-            {
-                SystemUtils::sleep(1);
-            }
-            return;
-        }
-        lastWaitTime = time;
+        // unsigned int time = SystemUtils::getMSTick();
+        // if (lastWaitTime == time)
+        // {
+        //     //控制1ms调用一次
+        //     if (timeout > 0)
+        //     {
+        //         SystemUtils::sleep(1);
+        //     }
+        //     return;
+        // }
+        // lastWaitTime = time;
 
         if (timeout > 0)
         {
@@ -85,18 +85,31 @@ namespace OneCoroutine
                 socket->onEvent(event.events & EPOLLIN, event.events & EPOLLOUT, 
                     (event.events & EPOLLERR) || (event.events & EPOLLHUP));
             }
+            else
+            {
+                char buf[10];
+                int i = ::read(pipefd[0], buf, sizeof(buf));
+                // printf("aaaaaaaaaa read=%d\n", i);
+            }
         }
     }
         
     void Epoll::active()
     {
-        if (waitState.load() == 1)
+        //if (waitState.load() == 1)
         {
             // struct epoll_event ev;
             // ev.data.ptr = nullptr;
             // ev.events = EPOLLOUT|EPOLLET;
             // epoll_ctl(epollFd, EPOLL_CTL_MOD, pipefd[1], &ev);
             ::write(pipefd[1], "", 1);
+
+            // static int times = 0;
+            // times++;
+            // if (times % 100 == 0)
+            // {
+            //     printf("times=%d\n", times);
+            // }
         }
     }
     

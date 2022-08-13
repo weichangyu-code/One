@@ -2,6 +2,7 @@
 #include <time.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <thread>
 
 namespace OneCommon
 {
@@ -21,6 +22,12 @@ namespace OneCommon
 
     void SystemUtils::sleep(unsigned int msec)
     {
-        usleep(msec * 1000);
+        //usleep(msec * 1000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(msec));
+    }
+    
+    void SystemUtils::yield()
+    {
+        std::this_thread::yield();
     }
 }

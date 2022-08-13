@@ -10,5 +10,6 @@ namespace OneCommon
         static unsigned long long getUSTick();     //微妙
         
         static void sleep(unsigned int msec);
+        static void yield();
     };
 }

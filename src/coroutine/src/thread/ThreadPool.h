@@ -8,6 +8,7 @@
 #include "List.h"
 #include "Event.h"
 #include "LockFreeList.h"
+#include "Semaphore.h"
 
 namespace OneCoroutine
 {
@@ -26,7 +27,7 @@ namespace OneCoroutine
         Worker(ThreadPool* pool);
 
     public:
-        bool execute(const SimpleFunction& func);
+        void execute(const SimpleFunction& func);
 
     public:
         ThreadPool* pool = nullptr;
@@ -37,8 +38,7 @@ namespace OneCoroutine
         std::thread thd;
         volatile bool running = false;
         
-        mutex mtx;
-        condition_variable cond;
+        Semaphore sema;
 
         LockFreeNode node;
     };
