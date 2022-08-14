@@ -13,22 +13,21 @@
 
 ## 原理
 . 将One语言解释成C++语言用CMAKE+GCC编译。  
-. 集成协程库、网络库。  
+. 集成协程库、网络库、异步IO库。  
 
 ## 进展
 . 完成大流程，HELLO ONE已经出来。  
 . 完成协程库，可以独立使用。  
-. 完成协程下的网络通讯库，LINUX使用EPOLL，WINDOWS使用IOCP，可以独立使用。  
+. 完成协程下的网络通讯库，LINUX使用EPOLL，WINDOWS使用IOCP，可以独立使用。
+. 完成异步IO库  
 
-## 接下来
-. 完善IF、FOR、WHILE块编译。  
-. 完善文件IO库。  
+## 接下来  
 . 完善各种基础库。  
 . 开发一个HTTP服务，用于验证。  
+. 继承Linux io_uring
 
 ## 注意
-. 规则文件在compiler/src/analyzer/rule/one.rule，修改规则后需要执行compiler/test/analyzer/RuleGenerator生成规则执行文件compiler/src/analyzer/one/OneRuleMap.inl  
-. compiler/test/generator/CppGeneratorTest用以编译One代码
+. 规则文件在compiler/src/analyzer/rule/one.rule，修改规则后需要执行compiler/test/analyzer/RuleGenerator生成规则执行文件compiler/src/analyzer/one/OneRuleMap.inl
 
 ## 最后
 . 未完待......  
