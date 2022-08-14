@@ -276,8 +276,8 @@ using namespace OneCoroutine;
 //     sem_init(&sem2, 0, 0);
 
 //     Event event3;
-//     atomic_int times1;
-//     atomic_int times2;
+//     atomic_int times1(0);
+//     atomic_int times2(0);
 
 //     new thread([&]() {
 //         while (times1.fetch_add(1) < 100000)
@@ -356,8 +356,8 @@ int main()
     sem_init(&sem2, 0, 0);
 
     Event event3;
-    atomic_int times1;
-    atomic_int times2;
+    atomic_int times1(0);
+    atomic_int times2(0);
 
     ThreadPool tp;
 

@@ -1,6 +1,8 @@
 #include "Semaphore.h"
 
-#ifndef _WIN32
+#ifdef _WIN32
+#include <Windows.h>
+#else
 #include <sys/time.h>
 #endif
 
@@ -9,7 +11,7 @@ namespace OneCoroutine
 	Semaphore::Semaphore(unsigned int init)
 	{
 #ifdef _WIN32
-		_sema_h = ::CreateSemaphorephore(NULL, init, UINT_MAX, NULL);
+		_sema_h = ::CreateSemaphore(NULL, init, INT_MAX, NULL);
 #else
 		sem_init(&_sema_h, 0, init);
 #endif
@@ -27,7 +29,7 @@ namespace OneCoroutine
 	void Semaphore::post()
 	{
 #ifdef _WIN32
-        ::ReleaseSemaphorephore(_sema_h, 1, 0);
+        ::ReleaseSemaphore(_sema_h, 1, 0);
 #else
 		sem_post(&_sema_h);
 #endif

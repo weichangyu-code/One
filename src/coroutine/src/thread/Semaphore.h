@@ -1,7 +1,8 @@
 #pragma once
 #include "Common.h"
 
-#ifndef _WIN32
+#ifdef _WIN32
+#else
 #include <semaphore.h>
 #endif
 
@@ -23,7 +24,7 @@ namespace OneCoroutine
 
 	private:
 #ifdef _WIN32
-		HANDLE _sema_h;
+		void* _sema_h;
 #else
 		sem_t _sema_h;
 #endif
