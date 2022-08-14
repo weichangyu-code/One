@@ -107,9 +107,9 @@ namespace OneCoroutine
         ::CancelIoEx(oo->handle, &oo->ol);
     }
         
-    void Iocp::post(OperateOverlapped* oo)
+    void Iocp::active()
     {
-        ::PostQueuedCompletionStatus(cpHandle, 0, 0, &oo->ol);
+        ::PostQueuedCompletionStatus(cpHandle, 0, 0, nullptr);
     }
         
     OperateOverlapped* Iocp::mallocFromPool()

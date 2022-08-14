@@ -7,6 +7,7 @@
 #include "WatchTimer.h"
 #include <stdio.h>
 #include "SystemUtils.h"
+#include <thread>
 using namespace OneCommon;
 
 namespace OneCoroutine
@@ -16,12 +17,14 @@ namespace OneCoroutine
         this->engine = engine;
 
 	    signal(SIGPIPE, SIG_IGN);
+
         epollFd = epoll_create(1);
 
+        //添加管道，用于队列激活
         pipe(pipefd);
         struct epoll_event ev;
         ev.data.ptr = nullptr;
-        ev.events = EPOLLIN|EPOLLET;
+        ev.events = EPOLLIN;
         epoll_ctl(epollFd, EPOLL_CTL_ADD, pipefd[0], &ev);
     }
 
@@ -54,6 +57,7 @@ namespace OneCoroutine
     void Epoll::wait(unsigned int timeout)
     {
         //控制调用频率，同1ms只调用一次
+        //这个在损失1ms响应的情况下，大大的提高性能。暂时屏蔽，后期通过Semaphore::wait替代，因为可以中间激活
         // unsigned int time = SystemUtils::getMSTick();
         // if (lastWaitTime == time)
         // {
@@ -66,14 +70,16 @@ namespace OneCoroutine
         // }
         // lastWaitTime = time;
 
+        int eventNum = 0;
         if (timeout > 0)
         {
             waitState.store(1);
-        }
-        int eventNum = epoll_wait(epollFd, events, EVENT_NUM, timeout);
-        if (timeout > 0)
-        {
+            eventNum = epoll_wait(epollFd, events, EVENT_NUM, timeout);
             waitState.store(0);
+        }
+        else
+        {
+            eventNum = epoll_wait(epollFd, events, EVENT_NUM, 0);
         }
 
         for (int i = 0;i < eventNum;i++)
@@ -87,29 +93,17 @@ namespace OneCoroutine
             }
             else
             {
-                char buf[10];
-                int i = ::read(pipefd[0], buf, sizeof(buf));
-                // printf("aaaaaaaaaa read=%d\n", i);
+                char buf[32];
+                ::read(pipefd[0], buf, sizeof(buf));
             }
         }
     }
         
     void Epoll::active()
     {
-        //if (waitState.load() == 1)
+        if (waitState.load() == 1)
         {
-            // struct epoll_event ev;
-            // ev.data.ptr = nullptr;
-            // ev.events = EPOLLOUT|EPOLLET;
-            // epoll_ctl(epollFd, EPOLL_CTL_MOD, pipefd[1], &ev);
             ::write(pipefd[1], "", 1);
-
-            // static int times = 0;
-            // times++;
-            // if (times % 100 == 0)
-            // {
-            //     printf("times=%d\n", times);
-            // }
         }
     }
     

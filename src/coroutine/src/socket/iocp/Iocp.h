@@ -23,7 +23,8 @@ namespace OneCoroutine
         void registerEvent(HANDLE handle);
         void unregisterEvent(HANDLE handle);
         void cancelIo(OperateOverlapped* oo);
-        void post(OperateOverlapped* oo);
+        
+        void active();
 
         OperateOverlapped* mallocFromPool();
         void freeToPool(OperateOverlapped* oo);

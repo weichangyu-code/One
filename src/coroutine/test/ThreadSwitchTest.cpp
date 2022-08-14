@@ -7,7 +7,6 @@
 #include "SystemUtils.h"
 #include "thread/Event.h"
 #include "thread/ThreadPool.h"
-#include "thread/ThreadPool2.h"
 #include <unistd.h>
 #include <semaphore.h>
 using namespace std;
@@ -360,7 +359,7 @@ int main()
     atomic_int times1;
     atomic_int times2;
 
-    ThreadPool2 tp;
+    ThreadPool tp;
 
     new thread([&]() {
         while (times1.fetch_add(1) < 100000)

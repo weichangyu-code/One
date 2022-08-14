@@ -1,117 +1,84 @@
 #include "ThreadPool.h"
+#include <thread>
+#include "SystemUtils.h"
+using namespace OneCommon;
 
 namespace OneCoroutine
 {
-    Worker::Worker(ThreadPool* pool)
-    {
-        this->pool = pool;
-        printf("new work\n");
-    }
-        
-    void Worker::execute(const SimpleFunction& func)
-    {
-        if (running == false)
-        {
-            running = true;
-            task = func;
-            thd = std::thread([this]() {
-                do
-                {
-                    task();
-                    task = pool->popTask();
-                    if (task)
-                    {
-                        continue;
-                    }
-                    
-                    pool->freeWorker(this);
-                    sema.wait();
-                } while (running);
-            });
-        }
-        else
-        {
-            //必须加锁，确保线程已经在等待
-            task = func;
-            sema.post();
-        }
-    }
-
-
     ThreadPool::ThreadPool()
-        :workerNum(0)
+        :queue(4096)
     {
-        //threads.size
-    }
-
-    void ThreadPool::freeWorker(Worker* worker)
-    {
-        freeWorkers.push(&worker->node);
     }
         
-    Worker* ThreadPool::getWorker()
+    void ThreadPool::setOption(unsigned int minThreads, unsigned int maxThreads)
     {
-        Worker* worker = nullptr;
+        this->minThreads = minThreads;
+        this->maxThreads = maxThreads;
+    }
 
-        LockFreeNode* node = freeWorkers.pop();
-        if (node == nullptr)
-        {
-            //判断和+1不是原子操作，可能会导致一定的误差
-            if (workerNum.load() >= maxThreads)
-            {
-                return nullptr;
-            }
-            workerNum.fetch_add(1);
-            worker = new Worker(this);
-        }
-        else
-        {
-            worker = GET_ENTRY(Worker, node, node);
-        }
-        return worker;
-    }
-        
-    SimpleFunction ThreadPool::popTask()
-    {
-        if (tasks.empty())
-        {
-            return {};
-        }
-
-        std::lock_guard<std::mutex> l(mtxTasks);
-        if (tasks.empty() == false)
-        {
-            SimpleFunction func = tasks.front();
-            tasks.pop_front();
-            return func;
-        }
-        else
-        {
-            return {};
-        }
-    }
-        
-    void ThreadPool::pushTask(const SimpleFunction& func)
-    {
-        std::lock_guard<std::mutex> l(mtxTasks);
-        tasks.push_back(func);
-    }
-    
     void ThreadPool::execute(const SimpleFunction& func)
     {
-        //有空闲线程，直接触发
-        //没空闲线程，新建线程
-        //线程数达到最大后，进入队列等待
-        Worker* worker = getWorker();
-        if (worker)
+        this->queueNum.exchange_add(1);
+        queue.push(func);
+        sema.post();
+
+        int threadNum = (int)this->threadNum.get();
+        int queueNum = (int)this->queueNum.get();
+        if (threadNum < queueNum && threadNum < maxThreads)
         {
-            worker->execute(func);
-        }
-        else
-        {
-            pushTask(func);
+            //新建线程
+            createThread(threadNum < minThreads);
         }
     }
-}
+        
+    void ThreadPool::createThread(bool core)
+    {
+        threadNum.exchange_add(1);
+        thread thd = thread([this, core]() {
+            printf("ThreadPool: create thread\n");
+            while (1)
+            {
+                if (sema.wait(core ? UINT_MAX : threadTimeout / 3))
+                {
+                    SimpleFunction func;
+                    if (queue.pop(func))
+                    {
+                        func();
+                        queueNum.exchange_add(-1);
+                    }
+                }
 
+                //判断线程是否需要关闭
+                if (shouldExitThread())
+                {
+                    if (core == false)
+                    {
+                        //非核心的才会关闭
+                        break;
+                    }
+                }
+            }
+            threadNum.exchange_add(-1);
+            
+            printf("ThreadPool: exit thread\n");
+        });
+        thd.detach();
+    }
+        
+    bool ThreadPool::shouldExitThread()
+    {
+        unsigned int curTime = SystemUtils::getMSTick();
 
+        int threadNum = (int)this->threadNum.get();
+        int queueNum = (int)this->queueNum.get();
+        if (queueNum + 2 > threadNum)
+        {
+            //队列数量超过线程数量，代表比较忙
+            busyTime = curTime;
+            return false;
+        }
+        
+        return UINT_COMPARE(busyTime + threadTimeout, curTime) < 0;
+    }
+    
+} // namespace OneCoroutine

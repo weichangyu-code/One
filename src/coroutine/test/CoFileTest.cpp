@@ -16,7 +16,7 @@ int main()
         unsigned int start = SystemUtils::getMSTick();
 
         CoFile file;
-        file.open("./a.out");
+        file.open("./build/a.out");
         char buf[4*1024];
         for (int i = 0;i < 100000;i++)
         {

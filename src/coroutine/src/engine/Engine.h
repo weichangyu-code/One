@@ -5,6 +5,7 @@
 #include <functional>
 #include "Coroutine.h"
 #include "../thread/AsyncQueue.h"
+#include "../thread/ThreadPool.h"
 
 namespace OneCoroutine
 {
@@ -89,6 +90,8 @@ namespace OneCoroutine
 #else
         Epoll* epoll = nullptr;
 #endif
+
+        ThreadPool threadPool;
 
     protected:
         //调度相关

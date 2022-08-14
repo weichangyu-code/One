@@ -8,14 +8,9 @@
 #include "../socket/epoll/Epoll.h"
 #include "../socket/iocp/Iocp.h"
 #include "../socket/iocp/OperateOverlapped.h"
-#include "../thread/ThreadPool.h"
 
 namespace OneCoroutine
 {
-    //thread_local Engine* curEngine;
-    ThreadPool g_threadPool;
-
-
     Engine::Engine()
     {
         curEngine = this;
@@ -27,6 +22,8 @@ namespace OneCoroutine
 #else
         epoll = new Epoll(this);
 #endif
+
+        threadPool.setOption(3, 10);
     }
         
     Engine::~Engine()
@@ -39,16 +36,6 @@ namespace OneCoroutine
         delete epoll;
 #endif
     }
-    
-    // Engine* Engine::getCurEngine()
-    // {
-    //     return curEngine;
-    // }
-
-    // Coroutine* Engine::getCurCoroutine()
-    // {
-    //     return curCo;
-    // }
         
     void Engine::yield()
     {
@@ -290,42 +277,56 @@ namespace OneCoroutine
         } data;
         data.func = &func;
 
-        //参数控制在16个字节
-        unsigned long long pt1, pt2, pt3, pt4, pt5;
-        pt1 = SystemUtils::getUSTick();
-        g_threadPool.execute([&data, this, &pt2, &pt3, &pt4]() {
-            pt2 = SystemUtils::getUSTick();
+        threadPool.execute([&data, this]() {
             (*data.func)();
-            pt3 = SystemUtils::getUSTick();
-
-
-            asyncQueue.push([&data, &pt4]() {
-                pt4 = SystemUtils::getUSTick();
+            asyncQueue.push([&data]() {
                 data.cond.active();
             });
+
 #ifdef _WIN32
+            iocp->active();
 #else
             epoll->active();
 #endif
-
         });
         data.cond.wait();
-        pt5 = SystemUtils::getUSTick();
 
-        static unsigned long long t1 = 0;
-        static unsigned long long t2 = 0;
-        static unsigned long long t3 = 0;
-        static unsigned long long t4 = 0;
-        t1 += pt2 - pt1;
-        t2 += pt3 - pt2;
-        t3 += pt4 - pt3;
-        t4 += pt5 - pt4;
-        static int times = 0;
-        times++;
-        if (times == 100000-1)
-        {
-            printf("t1=%d t2=%d t3=%d t4=%d\n", (int)t1, (int)t2, (int)t3, (int)t4);
-        }
+
+//         //参数控制在16个字节
+//         unsigned long long pt1, pt2, pt3, pt4, pt5;
+//         pt1 = SystemUtils::getUSTick();
+//         threadPool.execute([&data, this, &pt2, &pt3, &pt4]() {
+//             pt2 = SystemUtils::getUSTick();
+//             (*data.func)();
+//             pt3 = SystemUtils::getUSTick();
+
+//             asyncQueue.push([&data, &pt4]() {
+//                 pt4 = SystemUtils::getUSTick();
+//                 data.cond.active();
+//             });
+// #ifdef _WIN32
+// #else
+//             epoll->active();
+// #endif
+
+//         });
+//         data.cond.wait();
+//         pt5 = SystemUtils::getUSTick();
+
+//         static unsigned long long t1 = 0;
+//         static unsigned long long t2 = 0;
+//         static unsigned long long t3 = 0;
+//         static unsigned long long t4 = 0;
+//         t1 += pt2 - pt1;
+//         t2 += pt3 - pt2;
+//         t3 += pt4 - pt3;
+//         t4 += pt5 - pt4;
+//         static int times = 0;
+//         times++;
+//         if (times == 100000-1)
+//         {
+//             printf("t1=%d t2=%d t3=%d t4=%d\n", (int)t1, (int)t2, (int)t3, (int)t4);
+//         }
     }
         
     void Engine::pushToScheduleFront(Coroutine* co)
