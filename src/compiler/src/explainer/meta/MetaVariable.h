@@ -16,5 +16,7 @@ public:
     bool isConst = false;
     MetaType type;                          //NONE表示自动
     MetaBoxBase* box = nullptr;
+
+    MetaBlock* initBlock = nullptr;         //const变量要用
 };
 

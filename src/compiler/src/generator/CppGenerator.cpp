@@ -147,13 +147,13 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
     set<MetaClass*> called;
     for (auto& iterMetaClass : metaContainer->getClasses())
     {
-        generateMainInitStateVar(cpp, called, iterMetaClass);
+        generateMainInitStaticVar(cpp, called, iterMetaClass);
     }
     cpp << endl;
 
     
     cpp << "        auto app = One::" << cppClass->getFactoryName() << "::" << KEY_CREATE_OBJECT_FUNC << "();" << endl;
-    if (metaFunc->return_.isInteger())
+    if (metaFunc->returnType.isInteger())
     {
         cpp << "        ret = app->main();" << endl;
     }
@@ -170,7 +170,7 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
     return {};
 }
     
-void CppGenerator::generateMainInitStateVar(ofstream& f, set<MetaClass*>& called, MetaClass* metaClass)
+void CppGenerator::generateMainInitStaticVar(ofstream& f, set<MetaClass*>& called, MetaClass* metaClass)
 {
     auto cppClass = CppClass::getCppClass(metaClass);
     if (metaClass->isInterface 
@@ -188,7 +188,7 @@ void CppGenerator::generateMainInitStateVar(ofstream& f, set<MetaClass*>& called
     //先调用父类
     for (auto& parent : metaClass->parents)
     {
-        generateMainInitStateVar(f, called, parent);
+        generateMainInitStaticVar(f, called, parent);
     }
 
     f << "        One::" << cppClass->cppName << "::" << KEY_INIT_STATIC_VAR_FUNC << "();" << endl;
@@ -817,12 +817,20 @@ Result CppGenerator::generateClass(const string& root, MetaClass* metaClass)
         {
             h << "static ";
         }
+
         if (var->isConst)
         {
             h << "const ";
-        }
 
-        h << generateVarDefType(var->type) << " " << var->name << ";" << endl;
+            //构造初始化
+            string initCode;
+            VR(generateExpCode(var->initBlock->instructs, initCode));
+            h << generateVarDefType(var->type) << " " << var->name << " = " << initCode << ";" << endl;
+        }
+        else
+        {
+            h << generateVarDefType(var->type) << " " << var->name << ";" << endl;
+        }
     }
     h << endl;
 
@@ -923,463 +931,505 @@ Result CppGenerator::generateClass(const string& root, MetaClass* metaClass)
     return {};
 }
 
-Result CppGenerator::generateBlock(ofstream& f, const string& space, MetaBlock* block)
+Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruct)
 {
-    int labelIndex = 0;
-    for (auto& instruct : block->instructs)
+    switch (instruct->cmd)
     {
-        switch (instruct->cmd)
+    case INDEX:
         {
-        case INDEX:
-            {
-                instruct->cppCode = generateData(instruct->params.front());
-            }
-            break;
-        case LINC:
-            {
-                instruct->cppCode = "++" + generateData(instruct->params.front());
-            }
-            break;
-        case LDEC:
-            {
-                instruct->cppCode = "--" + generateData(instruct->params.front());
-            }
-            break;
-        case RINC:
-            {
-                instruct->cppCode = generateData(instruct->params.front()) + "++";
-            }
-            break;
-        case RDEC:
-            {
-                instruct->cppCode = generateData(instruct->params.front()) + "--";
-            }
-            break;
-        case POS:
-            {
-                instruct->cppCode = "+" + generateData(instruct->params.front());
-            }
-            break;
-        case NEG:
-            {
-                instruct->cppCode = "-" + generateData(instruct->params.front());
-            }
-            break;
-        case NOT:
-            {
-                instruct->cppCode = "!" + generateData(instruct->params.front());
-            }
-            break;
-        case BITNOT:
-            {
-                instruct->cppCode = "~" + generateData(instruct->params.front());
-            }
-            break;
-        case MUL:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " * " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case DIV:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " / " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case REC:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " % " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case ADD:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " + " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case SUB:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " - " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case RBITMOV:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " >> " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case RBITMOV2:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " >>> " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case LBITMOV:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " << " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case GT:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " > " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case GTE:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " >= " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case LT:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " < " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case LTE:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " <= " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case EQ:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " == " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case NEQ:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " != " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case EQ_DEEP:
-        case NEQ_DEEP:
-            {
-                //TODO
-            }
-            break;
-        case BITAND:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " & " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case BITXOR:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " ^ " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case BITOR:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " | " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case AND:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " && " + generateData(instruct->params.back()) + ")";
-                //instruct->cppCode = "(" + instruct->cppCode + ")";
-            }
-            break;
-        case OR:
-            {
-                instruct->cppCode = "(" + generateData(instruct->params.front()) + " || " + generateData(instruct->params.back()) + ")";
-            }
-            break;
-        case COND:
-            {
-                string param0 = generateData(instruct->params.front());
-                string param1 = generateData((*(++instruct->params.begin())));
-                string param2 = generateData(instruct->params.back());
-                instruct->cppCode = "(" + param0 + " ? " + param1 + " : " + param2 + ")";
-            }
-            break;
-        case ASSIGN:
-            {
-                //instruct->cppCode = generateData(instruct->params.front()) + " = " + generateData(instruct->params.back());
-                instruct->cppCode = generateData(instruct->params.front()) + " = " 
-                    + generateTypeData(instruct->params.back(), instruct->params.front().getType(), false);
+            instruct->cppCode = generateData(instruct->params.front());
+        }
+        break;
+    case LINC:
+        {
+            instruct->cppCode = "++" + generateData(instruct->params.front());
+        }
+        break;
+    case LDEC:
+        {
+            instruct->cppCode = "--" + generateData(instruct->params.front());
+        }
+        break;
+    case RINC:
+        {
+            instruct->cppCode = generateData(instruct->params.front()) + "++";
+        }
+        break;
+    case RDEC:
+        {
+            instruct->cppCode = generateData(instruct->params.front()) + "--";
+        }
+        break;
+    case POS:
+        {
+            instruct->cppCode = "+" + generateData(instruct->params.front());
+        }
+        break;
+    case NEG:
+        {
+            instruct->cppCode = "-" + generateData(instruct->params.front());
+        }
+        break;
+    case NOT:
+        {
+            instruct->cppCode = "!" + generateData(instruct->params.front());
+        }
+        break;
+    case BITNOT:
+        {
+            instruct->cppCode = "~" + generateData(instruct->params.front());
+        }
+        break;
+    case MUL:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " * " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case DIV:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " / " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case REC:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " % " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case ADD:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " + " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case SUB:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " - " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case RBITMOV:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " >> " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case RBITMOV2:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " >>> " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case LBITMOV:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " << " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case GT:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " > " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case GTE:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " >= " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case LT:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " < " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case LTE:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " <= " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case EQ:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " == " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case NEQ:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " != " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case EQ_DEEP:
+    case NEQ_DEEP:
+        {
+            //TODO
+        }
+        break;
+    case BITAND:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " & " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case BITXOR:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " ^ " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case BITOR:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " | " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case AND:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " && " + generateData(instruct->params.back()) + ")";
+            //instruct->cppCode = "(" + instruct->cppCode + ")";
+        }
+        break;
+    case OR:
+        {
+            instruct->cppCode = "(" + generateData(instruct->params.front()) + " || " + generateData(instruct->params.back()) + ")";
+        }
+        break;
+    case COND:
+        {
+            string param0 = generateData(instruct->params.front());
+            string param1 = generateData((*(++instruct->params.begin())));
+            string param2 = generateData(instruct->params.back());
+            instruct->cppCode = "(" + param0 + " ? " + param1 + " : " + param2 + ")";
+        }
+        break;
+    case ASSIGN:
+        {
+            //instruct->cppCode = generateData(instruct->params.front()) + " = " + generateData(instruct->params.back());
+            instruct->cppCode = generateData(instruct->params.front()) + " = " 
+                + generateTypeData(instruct->params.back(), instruct->params.front().getType(), false);
 
-            }
-            break;
-        case DEEP_ASSIGN:
+        }
+        break;
+    case DEEP_ASSIGN:
+        {
+            //TODO:
+        }
+        break;
+    case MUL_ASSIGN:
+        {
+            instruct->cppCode = generateData(instruct->params.front()) + " *= " + generateData(instruct->params.back());
+        }
+        break;
+    case DIV_ASSIGN:
+        {
+            instruct->cppCode = generateData(instruct->params.front()) + " /= " + generateData(instruct->params.back());
+        }
+        break;
+    case REC_ASSIGN:
+        {
+            instruct->cppCode = generateData(instruct->params.front()) + " %= " + generateData(instruct->params.back());
+        }
+        break;
+    case ADD_ASSIGN:
+        {
+            instruct->cppCode = generateData(instruct->params.front()) + " += " + generateData(instruct->params.back());
+        }
+        break;
+    case SUB_ASSIGN:
+        {
+            instruct->cppCode = generateData(instruct->params.front()) + " -= " + generateData(instruct->params.back());
+        }
+        break;
+    case RBITMOV_ASSIGN:
+        {
+            string param0 = generateData(instruct->params.front());
+            string param1 = generateData(instruct->params.back());
+            instruct->cppCode = param0 + " >>= " + param1;            
+        }
+        break;
+    case RBITMOV2_ASSIGN:
+        {
+            string param0 = generateData(instruct->params.front());
+            string param1 = generateData(instruct->params.back());
+            instruct->cppCode = param0 + " >>>= " + param1;
+        }
+        break;
+    case LBITMOV_ASSIGN:
+        {
+            string param0 = generateData(instruct->params.front());
+            string param1 = generateData(instruct->params.back());
+            instruct->cppCode = param0 + " <<= " + param1;
+        }
+        break;
+    case BITAND_ASSIGN:
+        {
+            string param0 = generateData(instruct->params.front());
+            string param1 = generateData(instruct->params.back());
+            instruct->cppCode = param0 + " &= " + param1;
+        }
+        break;
+    case BITXOR_ASSIGN:
+        {
+            string param0 = generateData(instruct->params.front());
+            string param1 = generateData(instruct->params.back());
+            instruct->cppCode = param0 + " ^= " + param1;
+        }
+        break;
+    case BITOR_ASSIGN:
+        {
+            string param0 = generateData(instruct->params.front());
+            string param1 = generateData(instruct->params.back());
+            instruct->cppCode = param0 + " |= " + param1;
+        }
+        break;
+    case AND_ASSIGN:
+        {
+            string param0 = generateData(instruct->params.front());
+            string param1 = generateData(instruct->params.back());
+            instruct->cppCode = param0 + " = " + param0 + " && " + param1;
+        }
+        break;
+    case OR_ASSIGN:
+        {
+            string param0 = generateData(instruct->params.front());
+            string param1 = generateData(instruct->params.back());
+            instruct->cppCode = param0 + " = " + param0 + " || " + param1;
+        }
+        break;
+    case COMMA:
+        {
+            ostringstream stream;
+            stream << "(";
+            for (auto& param : instruct->params)
             {
-                //TODO:
-            }
-            break;
-        case MUL_ASSIGN:
-            {
-                instruct->cppCode = generateData(instruct->params.front()) + " *= " + generateData(instruct->params.back());
-            }
-            break;
-        case DIV_ASSIGN:
-            {
-                instruct->cppCode = generateData(instruct->params.front()) + " /= " + generateData(instruct->params.back());
-            }
-            break;
-        case REC_ASSIGN:
-            {
-                instruct->cppCode = generateData(instruct->params.front()) + " %= " + generateData(instruct->params.back());
-            }
-            break;
-        case ADD_ASSIGN:
-            {
-                instruct->cppCode = generateData(instruct->params.front()) + " += " + generateData(instruct->params.back());
-            }
-            break;
-        case SUB_ASSIGN:
-            {
-                instruct->cppCode = generateData(instruct->params.front()) + " -= " + generateData(instruct->params.back());
-            }
-            break;
-        case RBITMOV_ASSIGN:
-            {
-                string param0 = generateData(instruct->params.front());
-                string param1 = generateData(instruct->params.back());
-                instruct->cppCode = param0 + " >>= " + param1;            
-            }
-            break;
-        case RBITMOV2_ASSIGN:
-            {
-                string param0 = generateData(instruct->params.front());
-                string param1 = generateData(instruct->params.back());
-                instruct->cppCode = param0 + " >>>= " + param1;
-            }
-            break;
-        case LBITMOV_ASSIGN:
-            {
-                string param0 = generateData(instruct->params.front());
-                string param1 = generateData(instruct->params.back());
-                instruct->cppCode = param0 + " <<= " + param1;
-            }
-            break;
-        case BITAND_ASSIGN:
-            {
-                string param0 = generateData(instruct->params.front());
-                string param1 = generateData(instruct->params.back());
-                instruct->cppCode = param0 + " &= " + param1;
-            }
-            break;
-        case BITXOR_ASSIGN:
-            {
-                string param0 = generateData(instruct->params.front());
-                string param1 = generateData(instruct->params.back());
-                instruct->cppCode = param0 + " ^= " + param1;
-            }
-            break;
-        case BITOR_ASSIGN:
-            {
-                string param0 = generateData(instruct->params.front());
-                string param1 = generateData(instruct->params.back());
-                instruct->cppCode = param0 + " |= " + param1;
-            }
-            break;
-        case AND_ASSIGN:
-            {
-                string param0 = generateData(instruct->params.front());
-                string param1 = generateData(instruct->params.back());
-                instruct->cppCode = param0 + " = " + param0 + " && " + param1;
-            }
-            break;
-        case OR_ASSIGN:
-            {
-                string param0 = generateData(instruct->params.front());
-                string param1 = generateData(instruct->params.back());
-                instruct->cppCode = param0 + " = " + param0 + " || " + param1;
-            }
-            break;
-        case RETURN:
-            {
-                if (instruct->params.empty())
+                string paramString = generateData(param);
+                if (&param == &instruct->params.front())
                 {
-                    instruct->cppCode = "return";
+                    stream << ", ";
+                }
+                stream << paramString;
+            }
+            stream << ")";
+            instruct->cppCode = stream.str();
+        }
+        break;
+    case RETURN:
+        {
+            if (instruct->params.empty())
+            {
+                instruct->cppCode = "return";
+            }
+            else
+            {
+                instruct->cppCode = "return " + generateData(instruct->params.front());
+            }
+        }
+        break;
+    case BREAK:
+        {
+            instruct->cppCode = "break";
+        }
+        break;
+    case CONTINUE:
+        {
+            instruct->cppCode = "continue";
+        }
+        break;
+    case NEW:
+        {
+            ostringstream stream;
+
+            CppClass* cppClass = CppClass::getCppClass(instruct->retType.clazz);
+            
+            stream << cppClass->getFactoryName() << "::" << KEY_CREATE_OBJECT_FUNC << "(";
+            int index = 0;
+            for (auto& param : instruct->params)
+            {
+                if (index == 0)
+                {
+                    stream << generateData(param);
                 }
                 else
                 {
-                    instruct->cppCode = "return " + generateData(instruct->params.front());
+                    stream << ", " << generateData(param);
                 }
+                index++;
             }
-            break;
-        case BREAK:
-            {
-                instruct->cppCode = "break";
-            }
-            break;
-        case CONTINUE:
-            {
-                instruct->cppCode = "continue";
-            }
-            break;
-        case NEW:
-            {
-                ostringstream stream;
+            stream << ")";
+            instruct->cppCode = stream.str();
+        }
+        break;
+    case NEW_ARRAY:
+        {
+            instruct->cppCode = "Array<" + generateType(instruct->retType.clazz->params.front()->type) + ">::createArray("
+                    + generateData(instruct->params.front()) + ")";
+        }
+        break;
+    case CALL:
+    case CALL_FIXED:
+        {
+            ostringstream stream;
 
-                CppClass* cppClass = CppClass::getCppClass(instruct->retType.clazz);
-                
-                stream << cppClass->getFactoryName() << "::" << KEY_CREATE_OBJECT_FUNC << "(";
+            MetaFunc* metaFunc = instruct->func;
+            auto cppFunc = CppFunc::getCppFunc(metaFunc);
+            auto cppClass = CppClass::getCppClass(metaFunc->getOuterClass());
+
+            if (metaFunc->isStatic)
+            {
+                //直接调用
+                stream << cppClass->cppName << "::" << cppFunc->cppName << "(";
                 int index = 0;
+                auto paramTypeIter = metaFunc->params.begin();
                 for (auto& param : instruct->params)
                 {
                     if (index == 0)
                     {
-                        stream << generateData(param);
+                        //stream << generateData(param);
+                        stream << generateTypeData(param, (*paramTypeIter)->type, true);
                     }
                     else
                     {
-                        stream << ", " << generateData(param);
+                        //stream << ", " << generateData(param);
+                        stream << ", " << generateTypeData(param, (*paramTypeIter)->type, true);
                     }
+                    ++paramTypeIter;
                     index++;
                 }
                 stream << ")";
-                instruct->cppCode = stream.str();
             }
-            break;
-        case NEW_ARRAY:
+            else
             {
-                instruct->cppCode = "Array<" + generateType(instruct->retType.clazz->params.front()->type) + ">::createArray("
-                        + generateData(instruct->params.front()) + ")";
-            }
-            break;
-        case CALL:
-        case CALL_FIXED:
-            {
-                ostringstream stream;
-
-                MetaFunc* metaFunc = instruct->func;
-                auto cppFunc = CppFunc::getCppFunc(metaFunc);
-                auto cppClass = CppClass::getCppClass(metaFunc->getOuterClass());
-
-                if (metaFunc->isStatic)
+                int index = 0;
+                auto paramTypeIter = metaFunc->params.begin();
+                for (auto& param : instruct->params)
                 {
-                    //直接调用
-                    stream << cppClass->cppName << "::" << cppFunc->cppName << "(";
-                    int index = 0;
-                    auto paramTypeIter = metaFunc->params.begin();
-                    for (auto& param : instruct->params)
+                    if (index == 0)
                     {
-                        if (index == 0)
+                        if (instruct->cmd == CALL_FIXED)
                         {
-                            //stream << generateData(param);
-                            stream << generateTypeData(param, (*paramTypeIter)->type, true);
+                            //调用类函数，不会触发虚函数
+                            stream << generateData(param) << "->" << cppClass->cppName << "::" << cppFunc->cppName << "(";
                         }
                         else
                         {
-                            //stream << ", " << generateData(param);
-                            stream << ", " << generateTypeData(param, (*paramTypeIter)->type, true);
+                            stream << generateData(param) << "->" << cppFunc->cppName << "(";
                         }
-                        ++paramTypeIter;
-                        index++;
                     }
-                    stream << ")";
-                }
-                else
-                {
-                    int index = 0;
-                    auto paramTypeIter = metaFunc->params.begin();
-                    for (auto& param : instruct->params)
+                    else if (index == 1)
                     {
-                        if (index == 0)
-                        {
-                            if (instruct->cmd == CALL_FIXED)
-                            {
-                                //调用类函数，不会触发虚函数
-                                stream << generateData(param) << "->" << cppClass->cppName << "::" << cppFunc->cppName << "(";
-                            }
-                            else
-                            {
-                                stream << generateData(param) << "->" << cppFunc->cppName << "(";
-                            }
-                        }
-                        else if (index == 1)
-                        {
-                            //stream << generateData(param);
-                            stream << generateTypeData(param, (*paramTypeIter)->type, true);
-                            ++paramTypeIter;
-                        }
-                        else
-                        {
-                            //stream << ", " << generateData(param);
-                            stream << ", " << generateTypeData(param, (*paramTypeIter)->type, true);
-                            ++paramTypeIter;
-                        }
+                        //stream << generateData(param);
+                        stream << generateTypeData(param, (*paramTypeIter)->type, true);
+                        ++paramTypeIter;
+                    }
+                    else
+                    {
+                        //stream << ", " << generateData(param);
+                        stream << ", " << generateTypeData(param, (*paramTypeIter)->type, true);
+                        ++paramTypeIter;
+                    }
 
-                        index++;
-                    } 
-                    stream << ")";
-                }
-                instruct->cppCode = stream.str();
+                    index++;
+                } 
+                stream << ")";
             }
-            break;
-        case VARDEF:
-            {
-                MetaVariable* var = instruct->var;
-                if (var->varType == VAR_MEMBER)
-                {
-                    instruct->cppCode = var->name;
-                }
-                else
-                {
-                    instruct->cppCode = generateVarDefType(var->type) + " " + var->name;
-                }
-            }
-            break;
-        case IF:
-            {
-                instruct->cppCode = "if (" + generateData(instruct->params.front()) + ")";
-            }
-            break;
-        case ELSE_IF:
-            {
-                instruct->cppCode = "else if (" + generateData(instruct->params.front()) + ")";
-            }
-            break;
-        case ELSE:
-            {
-                instruct->cppCode = "else";
-            }
-            break;
-        case WHILE:
-            {
-                instruct->cppCode = "while (" + generateData(instruct->params.front()) + ")";
-            }
-            break;
-        case DO:
-            {
-                instruct->cppCode = "do";
-            }
-            break;
-        case DOWHILE:
-            {
-                instruct->cppCode = "while (" + generateData(instruct->params.front()) + ")";
-            }
-            break;
-        case FOR:
-            {
-                string param0 = generateData(instruct->params.front());
-                string param1 = generateData((*(++instruct->params.begin())));
-                string param2 = generateData(instruct->params.back());
-                instruct->cppCode = "for (" + param0 + ";" + param1 + ";" + param2 + ")";
-            }
-            break;
-        case FOR_RANGE:
-            {
-                MetaVariable* var = instruct->params.front().var;
-                string param0 = generateData((*(++instruct->params.begin())));
-                string param1 = generateData(instruct->params.back());
-
-                ostringstream ss;
-                ss << space << "auto __begin__ = " << param0 << ";" << endl;
-                ss << space << "auto __end__ = " << param1 << ";" << endl;
-                ss << space << "for (" << "auto " << var->name << " = __begin__;" << var->name << " < __end__;" + var->name + "++)" << endl;
-                instruct->cppCode = ss.str();
-            }
-            break;
-        case FOR_EACH:
-            {
-                MetaVariable* var = instruct->params.front().var;
-                string param0 = generateData((*(++instruct->params.begin())));
-
-                ostringstream ss;
-                ss << space << "auto __iter__ = " << param0 << "->iterator();" << endl;
-                ss << space << "bool hasNext = __iter__->hasNext();" << endl;
-                ss << space << "if (hasNext)" << endl;
-                ss << space << "for (auto " << var->name << "=__iter__->next();hasNext;hasNext=__iter__->hasNext(),hasNext?(" << var->name << "=__iter__->next(),true):false)" << endl;
-                instruct->cppCode = ss.str();
-            }
-            break;
+            instruct->cppCode = stream.str();
         }
+        break;
+    case VARDEF:
+        {
+            MetaVariable* var = instruct->var;
+            string prefix;
+            if (var->isConst)
+            {
+                prefix += "const ";
+            }
+            if (var->isStatic)
+            {
+                prefix += "static ";
+            }
+            instruct->cppCode = prefix + generateVarDefType(var->type) + " " + var->name;
+        }
+        break;
+    case IF:
+        {
+            instruct->cppCode = "if (" + generateData(instruct->params.front()) + ")";
+        }
+        break;
+    case ELSE_IF:
+        {
+            instruct->cppCode = "else if (" + generateData(instruct->params.front()) + ")";
+        }
+        break;
+    case ELSE:
+        {
+            instruct->cppCode = "else";
+        }
+        break;
+    case WHILE:
+        {
+            instruct->cppCode = "while (" + generateData(instruct->params.front()) + ")";
+        }
+        break;
+    case DO:
+        {
+            instruct->cppCode = "do";
+        }
+        break;
+    case DOWHILE:
+        {
+            instruct->cppCode = "while (" + generateData(instruct->params.front()) + ")";
+        }
+        break;
+    case FOR:
+        {
+            string param0 = generateData(instruct->params.front());
+            string param1 = generateData((*(++instruct->params.begin())));
+            string param2 = generateData(instruct->params.back());
+            instruct->cppCode = "for (" + param0 + ";" + param1 + ";" + param2 + ")";
+        }
+        break;
+    case FOR_RANGE:
+        {
+            MetaVariable* var = instruct->params.front().var;
+            string param0 = generateData((*(++instruct->params.begin())));
+            string param1 = generateData(instruct->params.back());
+
+            ostringstream ss;
+            ss << space << "auto __begin__ = " << param0 << ";" << endl;
+            ss << space << "auto __end__ = " << param1 << ";" << endl;
+            ss << space << "for (" << "auto " << var->name << " = __begin__;" << var->name << " < __end__;" + var->name + "++)" << endl;
+            instruct->cppCode = ss.str();
+        }
+        break;
+    case FOR_EACH:
+        {
+            MetaVariable* var = instruct->params.front().var;
+            string param0 = generateData((*(++instruct->params.begin())));
+
+            ostringstream ss;
+            ss << space << "auto __iter__ = " << param0 << "->iterator();" << endl;
+            ss << space << "bool hasNext = __iter__->hasNext();" << endl;
+            ss << space << "if (hasNext)" << endl;
+            ss << space << "for (auto " << var->name << "=__iter__->next();hasNext;hasNext=__iter__->hasNext(),hasNext?(" << var->name << "=__iter__->next(),true):false)" << endl;
+            instruct->cppCode = ss.str();
+        }
+        break;
     }
+    return {};
+}
+    
+Result CppGenerator::generateInstructs(const string& space, const list<MetaInstruct*>& instructs)
+{
+    for (auto& instruct : instructs)
+    {
+        VR(generateInstruct(space, instruct));
+    }
+    return {};
+}
+    
+Result CppGenerator::generateExpCode(const list<MetaInstruct*>& instructs, string& code)
+{
+    VR(generateInstructs("", instructs));
+
+    if (instructs.empty() == false)
+    {
+        code = std::move(instructs.back()->cppCode);
+    }
+
+    return {};
+}
+
+Result CppGenerator::generateBlock(ofstream& f, const string& space, MetaBlock* block)
+{
+    VR(generateInstructs(space, block->instructs));
 
     for (auto& instruct : block->instructs)
     {
@@ -1421,7 +1471,7 @@ Result CppGenerator::generateFuncDeclare(ofstream& h, MetaFunc* metaFunc)
         h << "static ";
     }
 
-    h << generateVarDefType(metaFunc->return_) << " " << cppFunc->cppName << "(";
+    h << generateVarDefType(metaFunc->returnType) << " " << cppFunc->cppName << "(";
 
     for (auto& var : metaFunc->params)
     {
@@ -1460,11 +1510,11 @@ Result CppGenerator::generateFuncImpl(ofstream& f, const string& space, MetaFunc
 
     if (classPrefix)
     {
-        f << space << generateVarDefType(metaFunc->return_) << " " << cppClass->cppName << "::" << cppFunc->cppName << "(";
+        f << space << generateVarDefType(metaFunc->returnType) << " " << cppClass->cppName << "::" << cppFunc->cppName << "(";
     }
     else
     {
-        f << space << generateVarDefType(metaFunc->return_) << " " << cppFunc->cppName << "(";
+        f << space << generateVarDefType(metaFunc->returnType) << " " << cppFunc->cppName << "(";
     }
     for (auto& var : metaFunc->params)
     {
@@ -1731,7 +1781,7 @@ string CppGenerator::generateData(MetaData& data)
     default:
         break;
     }
-    return {};
+    return "";
 }
     
 string CppGenerator::generateTypeData(MetaData& data, const MetaType& type, bool pointer)

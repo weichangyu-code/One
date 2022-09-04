@@ -8,14 +8,21 @@ namespace One
         _file = new OneCoroutine::CoFile();
     }
         
+    File::File(String* path, int openFlag, int mode)
+        :File()
+    {
+        int err = open(path, openFlag, mode);
+        setLastError(err);
+    }
+        
     File::~File()
     {
         delete _file;
     }
 
-    int  File::open(String* path, int openFlag)
+    int  File::open(String* path, int openFlag, int mode)
     {
-        return _file->open(path->str(), openFlag);
+        return _file->open(path->str(), openFlag, mode);
     }
         
     void File::close()
@@ -25,21 +32,25 @@ namespace One
 
     int  File::write(Buffer* buffer)
     {
-        int ret = _file->write((const char*)buffer->getBuf() + buffer->_readPos, buffer->_writePos);
+        int ret = _file->write(buffer->getData(), buffer->getDataLength());
         if (ret > 0)
         {
-            buffer->_writePos = ret;
+            buffer->addReadPos(ret);
         }
         return ret;
     }
     int  File::read(Buffer* buffer)
     {
-        int ret = _file->read((char*)buffer->getBuf() + buffer->_writePos, buffer->getLength() - buffer->_writePos);
+        int ret = _file->read(buffer->getLeftBuf(), buffer->getLeftCapacity());
         if (ret > 0)
         {
-            buffer->_writePos += ret;
+            buffer->addWritePos(ret);
         }
         return ret;
+    }
+    bool File::isOpen()
+    {
+        return _file->isOpen();
     }
 
 } // namespace One

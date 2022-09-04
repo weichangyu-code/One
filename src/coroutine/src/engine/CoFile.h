@@ -18,6 +18,8 @@ namespace OneCoroutine
         int  write(const char* data, unsigned int len);
         int  read(char* data, unsigned int len);
 
+        bool isOpen();
+
     protected:
         CoMutex _mtx;
         File _file;

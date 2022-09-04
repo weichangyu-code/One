@@ -165,7 +165,15 @@ ifblock=ifblockstart
 #for语句
 forstart(range)=FOR (vardefnull : [exp, exp])
 forstart(each)=FOR (vardefnull : exp)					#自动循环
-forstart=FOR (multishortsentence ; multishortsentence ; multishortsentence)
+#forstart=FOR (multishortsentence ; multishortsentence ; multishortsentence)
+forstart0=FOR (
+forstart1=forstart0 multishortsentence;
+forstart1(null)=forstart0 ;
+forstart2=forstart1 multishortsentence;
+forstart2(null)=forstart1 ;
+forstart3=forstart2 multishortsentence)
+forstart3(null)=forstart2 )
+forstart=forstart3
 forblock=forstart codeblock
 
 #while语句

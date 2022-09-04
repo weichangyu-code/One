@@ -29,7 +29,7 @@ public:
     bool isHidden = false;             //隐藏函数
 
     list<MetaVariable*> params;
-    MetaType return_;
+    MetaType returnType;
 
     list<MetaConst*> defualtParams;     //TODO: 默认值，默认值必须是常量
 

@@ -1,29 +1,65 @@
 #pragma once
 #include "OneObject.h"
+#include "OneString.h"
 
 namespace One
 {
     class Buffer : public Object
     {
     public:
-        Buffer(int length);
+        Buffer(int capacity = 4*1024);
         ~Buffer();
 
     public:
-        unsigned char* getBuf()
+        char* getBuf()
         {
             return _buf;
         }
-        unsigned int getLength()
+        unsigned int getCapacity()
         {
-            return _length;
+            return _capacity;
         }
 
-    public:
+        char* getLeftBuf()
+        {
+            return _buf + _writePos;
+        }
+        unsigned int getLeftCapacity()
+        {
+            return _capacity - _writePos;
+        }
+        void addWritePos(unsigned int len)
+        {
+            _writePos += len;
+            assert(_writePos <= _capacity);
+        }
+
+        char* getData()
+        {
+            return _buf + _readPos;
+        }
+        unsigned int getDataLength()
+        {
+            return _writePos - _readPos;
+        }
+        void addReadPos(unsigned int len)
+        {
+            _readPos += len;
+            assert(_readPos <= _writePos);
+        }
+
+        void clear();
+        void put(String* str);
+
+        void put(const char* data, unsigned int len);
+
+    protected:
+        void resizeCapacity(unsigned int capacity);
+
+    protected:
         unsigned int _readPos = 0;
         unsigned int _writePos = 0;
-    protected:
-        unsigned int _length = 0;
-        unsigned char* _buf = nullptr;
+        unsigned int _capacity = 0;
+        char* _buf = nullptr;
     };
 }

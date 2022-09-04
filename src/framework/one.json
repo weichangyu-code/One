@@ -59,6 +59,21 @@
             "oneClass":"one.std.Iterable",
             "hPath":"framework/OneIterable.h",
             "cppClass":"Iterable"
+        },
+        {
+            "oneClass":"one.std.File",
+            "hPath":"framework/OneFile.h",
+            "cppClass":"File"
+        },
+        {
+            "oneClass":"one.std.Buffer",
+            "hPath":"framework/OneBuffer.h",
+            "cppClass":"Buffer"
+        },
+        {
+            "oneClass":"one.std.Socket",
+            "hPath":"framework/OneSocket.h",
+            "cppClass":"Socket"
         }
     ]
 }

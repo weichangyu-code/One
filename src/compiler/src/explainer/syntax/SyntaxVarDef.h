@@ -13,6 +13,9 @@ public:
         
     }
 
+    void addVarDefAndAssginInstruct(ExplainContext* context);
+    void addAssginInstruct(ExplainContext* context);
+
 public:
     bool isConst = false;
     bool isStatic = false;
@@ -24,5 +27,6 @@ public:
     string name;
 
     //包含赋值语句和定义语句
+    //只包含赋值表达式
     SyntaxExp* exp = nullptr;
 };

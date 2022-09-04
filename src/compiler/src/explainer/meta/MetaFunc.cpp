@@ -11,7 +11,7 @@ MetaFunc::MetaFunc(const string& name, MetaClass* clazz, MetaContainer* metaCont
     :MetaBoxBase(BOX_FUNC, clazz, metaContainer, syntaxObj)
 {
     this->name = name;
-    this->return_.setType(DT_VOID);
+    this->returnType.setType(DT_VOID);
 
     SyntaxFunc* syntaxFunc = (SyntaxFunc*)syntaxObj;
     if (syntaxFunc)

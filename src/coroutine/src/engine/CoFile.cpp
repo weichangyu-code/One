@@ -40,6 +40,11 @@ namespace OneCoroutine
             _file.close();
         });
     }
+        
+    bool CoFile::isOpen()
+    {
+        return _file.isOpen();
+    }
     
 #ifdef _WIN32
     int  CoFile::write(const char* data, unsigned int len)

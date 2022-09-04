@@ -33,6 +33,7 @@ public:
     Result onExplainShortSentenceVarDef(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
         SyntaxVarDef* varDef = (SyntaxVarDef*)es[0].ptr;
+        varDef->addVarDefAndAssginInstruct(context);
         out.ptr = varDef->exp;
         return {};
     }
@@ -47,8 +48,22 @@ public:
         SyntaxExp* exp = (SyntaxExp*)es[0].ptr;
         SyntaxExp* exp2 = (SyntaxExp*)es[2].ptr;
 
+        SyntaxInstruct* instruct = exp->instructs.back();
+        if (instruct->cmd != COMMA)
+        {
+            instruct = new SyntaxInstruct(context);
+            instruct->cmd = COMMA;
+        }
+        else
+        {
+            exp->instructs.pop_back();
+        }
+
+        instruct->params.push_back(exp2->ret);
         exp->append(exp2);
-        exp->ret = exp2->ret;
+
+        exp->instructs.push_back(instruct);
+        exp->ret.setInstruct(instruct);
 
         out.ptr = exp;
         return {};

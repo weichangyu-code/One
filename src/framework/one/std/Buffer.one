@@ -1,0 +1,23 @@
+
+class Buffer
+{
+    Buffer(int capacity)
+    {
+        
+    }
+
+    Buffer()
+    {
+        
+    }
+
+    void put(String str)
+    {
+        
+    }
+    
+    void clear()
+    {
+        
+    }
+}

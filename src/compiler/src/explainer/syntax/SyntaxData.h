@@ -30,6 +30,11 @@ public:
         this->type = INSTRUCT;
         this->instruct = instruct;
     }
+
+    bool isNone()
+    {
+        return this->type == NONE;
+    }
     
 public:
     void setConst(SyntaxConst* const_)

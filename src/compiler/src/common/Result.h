@@ -57,6 +57,7 @@ public:
 	auto r = exp; \
 	if (r.isError()) \
 	{ \
+		printf("return faild. file=%s:%d\n", __FILE__, __LINE__); \
 		return r; \
 	} \
 }

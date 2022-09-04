@@ -50,7 +50,7 @@ public:
     Result onExplainMultiFuncParamDefAdd(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
         SyntaxMulti<SyntaxVarDef*>* multiVarDef = (SyntaxMulti<SyntaxVarDef*>*)es[0].ptr;
-        SyntaxVarDef* varDef = (SyntaxVarDef*)es[1].ptr;
+        SyntaxVarDef* varDef = (SyntaxVarDef*)es[2].ptr;
 
         multiVarDef->items.push_back(varDef);
         
@@ -99,7 +99,7 @@ public:
     Result onExplainFuncDefHeader(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
         SyntaxFunc* func = (SyntaxFunc*)es[1].ptr;
-        func->return_ = (SyntaxType*)es[0].ptr;
+        func->returnType = (SyntaxType*)es[0].ptr;
         func->params = std::move(((SyntaxMulti<SyntaxVarDef*>*)es[2].ptr)->items);
 
         out.ptr = func;
@@ -232,6 +232,7 @@ public:
             instruct->params.push_back(expTmp->ret);
         }
         exp->instructs.push_back(instruct);
+        exp->ret.setInstruct(instruct);
 
         out.ptr = exp;
         return {};
@@ -245,7 +246,6 @@ public:
         instruct->cmd = RETURN;
         instruct->params.push_back(exp->ret);
         exp->instructs.push_back(instruct);
-        exp->ret = exp->ret;
 
         out.ptr = exp;
         return {};

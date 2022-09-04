@@ -1,5 +1,12 @@
 
 class Object
 {
-	
+    static void setLastError(int err)
+    {
+
+    }
+    static int  getLastError()
+    {
+        return 0;
+    }
 }

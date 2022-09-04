@@ -255,13 +255,42 @@ MetaPackage* MetaContainer::searchPackage(MetaBoxBase* box, const string& name)
     return nullptr;
 }
     
-MetaFunc* MetaContainer::searchFunction(MetaClass* clazz, const string& name, list<MetaData>& params, bool onlyStatic)
+MetaFunc* MetaContainer::searchFunction(MetaBoxBase* box, const string& name, list<MetaData>& params, bool onlyStatic, MetaVarRef** varRef)
 {
-    int matchValue;
-    return searchMatchFunction(clazz, name, params, matchValue, onlyStatic);
+    MetaClass* clazz = box->getOuterClass();
+    MetaFunc* func = searchClassFunction(clazz, name, params, onlyStatic);
+    if (func)
+    {
+        return func;
+    }
+
+    if (clazz->isAnonyClass)
+    {
+        //如果是匿名类，先找各上层this
+        for (auto& anonyThis : clazz->vars)
+        {
+            if (anonyThis->varType == VAR_ANONY_THIS)
+            {
+                func = searchClassFunction(anonyThis->type.clazz, name, params, onlyStatic);
+                if (func)
+                {
+                    *varRef = MetaVarRef::makeVarRef(this, nullptr, anonyThis);
+                    return func;
+                }
+            }
+        }
+    }
+    
+    return nullptr;
 }
     
-MetaFunc* MetaContainer::searchMatchFunction(MetaClass* clazz, const string& name, list<MetaData>& params, int& matchValue, bool onlyStatic)
+MetaFunc* MetaContainer::searchClassFunction(MetaClass* clazz, const string& name, list<MetaData>& params, bool onlyStatic)
+{
+    int matchValue;
+    return searchMatchClassFunction(clazz, name, params, matchValue, onlyStatic);
+}
+    
+MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string& name, list<MetaData>& params, int& matchValue, bool onlyStatic)
 {
     //先查找类型一样的
     MetaFunc* match = nullptr;
@@ -320,7 +349,7 @@ MetaFunc* MetaContainer::searchMatchFunction(MetaClass* clazz, const string& nam
     for (auto& parent : clazz->parents)
     {
         int value;
-        MetaFunc* func = searchMatchFunction(parent, name, params, value, onlyStatic);
+        MetaFunc* func = searchMatchClassFunction(parent, name, params, value, onlyStatic);
         if (value < matchValue)
         {
             matchValue = value;
@@ -330,6 +359,11 @@ MetaFunc* MetaContainer::searchMatchFunction(MetaClass* clazz, const string& nam
                 return match;
             }
         }
+    }
+
+    if (clazz->isAnonyClass)
+    {
+        //匿名函数，
     }
 
     return match;
@@ -359,17 +393,14 @@ MetaVarRef* MetaContainer::searchVariable(MetaBoxBase* box, const string& name, 
         if (clazz->isAnonyClass)
         {
             //如果是匿名类，先找各上层this
-            if (onlyStatic == false)
+            for (auto& anonyThis : clazz->vars)
             {
-                for (auto& anonyThis : clazz->vars)
+                if (anonyThis->varType == VAR_ANONY_THIS)
                 {
-                    if (anonyThis->varType == VAR_ANONY_THIS)
+                    MetaVariable* var = anonyThis->type.clazz->getVariable(name, false);
+                    if (var)
                     {
-                        MetaVariable* var = anonyThis->type.clazz->getVariable(name, false);
-                        if (var)
-                        {
-                            return MetaVarRef::makeVarRef(this, MetaVarRef::makeVarRef(this, nullptr, anonyThis), var);
-                        }
+                        return MetaVarRef::makeVarRef(this, MetaVarRef::makeVarRef(this, nullptr, anonyThis), var);
                     }
                 }
             }

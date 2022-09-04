@@ -248,16 +248,16 @@ Result MetaGenerator::generateMetaFunctionStruct(MetaFunc* func)
     }
 
     // 解析返回值
-    if (syntaxFunc->return_ == nullptr)
+    if (syntaxFunc->returnType == nullptr)
     {
         if (func->funcType == FUNC_CONSTRUCT)
         {
-            //TODO:func->return_.setClass(func->getOuterClass()); 
+            //TODO:func->returnType.setClass(func->getOuterClass()); 
         }
     }
     else
     {
-        VR(generateMetaType(func->outer, syntaxFunc->return_, &func->return_));
+        VR(generateMetaType(func->outer, syntaxFunc->returnType, &func->returnType));
     }
 
     return {};
@@ -282,7 +282,11 @@ Result MetaGenerator::generateMetaVarDefStruct(MetaBoxBase* box, MetaVariable* v
         //auto
     }
 
-    //exp不需要处理，因为已经加到BLOCK里面了
+    if (syntaxVarDef->isConst && syntaxVarDef->exp == nullptr)
+    {
+        //const变量右边必须有表达式
+        return R_FAILED;
+    }
 
     return {};
 }
@@ -315,6 +319,12 @@ Result MetaGenerator::generateMetaClassInstruct(MetaClass* clazz)
         VR(generateMetaClassInstruct(innerClass));
     }
 
+    // 解析变量
+    for (auto& var : clazz->vars)
+    {
+        VR(generateMetaClassVarInstruct(clazz, var));
+    }
+
     // 解析变量初始化
     VR(generateMetaFunctionInstruct(clazz->varInitFunc));
     VR(generateMetaFunctionInstruct(clazz->staticVarInitFunc));
@@ -328,7 +338,22 @@ Result MetaGenerator::generateMetaClassInstruct(MetaClass* clazz)
 
     return {};
 }
-    
+
+Result MetaGenerator::generateMetaClassVarInstruct(MetaClass* clazz, MetaVariable* var)
+{
+    if (var->isConst)
+    {
+        //只有常量才需要处理
+        SyntaxVarDef* syntaxVarDef = (SyntaxVarDef*)var->syntaxObj;
+        var->initBlock = new MetaBlock(clazz->varInitFunc, metaContainer, nullptr);
+
+        MetaData tmp;
+        VR(generateMetaExpInstruct(var->initBlock, syntaxVarDef->exp, &tmp));
+    }
+
+    return {};
+}
+
 Result MetaGenerator::generateMetaFunctionInstruct(MetaFunc* func)
 {
     SyntaxFunc* syntaxFunc = (SyntaxFunc*)func->syntaxObj;
@@ -550,9 +575,18 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
                 else
                 {
                     MetaData tmp[3];
-                    VR(generateMetaExpInstruct(subBlock, syntaxForBlock->exp[0], &tmp[0]));
-                    VR(generateMetaExpInstruct(subBlock, syntaxForBlock->exp[1], &tmp[1]));
-                    VR(generateMetaExpInstruct(subBlock, syntaxForBlock->exp[2], &tmp[2]));
+                    if (syntaxForBlock->exp[0])
+                    {
+                        VR(generateMetaExpInstruct(subBlock, syntaxForBlock->exp[0], &tmp[0]));
+                    }
+                    if (syntaxForBlock->exp[1])
+                    {
+                        VR(generateMetaExpInstruct(subBlock, syntaxForBlock->exp[1], &tmp[1]));
+                    }
+                    if (syntaxForBlock->exp[2])
+                    {
+                        VR(generateMetaExpInstruct(subBlock, syntaxForBlock->exp[2], &tmp[2]));
+                    }
 
                     instruct = new MetaInstruct(metaContainer, nullptr);
                     instruct->cmd = FOR;
@@ -1051,10 +1085,17 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             block->instructs.push_back(instruct);
         }
         break;
+    case COMMA:
+        {
+            MetaType type = instruct->params.back().getType();
+            instruct->retType = type;
+            block->instructs.push_back(instruct);
+        }
+        break;
     case RETURN:
         {
             MetaType type(DT_VOID);
-            MetaType retType = block->getOuterFunc()->return_;
+            MetaType retType = block->getOuterFunc()->returnType;
             if (instruct->params.empty() == false)
             {
                 type = instruct->params.front().getType();
@@ -1096,7 +1137,7 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
                 {
                     return R_FAILED;
                 }
-                instruct->func = metaContainer->searchFunction(instruct->retType.clazz, instruct->retType.clazz->name, instruct->params, false);
+                instruct->func = metaContainer->searchClassFunction(instruct->retType.clazz, instruct->retType.clazz->name, instruct->params, false);
                 if (instruct->func == nullptr)
                 {
                     return R_FAILED;
@@ -1140,21 +1181,11 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
         break;
     case VARDEF:
         {
-            if (block->getOuterFunc()->isInitVarFunc())
-            {
-                MetaVariable* var = (MetaVariable*)syntaxInstruct->varDef->ptr;
-                instruct->var = var;
-                instruct->retType = var->type;
-                block->instructs.push_back(instruct);
-            }
-            else
-            {
-                MetaVariable* var = block->addVeriable(syntaxInstruct->varDef->name, syntaxInstruct->varDef);
-                VR(generateMetaVarDefStruct(block, var));
-                instruct->var = var;
-                instruct->retType = var->type;
-                block->instructs.push_back(instruct);
-            }
+            MetaVariable* var = block->addVeriable(syntaxInstruct->varDef->name, syntaxInstruct->varDef);
+            VR(generateMetaVarDefStruct(block, var));
+            instruct->var = var;
+            instruct->retType = var->type;
+            block->instructs.push_back(instruct);
         }
         break;
     case BLOCK:
@@ -1199,7 +1230,7 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
             if (iterClass)
             {
                 //只能调用静态函数
-                MetaFunc* func = metaContainer->searchFunction(iterClass, item->typeName, instruct->params, iterVarRef ? false : true);
+                MetaFunc* func = metaContainer->searchClassFunction(iterClass, item->typeName, instruct->params, iterVarRef ? false : true);
                 if (func == nullptr)
                 {
                     return R_FAILED;
@@ -1220,7 +1251,7 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                 }
                 //对象
                 MetaClass* clazz = iterVarRef->getType().clazz;
-                MetaFunc* func = metaContainer->searchFunction(clazz, item->typeName, instruct->params, false);
+                MetaFunc* func = metaContainer->searchClassFunction(clazz, item->typeName, instruct->params, false);
                 if (func == nullptr)
                 {
                     //找不到
@@ -1240,8 +1271,7 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
             else
             {
                 //代表当前对象
-                MetaClass* clazz = block->getOuterClass();
-                MetaFunc* func = metaContainer->searchFunction(clazz, item->typeName, instruct->params, inFunc->isStatic);
+                MetaFunc* func = metaContainer->searchFunction(block, item->typeName, instruct->params, inFunc->isStatic, &iterVarRef);
                 if (func == nullptr)
                 {
                     //找不到
@@ -1250,7 +1280,14 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                 if (func->isStatic == false)
                 {
                     //存入this
-                    instruct->params.push_front(clazz->getThisVariable());
+                    if (iterVarRef)
+                    {
+                        instruct->params.push_front(iterVarRef);
+                    }
+                    else
+                    {
+                        instruct->params.push_front(block->getOuterClass()->getThisVariable());
+                    }
                 }
                 instruct->func = func;
             }
@@ -1269,11 +1306,11 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                 if (type2.isClass() && type2.clazz->isAnonyClass)
                 {
                     //
-                    handleAnonyClass(block, type2, (*iter1)->type);
+                    VR(handleAnonyClass(block, type2, (*iter1)->type));
                 }
             }
 
-            instruct->retType = instruct->func->return_;
+            instruct->retType = instruct->func->returnType;
             return {};
         }
         else if (first)
@@ -1816,7 +1853,7 @@ Result MetaGenerator::generateAnonyClassInstruct(MetaBoxBase* box, MetaClass* an
         }
 
         //返回值
-        func->return_ = overrideFunc->return_;
+        func->returnType = overrideFunc->returnType;
     }
 
     //

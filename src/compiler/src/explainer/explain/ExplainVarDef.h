@@ -36,18 +36,6 @@ public:
         varDef->name = es[1].remark;
         varDef->exp = exp;
 
-        SyntaxInstruct* instructLeft = new SyntaxInstruct(context);
-        instructLeft->cmd = VARDEF;
-        instructLeft->varDef = varDef;
-        exp->instructs.push_back(instructLeft);
-
-        SyntaxInstruct* instruct = new SyntaxInstruct(context);
-        instruct->cmd = ASSIGN;
-        instruct->params.push_back(instructLeft);
-        instruct->params.push_back(exp->ret);
-        exp->instructs.push_back(instruct);
-        exp->ret.setInstruct(instruct);
-        
         out.ptr = varDef;
         return {};
     }
@@ -77,17 +65,7 @@ public:
         }
         exp->instructs.push_back(instructRight);
 
-        SyntaxInstruct* instructLeft = new SyntaxInstruct(context);
-        instructLeft->cmd = VARDEF;
-        instructLeft->varDef = varDef;
-        exp->instructs.push_back(instructLeft);
-
-        SyntaxInstruct* instruct = new SyntaxInstruct(context);
-        instruct->cmd = ASSIGN;
-        instruct->params.push_back(instructLeft);
-        instruct->params.push_back(instructRight);
-        exp->instructs.push_back(instruct);
-        exp->ret.setInstruct(instruct);
+        exp->ret.setInstruct(instructRight);
         
         out.ptr = varDef;
         return {};
@@ -102,18 +80,6 @@ public:
         varDef->type = (SyntaxType*)es[0].ptr;
         varDef->exp = exp;
 
-        SyntaxInstruct* instructLeft = new SyntaxInstruct(context);
-        instructLeft->cmd = VARDEF;
-        instructLeft->varDef = varDef;
-        exp->instructs.push_back(instructLeft);
-
-        SyntaxInstruct* instruct = new SyntaxInstruct(context);
-        instruct->cmd = ASSIGN;
-        instruct->params.push_back(instructLeft);
-        instruct->params.push_back(exp->ret);
-        exp->instructs.push_back(instruct);
-        exp->ret.setInstruct(instruct);
-        
         out.ptr = varDef;
         return {};
     }
@@ -138,18 +104,7 @@ public:
         instructRight->params.push_back(exp->ret);
         exp->instructs.push_back(instructRight);
 
-        //
-        SyntaxInstruct* instructLeft = new SyntaxInstruct(context);
-        instructLeft->cmd = VARDEF;
-        instructLeft->varDef = varDef;
-        exp->instructs.push_back(instructLeft);
-
-        SyntaxInstruct* instruct = new SyntaxInstruct(context);
-        instruct->cmd = ASSIGN;
-        instruct->params.push_back(instructLeft);
-        instruct->params.push_back(instructRight);
-        exp->instructs.push_back(instruct);
-        exp->ret.setInstruct(instruct);
+        exp->ret.setInstruct(instructRight);
         
         out.ptr = varDef;
         return {};
@@ -157,19 +112,10 @@ public:
 
     Result onExplainVarDefStartNormal(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
-        SyntaxExp* exp = new SyntaxExp(context);
-
         SyntaxVarDef* varDef = new SyntaxVarDef(context);
         varDef->name = es[1].remark;
         varDef->type = (SyntaxType*)es[0].ptr;
-        varDef->exp = exp;
 
-        SyntaxInstruct* instruct = new SyntaxInstruct(context);
-        instruct->cmd = VARDEF;
-        instruct->varDef = varDef;
-        exp->instructs.push_back(instruct);
-        exp->ret.setInstruct(instruct);
-        
         out.ptr = varDef;
         return {};
     }
@@ -187,17 +133,8 @@ public:
 
     Result onExplainVarDefNullAuto(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
-        SyntaxExp* exp = new SyntaxExp(context);
-
         SyntaxVarDef* varDef = new SyntaxVarDef(context);
         varDef->name = es[1].remark;
-        varDef->exp = exp;
-
-        SyntaxInstruct* instruct = new SyntaxInstruct(context);
-        instruct->cmd = VARDEF;
-        instruct->varDef = varDef;
-        exp->instructs.push_back(instruct);
-        exp->ret.setInstruct(instruct);
 
         out.ptr = varDef;
         return {};

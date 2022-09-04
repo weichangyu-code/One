@@ -36,6 +36,9 @@ namespace OneCoroutine
         void yield();
         void cancel();                                          //对于还未执行的协程，可以取消
 
+        void setErrorCode(int err);
+        int  getErrorCode();
+
     protected:
         static void coRun(void* s1, void* s2);
         void run(void* data);
@@ -79,6 +82,9 @@ namespace OneCoroutine
 
         //唤醒定时器
         Timer wakeupTimer;
+
+        //每个协程一个独立错误码
+        int errorCode = 0;
 
         //
         coctx_t coctx;

@@ -1,0 +1,36 @@
+
+
+class HttpClient
+{
+    void main()
+    {
+        Socket sock();
+        int ret = sock.connect("127.0.0.1", 8000, -1);
+        if (ret < 0)
+        {
+            Out.println("connect failed");
+            return;
+        }
+        Out.println("connect success");
+
+        Buffer sendBuffer(4*1024);
+        sendBuffer.put("GET / HTTP/1.1\n");
+        sendBuffer.put("Content-Length: 0\n\n");
+        ret = sock.send(sendBuffer, -1);
+        if (ret < 0)
+        {
+            Out.println("send failed");
+            return;
+        }
+        Out.println("send success");
+
+        Buffer recvBuffer(4*1024);
+        ret = sock.recv(recvBuffer, -1);
+        if (ret < 0)
+        {
+            Out.println("recv failed");
+            return;
+        }
+        Out.println("recv success");
+    }
+}

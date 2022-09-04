@@ -1,5 +1,6 @@
 ﻿#include "OneObject.h"
 #include "ObjectPool.h"
+#include "engine/Engine.h"
 
 namespace One
 {
@@ -58,5 +59,14 @@ namespace One
             __destruct__();
         }
     }
-
+        
+    void Object::setLastError(int err)
+    {
+        OneCoroutine::Engine::getCurCoroutine()->setErrorCode(err);
+    }
+    
+    int Object::getLastError()
+    {
+        return OneCoroutine::Engine::getCurCoroutine()->getErrorCode();
+    }
 } // namespace One

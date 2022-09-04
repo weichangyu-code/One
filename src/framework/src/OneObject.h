@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Common.h"
 
 /**
  * 对象回收方式，通过引用索引和遍历算法
@@ -20,6 +21,10 @@ namespace One
         void __acquire__(bool inner);
         void __release__(bool inner);
         void __destroy__();              //强制析构
+
+        //错误码
+        static void setLastError(int err);
+        static int  getLastError();
 
     protected:
         RunClass* __runClass__ = nullptr;

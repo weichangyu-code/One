@@ -1,0 +1,33 @@
+
+class File
+{
+    File()
+    {
+
+    }
+
+    File(String path, int openFlags, int mode)
+    {
+        
+    }
+
+    int open(String path, int openFlags, int mode)
+    {
+        return 0;
+    }
+
+    void close()
+    {
+
+    }
+
+    int  write(Buffer buffer)
+    {
+        return 0;
+    }
+    int  read(Buffer buffer)
+    {
+        return 0;
+    }
+
+}

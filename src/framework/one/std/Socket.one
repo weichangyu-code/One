@@ -1,0 +1,33 @@
+class Socket
+{
+    Socket()
+    {
+    }
+
+    int listen(String localAddr, int port, bool reuseaddr, int backlog)
+    {
+        return 0;
+    }
+    int connect(String addr, int port, int timeout)
+    {
+        return 0;
+    }
+    int accept(Socket listenSocket, int timeout)
+    {
+        return 0;
+    }
+    void close()
+    {
+
+    }
+
+    int send(Buffer buffer, int timeout)
+    {
+        return 0;
+    }
+    int recv(Buffer buffer, int timeout)
+    {
+        return 0;
+    }
+
+}

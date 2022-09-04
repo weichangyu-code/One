@@ -7,11 +7,19 @@ namespace One
 {
     int String::length()
     {
+        if (this == nullptr)
+        {
+            return 0;
+        }
         return _length;
     }
         
     const char* String::str()
     {
+        if (this == nullptr)
+        {
+            return "";
+        }
         return _c;
     }
         

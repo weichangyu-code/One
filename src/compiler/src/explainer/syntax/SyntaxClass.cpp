@@ -5,6 +5,7 @@
 #include "SyntaxClassElement.h"
 #include "SyntaxElement.h"
 #include "SyntaxSentence.h"
+#include "SyntaxExp.h"
 #include "../explain/ExplainContext.h"
 #include "../common/Keyword.h"
 
@@ -58,18 +59,23 @@ void SyntaxClass::addElements(ExplainContext* context, SyntaxMulti<SyntaxClassEl
             this->vars.push_back(varDef);
 
             //添加初始化代码块
-            SyntaxSentence* sentence = new SyntaxSentence(context);
-            sentence->exp = varDef->exp;
-            SyntaxElement* element = new SyntaxElement(context);
-            element->type = SyntaxElement::SENTENCE;
-            element->sentence = sentence;
-            if (varDef->isStatic)
+            if (varDef->isConst == false && varDef->exp != nullptr && varDef->exp->instructs.empty() == false)
             {
-                this->staticVarInitFunc->block->elements.push_back(element);
-            }
-            else
-            {
-                this->varInitFunc->block->elements.push_back(element);
+                varDef->addAssginInstruct(context);
+
+                SyntaxSentence* sentence = new SyntaxSentence(context);
+                sentence->exp = varDef->exp;
+                SyntaxElement* element = new SyntaxElement(context);
+                element->type = SyntaxElement::SENTENCE;
+                element->sentence = sentence;
+                if (varDef->isStatic)
+                {
+                    this->staticVarInitFunc->block->elements.push_back(element);
+                }
+                else
+                {
+                    this->varInitFunc->block->elements.push_back(element);
+                }
             }
         }
         else if (element->func)

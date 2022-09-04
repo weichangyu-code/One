@@ -23,7 +23,7 @@ public:
     bool isAnony = false;
 
     string name;                            //构造函数就是类名，析构函数是~类名
-    SyntaxType* return_ = nullptr;
+    SyntaxType* returnType = nullptr;
     list<SyntaxVarDef*> params;
     SyntaxBlock* block = nullptr;           //block为null表示虚函数
 };

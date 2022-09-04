@@ -1,0 +1,38 @@
+
+class HttpLink
+{
+    HttpLink(Socket sock)
+    {
+        _sock = sock;
+
+        System.co(() {
+            Buffer recvBuffer(4*1024);
+            Buffer sendBuffer(4*1024);
+            while (1)
+            {
+                int ret = _sock.recv(recvBuffer, -1);
+                if (ret <= 0)
+                {
+                    //离线
+                    break;
+                }
+
+                Out.println("recv data.send data");
+
+                sendResponse("hello one");
+            }
+        });
+    }
+
+    void sendResponse(String str)
+    {
+        Buffer sendBuffer(4*1024);
+        sendBuffer.put("HTTP/1.1 200 OK\n");
+        sendBuffer.put("Content-Type: text/html; charset=UTF-8\n");
+        sendBuffer.put("Content-Length: 9\n\n");                         //增加可变参数
+        sendBuffer.put(str);
+        _sock.send(sendBuffer, -1);
+    }
+
+    Socket _sock;
+}

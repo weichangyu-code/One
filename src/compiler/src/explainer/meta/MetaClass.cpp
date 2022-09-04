@@ -429,7 +429,7 @@ Result MetaClass::verifyAndRepair()
         {
             //添加默认构造函数
             MetaFunc* func = addFunction(name, ((SyntaxClass*)syntaxObj)->createFunc(name, FUNC_CONSTRUCT));
-            //TODO: func->return_.setClass(this);
+            //TODO: func->returnType.setClass(this);
         }
         if (haveDestruct == false)
         {

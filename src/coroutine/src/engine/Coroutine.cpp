@@ -117,4 +117,13 @@ namespace OneCoroutine
         return costack;
     }
 
+    void Coroutine::setErrorCode(int err)
+    {
+        errorCode = err;
+    }
+        
+    int Coroutine::getErrorCode()
+    {
+        return errorCode;
+    }
 } // namespace One

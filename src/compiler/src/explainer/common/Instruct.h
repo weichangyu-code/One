@@ -52,6 +52,8 @@ enum INSTRUCT
     AND_ASSIGN,
     OR_ASSIGN,
 
+    COMMA,                      //逗号
+
     OP_END,                     //操作符边界
         
     RETURN,
