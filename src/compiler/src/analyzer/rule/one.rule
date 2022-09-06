@@ -163,8 +163,8 @@ ifblock(else)=ifblockstart else
 ifblock=ifblockstart
 
 #for语句
-forstart(range)=FOR (vardefnull : [exp, exp])
-forstart(each)=FOR (vardefnull : exp)					#自动循环
+forstart(range)=FOR (vardeffor : [exp, exp])
+forstart(each)=FOR (vardeffor : exp)					#自动循环
 #forstart=FOR (multishortsentence ; multishortsentence ; multishortsentence)
 forstart0=FOR (
 forstart1=forstart0 multishortsentence;
@@ -298,23 +298,31 @@ orassign= ||=
 exp(assign)=assign
 
 #变量定义
-vardefstart(auto)=AUTO identifier=exp              #自动类型，必须赋值
-vardefstart(new)=type identifier callfuncparam     #调用构造函数的，必须有类型，不能赋值
-vardefstart(assign)=type identifier=exp
-vardefstart(array)=type identifier[exp]
-vardefstart(normal)=type identifier
-vardef(prefix)=vardefprefix vardefstart
-vardef=vardefstart
+vardefitemautoassign=AUTO identifier=exp
+vardefitemauto=AUTO identifier
+vardefitemnew=type identifier callfuncparam
+vardefitemassign=type identifier=exp
+vardefitemarray=type identifier[exp]
+vardefitemtype=type identifier
 
-vardefnull(auto)=AUTO identifier
-vardefnull(normal)=type identifier
+vardefsentence=vardefitemautoassign
+vardefsentence=vardefitemnew
+vardefsentence=vardefitemassign
+vardefsentence=vardefitemarray
+vardefsentence=vardefitemtype
+vardefsentence(prefix)=vardefprefix vardefsentence
 
-vardeftypestart(new)=type identifier callfuncparam
-vardeftypestart(assign)=type identifier=exp
-vardeftypestart(array)=type identifier[exp]
-vardeftypestart(normal)=type identifier
-vardeftype(prefix)=vardefprefix vardeftypestart
-vardeftype=vardeftypestart
+vardeffor=vardefitemauto
+vardeffor=vardefitemtype
+
+vardeffuncparam=vardefitemassign
+vardeffuncparam=vardefitemtype
+
+vardefclass=vardefitemnew
+vardefclass=vardefitemassign
+vardefclass=vardefitemarray
+vardefclass=vardefitemtype
+vardefclass(prefix)=vardefprefix vardefclass
 
 #逗号相关的规则
 multitype=type
@@ -326,11 +334,11 @@ multiidentifier(add)=multiidentifier, identifier
 multiexp=exp
 multiexp(add)=multiexp, exp						#用于多返回值，和多个一起赋值
 
-multifuncparamdef=vardeftype						    #用于参数定义，和for初始的变量定义
-multifuncparamdef(add)=multifuncparamdef, vardeftype	#
+multifuncparamdef=vardeffuncparam						    #用于参数定义，和for初始的变量定义
+multifuncparamdef(add)=multifuncparamdef, vardeffuncparam	#
 
 shortsentence(exp)=exp				#短句
-shortsentence(vardef)=vardef
+shortsentence(vardef)=vardefsentence
 multishortsentence=shortsentence
 multishortsentence(add)=multishortsentence, shortsentence
 
@@ -347,7 +355,7 @@ sentence(short)=multishortsentence sentenceend
 sentence(end)=sentenceend
 
 #类内容
-classelement(vardeftype)=vardeftype sentenceend
+classelement(vardef)=vardefclass sentenceend
 classelement(funcdef)=funcdef
 classelement(classdef)=classdef
 classelement(constructdef)=constructdef

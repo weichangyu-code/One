@@ -51,12 +51,12 @@ protected:
     Result generateMetaFileStruct(MetaFile* file);
     Result generateMetaClassStruct(MetaClass* clazz);
     Result generateMetaFunctionStruct(MetaFunc* func);
-    Result generateMetaVarDefStruct(MetaBoxBase* box, MetaVariable* var);
+    Result generateMetaVarDefStruct(MetaBoxBase* box, MetaVariable* var, bool needInit);
 
     //产生语句
     Result generateMetaPackageInstruct(MetaPackage* package);
     Result generateMetaClassInstruct(MetaClass* clazz);
-    Result generateMetaClassVarInstruct(MetaClass* clazz, MetaVariable* var);
+    Result generateMetaVarDefInstruct(MetaVariable* var);
     Result generateMetaFunctionInstruct(MetaFunc* func);
     Result generateMetaBlockInstruct(MetaBlock* block);
     Result generateMetaVarInstruct(MetaBlock* block, SyntaxVar* syntaxVar, MetaData* out);

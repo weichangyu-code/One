@@ -11,24 +11,18 @@ public:
     ExplainVarDef(ExplainContainer* container, ExplainContext* context)
         : ExplainBase(container, context)
     {
-        registe("vardefstart", "auto", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefStartAuto);
-        registe("vardefstart", "new", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefStartNew);
-        registe("vardefstart", "assign", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefStartAssign);
-        registe("vardefstart", "array", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefStartArray);
-        registe("vardefstart", "normal", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefStartNormal);
-        registe("vardef", "prefix", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefPrefix);
+        registe("vardefitemautoassign", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemAutoAssign);
+        registe("vardefitemauto", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemAuto);
+        registe("vardefitemnew", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemNew);
+        registe("vardefitemassign", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemAssign);
+        registe("vardefitemarray", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemArray);
+        registe("vardefitemtype", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemType);
 
-        registe("vardefnull", "auto", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefNullAuto);
-        registe("vardefnull", "normal", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefNullNormal);
-        
-        registe("vardeftypestart", "new", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefTypeStartNew);
-        registe("vardeftypestart", "normal", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefTypeStartNormal);
-        registe("vardeftypestart", "assign", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefTypeStartAssign);
-        registe("vardeftypestart", "array", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefTypeStartArray);
-        registe("vardeftype", "prefix", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefTypePrefix);
+        registe("vardefsentence", "prefix", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefPrefix);
+        registe("vardefclass", "prefix", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefPrefix);
     }
 
-    Result onExplainVarDefStartAuto(Rule* rule, vector<LexElement>& es, LexElement& out)
+    Result onExplainVarDefItemAutoAssign(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
         SyntaxExp* exp = (SyntaxExp*)es[3].ptr;
 
@@ -40,7 +34,7 @@ public:
         return {};
     }
 
-    Result onExplainVarDefStartNew(Rule* rule, vector<LexElement>& es, LexElement& out)
+    Result onExplainVarDefItemNew(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
         SyntaxType* type = (SyntaxType*)es[0].ptr;
         SyntaxMulti<SyntaxExp*>* multiExp = (SyntaxMulti<SyntaxExp*>*)es[2].ptr;
@@ -71,7 +65,7 @@ public:
         return {};
     }
 
-    Result onExplainVarDefStartAssign(Rule* rule, vector<LexElement>& es, LexElement& out)
+    Result onExplainVarDefItemAssign(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
         SyntaxExp* exp = (SyntaxExp*)es[3].ptr;
 
@@ -84,7 +78,7 @@ public:
         return {};
     }
 
-    Result onExplainVarDefStartArray(Rule* rule, vector<LexElement>& es, LexElement& out)
+    Result onExplainVarDefItemArray(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
         SyntaxExp* exp = (SyntaxExp*)es[3].ptr;
         SyntaxType* type = (SyntaxType*)es[0].ptr;
@@ -110,11 +104,20 @@ public:
         return {};
     }
 
-    Result onExplainVarDefStartNormal(Rule* rule, vector<LexElement>& es, LexElement& out)
+    Result onExplainVarDefItemType(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
         SyntaxVarDef* varDef = new SyntaxVarDef(context);
         varDef->name = es[1].remark;
         varDef->type = (SyntaxType*)es[0].ptr;
+
+        out.ptr = varDef;
+        return {};
+    }
+
+    Result onExplainVarDefItemAuto(Rule* rule, vector<LexElement>& es, LexElement& out)
+    {
+        SyntaxVarDef* varDef = new SyntaxVarDef(context);
+        varDef->name = es[1].remark;
 
         out.ptr = varDef;
         return {};
@@ -129,44 +132,5 @@ public:
 
         out.ptr = varDef;
         return {};
-    }
-
-    Result onExplainVarDefNullAuto(Rule* rule, vector<LexElement>& es, LexElement& out)
-    {
-        SyntaxVarDef* varDef = new SyntaxVarDef(context);
-        varDef->name = es[1].remark;
-
-        out.ptr = varDef;
-        return {};
-    }
-
-    Result onExplainVarDefNullNormal(Rule* rule, vector<LexElement>& es, LexElement& out)
-    {
-        return onExplainVarDefStartNormal(rule, es, out);
-    }
-    
-    Result onExplainVarDefTypeStartNew(Rule* rule, vector<LexElement>& es, LexElement& out)
-    {
-        return onExplainVarDefStartNew(rule, es, out);
-    }
-
-    Result onExplainVarDefTypeStartAssign(Rule* rule, vector<LexElement>& es, LexElement& out)
-    {
-        return onExplainVarDefStartAssign(rule, es, out);
-    }
-
-    Result onExplainVarDefTypeStartArray(Rule* rule, vector<LexElement>& es, LexElement& out)
-    {
-        return onExplainVarDefStartArray(rule, es, out);
-    }
-
-    Result onExplainVarDefTypeStartNormal(Rule* rule, vector<LexElement>& es, LexElement& out)
-    {
-        return onExplainVarDefStartNormal(rule, es, out);
-    }
-
-    Result onExplainVarDefTypePrefix(Rule* rule, vector<LexElement>& es, LexElement& out)
-    {
-        return onExplainVarDefPrefix(rule, es, out);
     }
 };

@@ -14,10 +14,10 @@ namespace One
     {
     public:
         File();
-        File(String* path, int openFlag, int mode);
+        File(String* path, int openFlag, int mode = 0777);
         ~File();
 
-        int  open(String* path, int openFlag, int mode);
+        int  open(String* path, int openFlag, int mode = 0777);
         void close();
         bool isOpen();
 

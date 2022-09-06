@@ -28,7 +28,7 @@ public:
         registe("classheader", "", (MyRuleExecuteFunction)&ExplainClass::onExplainClassHeader);
         registe("classdef", "", (MyRuleExecuteFunction)&ExplainClass::onExplainClassDef);
         
-        registe("classelement", "vardeftype", (MyRuleExecuteFunction)&ExplainClass::onExplainClassElementVarDef);
+        registe("classelement", "vardef", (MyRuleExecuteFunction)&ExplainClass::onExplainClassElementVarDef);
         registe("classelement", "funcdef", (MyRuleExecuteFunction)&ExplainClass::onExplainClassElementFuncDef);
         registe("classelement", "classdef", (MyRuleExecuteFunction)&ExplainClass::onExplainClassElementClassDef);
         registe("classelement", "constructdef", (MyRuleExecuteFunction)&ExplainClass::onExplainClassElementConstructDef);

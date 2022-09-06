@@ -301,8 +301,9 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
         {
             continue;
         }
-        if (func->name != name || func->params.size() != params.size())
+        if (func->name != name || func->params.size() < params.size())
         {
+            //会有默认参数，所以函数参数数量大于等于实际数量
             continue;
         }
     
@@ -310,7 +311,7 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
         int value = 0;
         auto iter1 = func->params.begin();
         auto iter2 = params.begin();
-        for (;iter1 != func->params.end();++iter1, ++iter2)
+        for (;iter2 != params.end();++iter1, ++iter2)
         {
             MetaType type1 = (*iter1)->type;
             MetaType type2 = (*iter2).getType();
@@ -332,6 +333,18 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
                     value = 0xFFFF;
                     break;
                 }
+            }
+        }
+
+        //判断多余的参数有没有默认参数
+        for (;iter1 != func->params.end();++iter1)
+        {
+            MetaVariable* var = *iter1;
+            if (var->initBlock == nullptr)
+            {
+                //不是默认参数，不匹配
+                value = 0xFFFF;
+                break;
             }
         }
 

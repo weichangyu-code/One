@@ -1522,7 +1522,16 @@ Result CppGenerator::generateFuncImpl(ofstream& f, const string& space, MetaFunc
         {
             f << ", ";
         }
+
         f << generateFuncParamType(var->type) << " " << var->name;
+
+        if (var->initBlock)
+        {
+            string initCode;
+            VR(generateExpCode(var->initBlock->instructs, initCode));
+            f << " = " << initCode;
+        }
+
     }
     f << ")" << endl;
     f << space << "{" << endl;

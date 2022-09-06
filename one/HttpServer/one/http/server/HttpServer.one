@@ -5,12 +5,18 @@ class HttpServer
     void main()
     {
         Socket sockListen();
-        sockListen.listen("0.0.0.0", 8000, true, 128);
+        int ret = sockListen.listen("0.0.0.0", 8000);
+        if (ret < 0)
+        {
+            Out.println("listen failed");
+            return;
+        }
+        Out.println("listen success");
 
         while (1)
         {
             Socket newClient();
-            if (newClient.accept(sockListen, -1) == 0)
+            if (newClient.accept(sockListen) == 0)
             {
                 Out.println("new link");
                 HttpLink link(newClient);

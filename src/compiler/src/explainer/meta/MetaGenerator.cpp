@@ -204,7 +204,7 @@ Result MetaGenerator::generateMetaClassStruct(MetaClass* clazz)
             return R_FAILED;
         }
         MetaVariable* var = clazz->addVeriable(syntaxVarDef->name, syntaxVarDef);
-        VR(generateMetaVarDefStruct(clazz, var));
+        VR(generateMetaVarDefStruct(clazz, var, var->isConst));
     }
 
     // 解析方法
@@ -242,9 +242,7 @@ Result MetaGenerator::generateMetaFunctionStruct(MetaFunc* func)
             return R_FAILED;
         }
         MetaVariable* param = func->addParam(syntaxVarDef->name, syntaxVarDef);
-        VR(generateMetaVarDefStruct(func, param));
-
-        //TODO:默认参数处理
+        VR(generateMetaVarDefStruct(func, param, true));
     }
 
     // 解析返回值
@@ -263,7 +261,7 @@ Result MetaGenerator::generateMetaFunctionStruct(MetaFunc* func)
     return {};
 }
 
-Result MetaGenerator::generateMetaVarDefStruct(MetaBoxBase* box, MetaVariable* var)
+Result MetaGenerator::generateMetaVarDefStruct(MetaBoxBase* box, MetaVariable* var, bool needInit)
 {
     SyntaxVarDef* syntaxVarDef = (SyntaxVarDef*)var->syntaxObj;
 
@@ -286,6 +284,14 @@ Result MetaGenerator::generateMetaVarDefStruct(MetaBoxBase* box, MetaVariable* v
     {
         //const变量右边必须有表达式
         return R_FAILED;
+    }
+
+    
+    //只有常量才需要处理
+    if (syntaxVarDef->exp && needInit)
+    {
+        //借用下varInitFunc
+        var->initBlock = new MetaBlock(box->getOuterClass()->varInitFunc, metaContainer, nullptr);
     }
 
     return {};
@@ -322,7 +328,10 @@ Result MetaGenerator::generateMetaClassInstruct(MetaClass* clazz)
     // 解析变量
     for (auto& var : clazz->vars)
     {
-        VR(generateMetaClassVarInstruct(clazz, var));
+        if (var->isConst)
+        {
+            VR(generateMetaVarDefInstruct(var));
+        }
     }
 
     // 解析变量初始化
@@ -339,18 +348,16 @@ Result MetaGenerator::generateMetaClassInstruct(MetaClass* clazz)
     return {};
 }
 
-Result MetaGenerator::generateMetaClassVarInstruct(MetaClass* clazz, MetaVariable* var)
+Result MetaGenerator::generateMetaVarDefInstruct(MetaVariable* var)
 {
-    if (var->isConst)
+    //只有常量才需要处理
+    if (var->initBlock)
     {
-        //只有常量才需要处理
         SyntaxVarDef* syntaxVarDef = (SyntaxVarDef*)var->syntaxObj;
-        var->initBlock = new MetaBlock(clazz->varInitFunc, metaContainer, nullptr);
 
         MetaData tmp;
         VR(generateMetaExpInstruct(var->initBlock, syntaxVarDef->exp, &tmp));
     }
-
     return {};
 }
 
@@ -360,6 +367,12 @@ Result MetaGenerator::generateMetaFunctionInstruct(MetaFunc* func)
     if (syntaxFunc == nullptr || syntaxFunc->block == nullptr)
     {
         return {};
+    }
+
+    //处理初始化参数
+    for (auto& var : func->params)
+    {
+        VR(generateMetaVarDefInstruct(var));
     }
 
     func->block = new MetaBlock(func, metaContainer, syntaxFunc->block);
@@ -510,7 +523,7 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
                 if (syntaxForBlock->type == SyntaxForBlock::FOR_RANGE)
                 {
                     MetaVariable* var = subBlock->addVeriable(syntaxForBlock->varDef->name, syntaxForBlock->varDef);
-                    VR(generateMetaVarDefStruct(block, var));
+                    VR(generateMetaVarDefStruct(block, var, false));
 
                     MetaData varData(var);
                     
@@ -542,7 +555,7 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
                 else if (syntaxForBlock->type == SyntaxForBlock::FOR_EACH)
                 {
                     MetaVariable* var = block->addVeriable(syntaxForBlock->varDef->name, syntaxForBlock->varDef);
-                    VR(generateMetaVarDefStruct(block, var));
+                    VR(generateMetaVarDefStruct(block, var, false));
 
                     MetaData varData(var);
                     
@@ -1182,7 +1195,7 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
     case VARDEF:
         {
             MetaVariable* var = block->addVeriable(syntaxInstruct->varDef->name, syntaxInstruct->varDef);
-            VR(generateMetaVarDefStruct(block, var));
+            VR(generateMetaVarDefStruct(block, var, false));
             instruct->var = var;
             instruct->retType = var->type;
             block->instructs.push_back(instruct);
@@ -1300,7 +1313,7 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
             //查看是否有匿名类参数
             auto iter1 = instruct->func->params.begin();
             auto iter2 = instruct->params.begin();
-            for (;iter1 != instruct->func->params.end();++iter1, ++iter2)
+            for (;iter2 != instruct->params.end();++iter1, ++iter2)
             {
                 MetaType type2 = (*iter2).getType();
                 if (type2.isClass() && type2.clazz->isAnonyClass)

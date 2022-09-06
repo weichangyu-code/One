@@ -6,11 +6,11 @@ class HttpLink
         _sock = sock;
 
         System.co(() {
-            Buffer recvBuffer(4*1024);
-            Buffer sendBuffer(4*1024);
+            Buffer recvBuffer();
+            Buffer sendBuffer();
             while (1)
             {
-                int ret = _sock.recv(recvBuffer, -1);
+                int ret = _sock.recv(recvBuffer);
                 if (ret <= 0)
                 {
                     //离线
@@ -31,7 +31,7 @@ class HttpLink
         sendBuffer.put("Content-Type: text/html; charset=UTF-8\n");
         sendBuffer.put("Content-Length: 9\n\n");                         //增加可变参数
         sendBuffer.put(str);
-        _sock.send(sendBuffer, -1);
+        _sock.send(sendBuffer);
     }
 
     Socket _sock;

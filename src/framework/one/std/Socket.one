@@ -4,15 +4,15 @@ class Socket
     {
     }
 
-    int listen(String localAddr, int port, bool reuseaddr, int backlog)
+    int listen(String localAddr, int port, bool reuseaddr = true, int backlog = 128)
     {
         return 0;
     }
-    int connect(String addr, int port, int timeout)
+    int connect(String addr, int port, int timeout = -1)
     {
         return 0;
     }
-    int accept(Socket listenSocket, int timeout)
+    int accept(Socket listenSocket, int timeout = -1)
     {
         return 0;
     }
@@ -21,11 +21,11 @@ class Socket
 
     }
 
-    int send(Buffer buffer, int timeout)
+    int send(Buffer buffer, int timeout = -1)
     {
         return 0;
     }
-    int recv(Buffer buffer, int timeout)
+    int recv(Buffer buffer, int timeout = -1)
     {
         return 0;
     }

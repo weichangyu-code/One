@@ -17,13 +17,13 @@ namespace One
         ~Socket();
 
     public:
-        int listen(String* localAddr, int port, bool reuseaddr, int backlog);
-        int connect(String* addr, int port, int timeout);
-        int accept(Socket* listenSocket, int timeout);
+        int listen(String* localAddr, int port, bool reuseaddr = true, int backlog = 128);
+        int connect(String* addr, int port, int timeout = -1);
+        int accept(Socket* listenSocket, int timeout = -1);
         void close();
 
-        int send(Buffer* buffer, int timeout);
-        int recv(Buffer* buffer, int timeout);
+        int send(Buffer* buffer, int timeout = -1);
+        int recv(Buffer* buffer, int timeout = -1);
         
     public:
         OneCoroutine::CoSocket* _sock = nullptr;

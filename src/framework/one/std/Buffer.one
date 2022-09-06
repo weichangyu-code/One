@@ -1,7 +1,7 @@
 
 class Buffer
 {
-    Buffer(int capacity)
+    Buffer(int capacity = 4096)
     {
         
     }

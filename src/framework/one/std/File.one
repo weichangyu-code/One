@@ -6,12 +6,12 @@ class File
 
     }
 
-    File(String path, int openFlags, int mode)
+    File(String path, int openFlags, int mode = 0777)
     {
         
     }
 
-    int open(String path, int openFlags, int mode)
+    int open(String path, int openFlags, int mode = 0777)
     {
         return 0;
     }

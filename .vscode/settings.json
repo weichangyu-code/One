@@ -54,7 +54,7 @@
         "numeric": "cpp"
     },
     "cmake.debugConfig": {
-        "args": ["./one/HttpClient"],
+        "args": ["./one/HttpServer"],
         "cwd": "${workspaceFolder}"
     }
 }
