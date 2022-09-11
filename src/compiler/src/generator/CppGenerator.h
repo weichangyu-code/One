@@ -56,6 +56,7 @@ protected:
     Result generateMainFile(const string& root, const string& mainClass);
     void   generateMainInitStaticVar(ofstream& f, set<MetaClass*>& called, MetaClass* metaClass);
     Result generateCMakeList(const string& root, const string& exeName);
+    Result generateStringArray(const string& root);
 
     Result generatePackage(const string& root, MetaPackage* metaPackage);
     Result generateClass(const string& root, MetaClass* metaClass);

@@ -27,6 +27,8 @@ set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 aux_source_directory(./explainer SEARCH_LIST)
 set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 
+aux_source_directory(./generator/dump SEARCH_LIST)
+set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 aux_source_directory(./generator/cpp SEARCH_LIST)
 set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 aux_source_directory(./generator SEARCH_LIST)

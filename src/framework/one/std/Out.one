@@ -1,9 +1,11 @@
 
 class Out
 {
+	//static void print(String str, String... args)
 	static void print(String str)
 	{
 	}
+	//static void println(String str, String... args)
 	static void println(String str)
 	{
 	}

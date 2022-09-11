@@ -57,6 +57,7 @@ public:
     MetaVariable* addAnonyMember(const string name, MetaVarRef* varRef);
 
 public:
+    int id = 0;                         //所以Class的索引，从1开始
     string name;
     bool isInterface = false;
     bool isInnerClass = false;

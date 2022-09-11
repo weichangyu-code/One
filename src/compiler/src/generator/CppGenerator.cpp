@@ -21,6 +21,7 @@
 #include "cpp/CppFunc.h"
 #include "cpp/CppClass.h"
 #include "cpp/CppFile.h"
+#include "dump/Dumper.h"
 using namespace OneCommon;
 
 CppGenerator::CppGenerator(MetaContainer* metaContainer)
@@ -54,6 +55,11 @@ Result CppGenerator::generate(const string& exeName, const string& mainClass, co
     VR(generateMainFile(folder, mainClass));
 
     VR(generateCMakeList(folder, exeName));
+
+    VR(generateStringArray(folder));
+
+    Dumper dumper;
+    VR(dumper.dump(metaContainer, FileUtils::appendFileName(folder, "OneMeta.inl")));
 
     return {};
 }
@@ -101,7 +107,7 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
     auto cppFunc = CppFunc::getCppFunc(metaFunc);
 
     cpp << "#include \"" << cppClass->cppHPath << "\"" << endl;
-    cpp << "#include \"" << "StringPool.h" << "\"" << endl;
+    cpp << "#include \"StringPool.h\"" << endl;
     for (auto& iterMetaClass : metaContainer->getClasses())
     {
         auto iterCppClass = CppClass::getCppClass(iterMetaClass);
@@ -113,30 +119,20 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
         }
     }
     cpp << "#include \"" << "engine/Engine.h" << "\"" << endl;
+    cpp << "#include \"OneMeta.inl\"" << endl;
+    cpp << "#include \"StringArray.inl\"" << endl;
+    cpp << "#include \"MetaContainer.h\"" << endl;
     cpp << endl;
 
-    //插入字符串
-    vector<string> stringArray;
-    stringArray.resize(stringMap.size());
-    for (auto& pair : stringMap)
-    {
-        stringArray[pair.second] = pair.first;
-    }
-    cpp << "const char* stringArray[] = " << endl;
-    cpp << "{" << endl;
-    for (auto& str : stringArray)
-    {
-        cpp << KEY_TAB << "\"" << str << "\"," << endl;
-    }
-    cpp << KEY_TAB << "\"\"" << endl;
-    cpp << "};" << endl;
-    cpp << endl;
-
+    //生产函数体
     cpp << endl;
     cpp << "int main()" << endl;
     cpp << "{" << endl;
 
     cpp << "    One::g_stringPool.setStringArray(stringArray, sizeof(stringArray)/sizeof(char*));" << endl;
+    cpp << endl;
+
+    cpp << "    One::g_metaContainer.load(oneMeta, sizeof(oneMeta));" << endl;
     cpp << endl;
 
     cpp << "    int ret = 0;" << endl;
@@ -240,6 +236,34 @@ Result CppGenerator::generateCMakeList(const string& root, const string& exeName
     f << "if(WIN32)" << endl;
     f << "  target_link_libraries(" << exeName << " wsock32 ws2_32)" << endl;
     f << "endif()" << endl;
+
+    return {};
+}
+    
+Result CppGenerator::generateStringArray(const string& root)
+{
+    ofstream f(FileUtils::appendFileName(root, "StringArray.inl"));
+    if (f.is_open() == false)
+    {
+        return R_FAILED;
+    }
+    
+    vector<string> stringArray;
+    stringArray.resize(stringMap.size());
+    for (auto& pair : stringMap)
+    {
+        stringArray[pair.second] = pair.first;
+    }
+
+    f << "const char* stringArray[] = " << endl;
+    f << "{" << endl;
+    for (auto& str : stringArray)
+    {
+        f << KEY_TAB << "\"" << str << "\"," << endl;
+    }
+    f << KEY_TAB << "\"\"" << endl;
+    f << "};" << endl;
+    f << endl;
 
     return {};
 }
@@ -494,6 +518,7 @@ Result CppGenerator::generateFactoryClass(ofstream& f, MetaClass* metaClass)
         f << KEY_TAB << "{" << endl;
         
         f << KEY_TAB << KEY_TAB << "auto __var__ = (" << cppClass->cppName << "*)g_objectPool.createObject(sizeof(" << cppClass->cppName << "));" << endl;
+        f << KEY_TAB << KEY_TAB << "__var__->__metaClass__ = g_metaContainer.getClass(" << StringUtils::itoa(metaClass->id) << ");" << endl;
         if (cppClass->cppNative)
         {
             f << KEY_TAB << KEY_TAB << "CALL_CONSTRUCT(__var__, " << cppClass->cppName;

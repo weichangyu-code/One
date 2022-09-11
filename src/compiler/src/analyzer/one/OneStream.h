@@ -35,13 +35,6 @@ public:
         file << "const int OneRuleMap::oneRuleMap[] = {";
     }
 
-    void writeByte(unsigned char v)
-    {
-        char buf[8] = {0};
-        sprintf(buf, "0x%x", (int)v);
-        file << buf << ", ";
-    }
-
     OneOStream& operator << (int i)
     {
         char buf[16] = {0};

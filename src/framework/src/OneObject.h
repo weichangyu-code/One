@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Common.h"
+#include "MetaContainer.h"
 
 /**
  * 对象回收方式，通过引用索引和遍历算法
@@ -9,7 +10,6 @@
 
 namespace One
 {
-    class RunClass;
     class Object
     {
     public:
@@ -27,7 +27,7 @@ namespace One
         static int  getLastError();
 
     protected:
-        RunClass* __runClass__ = nullptr;
+        MetaClass* __metaClass__;       //在构造前被填充，不需要初始化
         enum
         {
             FLAG_DESTRUCT = 0x1

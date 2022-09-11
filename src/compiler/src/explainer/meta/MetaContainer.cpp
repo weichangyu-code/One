@@ -123,7 +123,13 @@ bool MetaContainer::isArray(const MetaType& type)
     return (clazz == type.clazz || clazz == type.clazz->templateClass);
 }
     
-list<MetaClass*>& MetaContainer::getClasses()
+void MetaContainer::addClass(MetaClass* clazz)
+{
+    clazz->id = classes.size() + 1;
+    classes.push_back(clazz);
+}
+    
+const list<MetaClass*>& MetaContainer::getClasses()
 {
     return classes;
 }

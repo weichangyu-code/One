@@ -39,7 +39,7 @@ MetaClass::MetaClass(const string& name, MetaBoxBase* outer, MetaContainer* meta
     }
 
     //添加到容器
-    metaContainer->getClasses().push_back(this);
+    metaContainer->addClass(this);
 }
 
 MetaClass* MetaClass::getInnerClass(const string& name)

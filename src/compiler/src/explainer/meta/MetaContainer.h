@@ -26,7 +26,8 @@ public:
     MetaClass*   getIterableClass();
     bool         isArray(const MetaType& type);
 
-    list<MetaClass*>& getClasses();
+    void         addClass(MetaClass* clazz);
+    const list<MetaClass*>& getClasses();
 
 protected:
     MetaPackage* rootPackage = nullptr;
