@@ -6,6 +6,8 @@
 class MetaPackage;
 class MetaClass;
 class MetaContainer;
+class MetaFunc;
+class MetaVariable;
 class Dumper
 {
 public:
@@ -14,6 +16,8 @@ public:
 protected:
     Result dumpPackage(MetaPackage* package);
     Result dumpClass(MetaClass* clazz);
+    Result dumpFunc(MetaFunc* func);
+    Result dumpField(MetaVariable* var);
 
     Result toCppFile(const string& path);
 

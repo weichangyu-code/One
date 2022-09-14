@@ -5,6 +5,8 @@
 #include "../../explainer/meta/MetaPackage.h"
 #include "../../explainer/meta/MetaClass.h"
 #include "../../explainer/meta/MetaContainer.h"
+#include "../../explainer/meta/MetaFunc.h"
+#include "../../explainer/meta/MetaVariable.h"
 
 Result Dumper::dump(MetaContainer* container, const string& path)
 {
@@ -39,8 +41,56 @@ Result Dumper::dumpClass(MetaClass* clazz)
     _stream << clazz->id;
     _stream << clazz->name;
 
-    
+    _stream << clazz->parents.size();
+    for (auto& parent : clazz->parents)
+    {
+        _stream << parent->id;
+    }
 
+
+    _stream << clazz->innerClasses.size();
+    for (auto& inner : clazz->innerClasses)
+    {
+        VR(dumpClass(inner));
+    }
+
+    int funcNum = 0;
+    for (auto& func : clazz->funcs)
+    {
+        if (func->isHidden)
+        {
+            continue;
+        }
+        funcNum++;
+    }
+    _stream << funcNum;
+    for (auto& func : clazz->funcs)
+    {
+        if (func->isHidden)
+        {
+            continue;
+        }
+        VR(dumpFunc(func));
+    }
+
+    _stream << clazz->vars.size();
+    for (auto& var : clazz->vars)
+    {
+        VR(dumpField(var));
+    }
+
+    return {};
+}
+
+Result Dumper::dumpFunc(MetaFunc* func)
+{
+    _stream << func->name;
+    return {};
+}
+    
+Result Dumper::dumpField(MetaVariable* var)
+{
+    _stream << var->name;
     return {};
 }
     

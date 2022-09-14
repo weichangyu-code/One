@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Common.h"
-#include "MetaContainer.h"
+#include "RTMetaContainer.h"
 
 /**
  * 对象回收方式，通过引用索引和遍历算法
@@ -10,6 +10,7 @@
 
 namespace One
 {
+    class RTMetaClass;
     class Object
     {
     public:
@@ -26,8 +27,8 @@ namespace One
         static void setLastError(int err);
         static int  getLastError();
 
-    protected:
-        MetaClass* __metaClass__;       //在构造前被填充，不需要初始化
+    public:
+        RTMetaClass* __metaClass__;       //在构造前被填充，不需要初始化
         enum
         {
             FLAG_DESTRUCT = 0x1

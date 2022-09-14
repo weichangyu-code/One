@@ -5,18 +5,17 @@ using namespace std;
 
 namespace One
 {
-    class MetaPackage;
-    class MetaClass
+    class RTMetaClass;
+    class RTMetaField
     {
     public:
-        MetaClass(MetaPackage* package)
+        RTMetaField(RTMetaClass* clazz)
         {
-            this->package = package;
+            this->clazz = clazz;
         }
     
     public:
-        int id = 0;
         string name;
-        MetaPackage* package;
+        RTMetaClass* clazz;
     };
 } // namespace One

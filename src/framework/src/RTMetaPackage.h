@@ -5,19 +5,19 @@ using namespace std;
 
 namespace One
 {
-    class MetaClass;
-    class MetaPackage
+    class RTMetaClass;
+    class RTMetaPackage
     {
     public:
-        MetaPackage(MetaPackage* parent)
+        RTMetaPackage(RTMetaPackage* parent)
         {
             this->parent = parent;
         }
     
     public:
         string name;
-        MetaPackage* parent = nullptr;
-        vector<MetaPackage*> packages;
-        vector<MetaClass*> classes;
+        RTMetaPackage* parent = nullptr;
+        vector<RTMetaPackage*> packages;
+        vector<RTMetaClass*> classes;
     };
 } // namespace One

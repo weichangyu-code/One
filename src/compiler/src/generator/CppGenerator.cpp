@@ -121,7 +121,7 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
     cpp << "#include \"" << "engine/Engine.h" << "\"" << endl;
     cpp << "#include \"OneMeta.inl\"" << endl;
     cpp << "#include \"StringArray.inl\"" << endl;
-    cpp << "#include \"MetaContainer.h\"" << endl;
+    cpp << "#include \"RTMetaContainer.h\"" << endl;
     cpp << endl;
 
     //生产函数体
