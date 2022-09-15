@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Common.h"
-#include "RTMetaContainer.h"
+#include "Reference.h"
 
 /**
  * 对象回收方式，通过引用索引和遍历算法
@@ -10,7 +10,7 @@
 
 namespace One
 {
-    class RTMetaClass;
+    class Class;
     class Object
     {
     public:
@@ -27,18 +27,24 @@ namespace One
         static void setLastError(int err);
         static int  getLastError();
 
+        //类
+        Reference<Class> getClass();
+
+
     public:
-        RTMetaClass* __metaClass__;       //在构造前被填充，不需要初始化
+        Class* __class__;           //在构造前被填充，不需要初始化
         enum
         {
             FLAG_DESTRUCT = 0x1
         };
-        int __flag__ = 0;         //存放一些标志位
+        int __flag__ = 0;           //存放一些标志位
         int __refNum__ = 1;
         int __innerRefNum__ = 1;
     };
+
 } // namespace One
 
 #include "OneInterface.h"
-#include "Reference.h"
 #include "TemplateType.h"
+#include "Pointer.inl"
+#include "Reference.inl"

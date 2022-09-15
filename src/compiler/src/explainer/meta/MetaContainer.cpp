@@ -113,6 +113,15 @@ MetaClass* MetaContainer::getIterableClass()
     return iterableClass;
 }
 
+MetaClass* MetaContainer::getClassClass()
+{
+    if (classClass == nullptr)
+    {
+        classClass = getClass(KEY_ONE_CLASS_CLASS);
+    }
+    return classClass;
+}
+
 bool MetaContainer::isArray(const MetaType& type)
 {
     if (type.type != DT_CLASS || type.clazz == nullptr)
@@ -464,6 +473,10 @@ bool MetaContainer::canAutoConvertType(const MetaType& src, const MetaType& dst)
     if (src.isVoid() && dst.isVoid())
     {
         return true;
+    }
+    else if (src.isBool() && dst.isBool())
+    {
+        return src.type <= dst.type;
     }
     else if (src.isInteger() && dst.isInteger())
     {

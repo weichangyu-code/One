@@ -15,6 +15,7 @@ public:
         registe("var", "exp", (MyRuleExecuteFunction)&ExplainVar::onExplainVarExp);
         registe("var", "expthis", (MyRuleExecuteFunction)&ExplainVar::onExplainVarExp);
         registe("var", "expsuper", (MyRuleExecuteFunction)&ExplainVar::onExplainVarExp);
+        registe("var", "expclass", (MyRuleExecuteFunction)&ExplainVar::onExplainVarExp);
         registe("var", "this", (MyRuleExecuteFunction)&ExplainVar::onExplainVarThis);
         registe("var", "super", (MyRuleExecuteFunction)&ExplainVar::onExplainVarSuper);
     }

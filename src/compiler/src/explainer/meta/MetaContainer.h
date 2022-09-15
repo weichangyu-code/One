@@ -24,6 +24,7 @@ public:
     MetaClass*   getInterfaceClass();
     MetaClass*   getArrayClass();
     MetaClass*   getIterableClass();
+    MetaClass*   getClassClass();
     bool         isArray(const MetaType& type);
 
     void         addClass(MetaClass* clazz);
@@ -37,6 +38,7 @@ protected:
     MetaClass* interfaceClass = nullptr;
     MetaClass* arrayClass = nullptr;
     MetaClass* iterableClass = nullptr;
+    MetaClass* classClass = nullptr;
 
 //对象管理
 public:

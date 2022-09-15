@@ -16,7 +16,13 @@ add_custom_command(TARGET framework POST_BUILD
 file(GLOB FRAMEWORK_INCLUDE_LIST *.h)
 foreach(INCLUDE_FILE IN LISTS FRAMEWORK_INCLUDE_LIST)
     add_custom_command(TARGET framework POST_BUILD 
-        COMMAND ${CMAKE_COMMAND} -E copy ${INCLUDE_FILE} ${CMAKE_SOURCE_DIR}/dist/depend/frameworkV0.1/include/framework/
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+        COMMAND ${CMAKE_COMMAND} -E copy ${INCLUDE_FILE} ${CMAKE_SOURCE_DIR}/dist/depend/frameworkV0.1/include/framework/)
+endforeach()
+
+#拷贝头文件
+file(GLOB FRAMEWORK_INCLUDE_LIST *.inl)
+foreach(INCLUDE_FILE IN LISTS FRAMEWORK_INCLUDE_LIST)
+    add_custom_command(TARGET framework POST_BUILD 
+        COMMAND ${CMAKE_COMMAND} -E copy ${INCLUDE_FILE} ${CMAKE_SOURCE_DIR}/dist/depend/frameworkV0.1/include/framework/)
 endforeach()
 

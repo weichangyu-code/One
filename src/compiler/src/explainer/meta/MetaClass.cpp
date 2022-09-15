@@ -29,6 +29,9 @@ MetaClass::MetaClass(const string& name, MetaBoxBase* outer, MetaContainer* meta
     this->this_->type.setClass(this);
     this->super_ = createVeriable(syntaxClass->super_->name, syntaxClass->super_);
     this->super_->varType = VAR_SUPER;
+    this->class_ = createVeriable(syntaxClass->class_->name, syntaxClass->class_);
+    this->class_->varType = VAR_CLASS;
+    this->class_->isStatic = true;
 
     this->varInitFunc = createFunction(syntaxClass->varInitFunc->name, syntaxClass->varInitFunc);
     this->staticVarInitFunc = createFunction(syntaxClass->staticVarInitFunc->name, syntaxClass->staticVarInitFunc);
@@ -283,6 +286,11 @@ MetaVariable* MetaClass::getSuperVariable()
 
 MetaVariable* MetaClass::getVariable(const string& name, bool onlyStatic)
 {
+    if (class_->name == name)
+    {
+        return class_;
+    }
+
     if (onlyStatic == false)
     {
         if (this_->name == name)
@@ -444,6 +452,9 @@ Result MetaClass::verifyAndRepair()
         MetaFunc* func = addFunction("~", ((SyntaxClass*)syntaxObj)->createFunc("~", FUNC_DESTROY));
         func->isHidden = true;
     }
+
+    //完善类型
+    this->class_->type.setClass(metaContainer->getClassClass());
 
     return {};
 }

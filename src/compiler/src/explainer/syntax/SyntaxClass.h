@@ -51,4 +51,5 @@ public:
     //this
     SyntaxVarDef* this_ = nullptr;
     SyntaxVarDef* super_ = nullptr;
+    SyntaxVarDef* class_ = nullptr;
 };

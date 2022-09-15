@@ -81,6 +81,7 @@ public:
 
     MetaVariable* this_ = nullptr;
     MetaVariable* super_ = nullptr;
+    MetaVariable* class_ = nullptr;
     list<MetaFunc*> funcs;
     list<MetaVariable*> vars;
 

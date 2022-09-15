@@ -148,6 +148,7 @@ var(typepath)=typepath
 var(exp)=exp . identifier
 var(expthis)=exp . this
 var(expsuper)=exp . super
+var(expclass)=exp . CLASS
 var(this)=this
 var(super)=super
 

@@ -1,0 +1,12 @@
+class Class
+{
+    Class()
+    {
+
+    }
+
+    bool isBaseOf(Class clazz)
+    {
+        return false;
+    }
+}

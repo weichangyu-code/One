@@ -121,7 +121,7 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
     cpp << "#include \"" << "engine/Engine.h" << "\"" << endl;
     cpp << "#include \"OneMeta.inl\"" << endl;
     cpp << "#include \"StringArray.inl\"" << endl;
-    cpp << "#include \"RTMetaContainer.h\"" << endl;
+    cpp << "#include \"MetaManager.h\"" << endl;
     cpp << endl;
 
     //生产函数体
@@ -132,7 +132,7 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
     cpp << "    One::g_stringPool.setStringArray(stringArray, sizeof(stringArray)/sizeof(char*));" << endl;
     cpp << endl;
 
-    cpp << "    One::g_metaContainer.load(oneMeta, sizeof(oneMeta));" << endl;
+    cpp << "    One::g_metaManager.load(oneMeta, sizeof(oneMeta));" << endl;
     cpp << endl;
 
     cpp << "    int ret = 0;" << endl;
@@ -453,6 +453,7 @@ Result CppGenerator::generateNativeClass(const string& root, MetaClass* metaClas
     //头文件包含
     h << "#pragma once" << endl;
     h << "#include \"ObjectPool.h\"" << endl;
+    h << "#include \"MetaManager.h\"" << endl;
     for (auto& name : includes)
     {
         h << "#include \"" << name << "\"" << endl;
@@ -518,7 +519,7 @@ Result CppGenerator::generateFactoryClass(ofstream& f, MetaClass* metaClass)
         f << KEY_TAB << "{" << endl;
         
         f << KEY_TAB << KEY_TAB << "auto __var__ = (" << cppClass->cppName << "*)g_objectPool.createObject(sizeof(" << cppClass->cppName << "));" << endl;
-        f << KEY_TAB << KEY_TAB << "__var__->__metaClass__ = g_metaContainer.getClass(" << StringUtils::itoa(metaClass->id) << ");" << endl;
+        f << KEY_TAB << KEY_TAB << "__var__->__class__ = g_metaManager.getClass(" << StringUtils::itoa(metaClass->id) << ");" << endl;
         if (cppClass->cppNative)
         {
             f << KEY_TAB << KEY_TAB << "CALL_CONSTRUCT(__var__, " << cppClass->cppName;
@@ -775,6 +776,7 @@ Result CppGenerator::generateClass(const string& root, MetaClass* metaClass)
 
     //头文件包含
     h << "#pragma once" << endl;
+    h << "#include \"MetaManager.h\"" << endl;
     for (auto& name : includes)
     {
         h << "#include \"" << name << "\"" << endl;
@@ -1748,6 +1750,10 @@ string CppGenerator::generateData(MetaData& data)
                     {
                         cppData = "Pointer<" + generateType(index.var->type) + ">(" + cppData + ", true)";
                     }
+                    else if (index.var->varType == VAR_CLASS)
+                    {
+                        cppData = "Pointer<Class>(g_metaManager.getClass(" + StringUtils::itoa(index.var->box->convertClass()->id) + "), false)";
+                    }
                     else
                     {
                         //成员变量
@@ -1790,6 +1796,10 @@ string CppGenerator::generateData(MetaData& data)
             else if (var->varType == VAR_SUPER)
             {
                 return "Pointer<" + generateType(var->type) + ">(this, true)";
+            }
+            else if (var->varType == VAR_CLASS)
+            {
+                return "Pointer<Class>(g_metaManager.getClass(" + StringUtils::itoa(var->box->convertClass()->id) + "), false)";
             }
             else if (var->varType == VAR_MEMBER || var->varType == VAR_ANONY_THIS)
             {

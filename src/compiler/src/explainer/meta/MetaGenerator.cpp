@@ -218,13 +218,12 @@ Result MetaGenerator::generateMetaClassStruct(MetaClass* clazz)
         MetaFunc* func = clazz->addFunction(syntaxFunc->name, syntaxFunc);
         VR(generateMetaFunctionStruct(func));
     }
-
-    // 类校验
+    
     VR(clazz->verifyAndRepair());
 
     return {};
 }
-    
+   
 Result MetaGenerator::generateMetaFunctionStruct(MetaFunc* func)
 {
     SyntaxFunc* syntaxFunc = (SyntaxFunc*)func->syntaxObj;
@@ -296,7 +295,7 @@ Result MetaGenerator::generateMetaVarDefStruct(MetaBoxBase* box, MetaVariable* v
 
     return {};
 }
-    
+
 Result MetaGenerator::generateMetaPackageInstruct(MetaPackage* package)
 {
     for (auto& sub : package->packages)
@@ -1809,6 +1808,7 @@ Result MetaGenerator::generateAnonyClassInstruct(MetaBoxBase* box, MetaClass* an
 {
     VR(generateMetaClassDeclare(anony));
     VR(generateMetaClassStruct(anony));
+    VR(anony->verifyAndRepair());
 
     //处理匿名方法
     //条件，

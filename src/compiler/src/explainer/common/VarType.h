@@ -7,5 +7,6 @@ enum
     VAR_MEMBER,         //类成员
     VAR_THIS,           
     VAR_SUPER,
+    VAR_CLASS,
     VAR_ANONY_THIS,     //用在匿名类上外层的THIS
 };

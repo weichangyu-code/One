@@ -9,4 +9,9 @@ class Object
     {
         return 0;
     }
+
+    Class getClass()
+    {
+        return null;
+    }
 }

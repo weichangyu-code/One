@@ -74,6 +74,11 @@
             "oneClass":"one.std.Socket",
             "hPath":"framework/OneSocket.h",
             "cppClass":"Socket"
+        },
+        {
+            "oneClass":"one.std.Class",
+            "hPath":"framework/OneClass.h",
+            "cppClass":"Class"
         }
     ]
 }

@@ -21,6 +21,7 @@ SyntaxClass::SyntaxClass(ExplainContext* context)
 
     this->this_ = createVarDef(KEY_THIS);
     this->super_ = createVarDef(KEY_SUPER);
+    this->class_ = createVarDef(KEY_CLASS);
 }
 
 void SyntaxClass::addInnerClass(SyntaxClass* clazz)
