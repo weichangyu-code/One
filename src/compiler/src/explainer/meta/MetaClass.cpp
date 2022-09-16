@@ -118,6 +118,18 @@ MetaClass* MetaClass::getParentTamplateClass(MetaClass* clazz)
     return nullptr;
 }
     
+list<MetaClass*> MetaClass::getParentClasses()
+{
+    list<MetaClass*> result;
+    result = parents;
+    for (auto& parent : parents)
+    {
+        auto result2 = parent->getParentClasses();
+        result.splice(result.end(), result2);
+    }
+    return result;
+}
+    
 MetaVariable* MetaClass::createVeriable(const string& name, SyntaxBase* syntaxObj)
 {
     return new MetaVariable(name, VAR_MEMBER, this, metaContainer, syntaxObj);
@@ -394,8 +406,6 @@ Result MetaClass::verifyAndRepair()
         {
             if (parent->isInterface == false)
             {
-                //设置super的类型
-                super_->type.setClass(parent);
                 num++;
             }
         }
@@ -404,11 +414,11 @@ Result MetaClass::verifyAndRepair()
             //单继承
             return R_FAILED;
         }
-        if (num == 0 && (metaContainer->getObjectClass() != this))
+
+        if (num > 0)
         {
-            //如果没有实体父类，默认从Object继承
-            super_->type.setClass(metaContainer->getObjectClass());
-            parents.push_front(metaContainer->getObjectClass());
+            //第一个是父类
+            super_->type.setClass(parents.front());
         }
 
         // 看有没有构造函数和析构函数，不然补充一个空的

@@ -61,6 +61,8 @@ Result CppGenerator::generate(const string& exeName, const string& mainClass, co
     Dumper dumper;
     VR(dumper.dump(metaContainer, FileUtils::appendFileName(folder, "OneMeta.inl")));
 
+    VR(generateObjectSize(folder));
+
     return {};
 }
     
@@ -111,16 +113,12 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
     for (auto& iterMetaClass : metaContainer->getClasses())
     {
         auto iterCppClass = CppClass::getCppClass(iterMetaClass);
-        if (iterMetaClass->isInterface == false 
-            && iterCppClass->cppNative == false
-            && iterMetaClass->isTemplateClass() == false)
-        {
-            cpp << "#include \"" << iterCppClass->cppHPath << "\"" << endl;
-        }
+        cpp << "#include \"" << iterCppClass->cppHPath << "\"" << endl;
     }
     cpp << "#include \"" << "engine/Engine.h" << "\"" << endl;
     cpp << "#include \"OneMeta.inl\"" << endl;
     cpp << "#include \"StringArray.inl\"" << endl;
+    cpp << "#include \"ObjectSize.inl\"" << endl;
     cpp << "#include \"MetaManager.h\"" << endl;
     cpp << endl;
 
@@ -132,9 +130,11 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
     cpp << "    One::g_stringPool.setStringArray(stringArray, sizeof(stringArray)/sizeof(char*));" << endl;
     cpp << endl;
 
-    cpp << "    One::g_metaManager.load(oneMeta, sizeof(oneMeta));" << endl;
+    cpp << "    One::g_metaManager.loadMeta(oneMeta, sizeof(oneMeta));" << endl;
+    cpp << "    One::g_metaManager.loadObjectSize(objectSize, sizeof(objectSize));" << endl;
     cpp << endl;
 
+    //
     cpp << "    int ret = 0;" << endl;
     cpp << "    OneCoroutine::Engine engine;" << endl;
     cpp << "    engine.createCoroutine([&ret](OneCoroutine::Coroutine* co) {" << endl;
@@ -263,6 +263,44 @@ Result CppGenerator::generateStringArray(const string& root)
     }
     f << KEY_TAB << "\"\"" << endl;
     f << "};" << endl;
+    f << endl;
+
+    return {};
+}
+    
+Result CppGenerator::generateObjectSize(const string& root)
+{
+    ofstream f(FileUtils::appendFileName(root, "ObjectSize.inl"));
+    if (f.is_open() == false)
+    {
+        return R_FAILED;
+    }
+
+    f << "unsigned int objectSize[] = " << endl;
+    f << "{" << endl;
+
+    //
+    for (auto& metaClass : metaContainer->getClasses())
+    {
+        auto cppClass = CppClass::getCppClass(metaClass);
+        if (metaClass->isTemplateClass())
+        {
+            f << KEY_TAB << "0," << endl;
+            continue;
+        }
+        f << KEY_TAB << "sizeof(One::" << cppClass->cppName << ")," << endl;
+
+        auto parents = metaClass->getParentClasses();
+        f << KEY_TAB << StringUtils::itoa(parents.size()) << "," << endl;
+        for (auto& parent : parents)
+        {
+            auto cppParentClass = CppClass::getCppClass(parent);
+            //(intptr_t)(Object*)((String*)0)
+            f << KEY_TAB << "(intptr_t)(One::" << cppParentClass->cppName << "*)((One::" << cppClass->cppName << "*)0)," << endl;
+        }
+    }
+    
+    f << KEY_TAB << "0" << endl << "};" << endl;
     f << endl;
 
     return {};
@@ -471,7 +509,8 @@ Result CppGenerator::generateNativeClass(const string& root, MetaClass* metaClas
     //类型转换
     if (metaClass->isTemplateClass())
     {
-        h << "typedef " << cppClass->cppNativeName << " " << cppClass->cppName << ";" << endl;
+        //如果是模板类，typedef无效
+        //h << "typedef " << cppClass->cppNativeName << " " << cppClass->cppName << ";" << endl;
     }
     else
     {
@@ -723,7 +762,8 @@ Result CppGenerator::generateNativeInterface(const string& root, MetaClass* meta
     //类型转换
     if (metaClass->isTemplateClass())
     {
-        h << "typedef " << cppClass->cppNativeName << " " << cppClass->cppName << ";" << endl;
+        //模板类typedef无效
+        //h << "typedef " << cppClass->cppNativeName << " " << cppClass->cppName << ";" << endl;
     }
     else
     {

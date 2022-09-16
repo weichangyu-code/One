@@ -48,7 +48,7 @@ namespace One
 
     }
 
-    void MetaManager::load(const void* data, unsigned int length)
+    void MetaManager::loadMeta(const void* data, unsigned int length)
     {
         _stream.load(data, length);
 
@@ -64,6 +64,42 @@ namespace One
         //这个后续优化，可以从私人缓存里面分配，提高速度，减少内存占用
         _root = new Package(nullptr);
         loadPackage(_root);
+    }
+        
+    void MetaManager::loadObjectSize(const void* data, unsigned int length)
+    {
+        _stream.load(data, length);
+
+        for (int i = 1;i < _classes.size();i++)
+        {
+            Class* clazz = _classes[i];
+            _stream >> clazz->objectSize;
+            if (clazz->objectSize == 0)
+            {
+                continue;
+            }
+
+            int size;
+            _stream >> size;
+            clazz->parentOffsets.reserve(size);
+            loadParentOffset(clazz, clazz);
+        }
+    }
+        
+    void MetaManager::loadParentOffset(Class* clazz, Class* parent)
+    {
+        for (auto& parent2 : parent->parents)
+        {
+            int offset;
+            _stream >> offset;
+
+            clazz->parentOffsets.push_back({parent2->id, offset});
+        }
+        
+        for (auto& parent2 : parent->parents)
+        {
+            loadParentOffset(clazz, parent2);
+        }
     }
         
     Class* MetaManager::getClass(int id)
@@ -148,6 +184,16 @@ namespace One
     void MetaManager::loadFunction(Function* func)
     {
         _stream >> func->name;
+
+        int anonyNum;
+        _stream >> anonyNum;
+        func->anonys.reserve(anonyNum);
+        for (int i = 0;i < anonyNum;i++)
+        {
+            Class* anony = loadClass();
+            anony->outerFunc = func;
+            func->anonys.push_back(anony);
+        }
     }
 
     void MetaManager::loadField(Field* field)

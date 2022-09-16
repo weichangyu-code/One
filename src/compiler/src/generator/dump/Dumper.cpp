@@ -47,7 +47,6 @@ Result Dumper::dumpClass(MetaClass* clazz)
         _stream << parent->id;
     }
 
-
     _stream << clazz->innerClasses.size();
     for (auto& inner : clazz->innerClasses)
     {
@@ -85,6 +84,13 @@ Result Dumper::dumpClass(MetaClass* clazz)
 Result Dumper::dumpFunc(MetaFunc* func)
 {
     _stream << func->name;
+
+    _stream << func->anonyClasses.size();
+    for (auto& anony : func->anonyClasses)
+    {
+        VR(dumpClass(anony));
+    }
+
     return {};
 }
     

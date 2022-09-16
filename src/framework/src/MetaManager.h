@@ -31,7 +31,8 @@ namespace One
         MetaManager();
 
     public:
-        void load(const void* data, unsigned int length);
+        void loadMeta(const void* data, unsigned int length);
+        void loadObjectSize(const void* data, unsigned int length);
 
         Class* getClass(int id);
 
@@ -40,6 +41,7 @@ namespace One
         Class* loadClass();
         void loadFunction(Function* func);
         void loadField(Field* field);
+        void loadParentOffset(Class* clazz, Class* parent);
 
     protected:
         IByteStream _stream;

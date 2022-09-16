@@ -18,5 +18,7 @@ namespace One
     public:
         string name;
         Class* clazz = nullptr;
+        
+        vector<Class*> anonys;
     };
 } // namespace One

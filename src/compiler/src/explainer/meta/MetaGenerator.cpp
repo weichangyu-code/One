@@ -184,8 +184,8 @@ Result MetaGenerator::generateMetaClassStruct(MetaClass* clazz)
         if (clazz != objectClass)
         {
             //没有父类的，默认object为父类
-            clazz->addLinkClass(metaContainer->getObjectClass());
-            clazz->parents.push_front(metaContainer->getObjectClass());
+            clazz->addLinkClass(objectClass);
+            clazz->parents.push_front(objectClass);
         }
     }
 

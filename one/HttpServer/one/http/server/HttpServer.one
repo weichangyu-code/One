@@ -4,10 +4,6 @@ class HttpServer
 {
     void main()
     {
-        Class clazz1 = this.class;
-        Class clazz2 = getClass();
-        bool isBaseOf = clazz1.isBaseOf(clazz2);
-
         Socket sockListen();
         int ret = sockListen.listen("0.0.0.0", 8000);
         if (ret < 0)

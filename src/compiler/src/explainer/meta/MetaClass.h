@@ -23,6 +23,7 @@ public:
     MetaClass* getParentClass();
     MetaClass* getParentClass(const string& name);
     MetaClass* getParentTamplateClass(MetaClass* clazz);
+    list<MetaClass*> getParentClasses();
 
     MetaVariable*   createVeriable(const string& name, SyntaxBase* syntaxObj);
     MetaFunc*       createFunction(const string& name, SyntaxBase* syntaxObj);
