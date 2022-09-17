@@ -36,6 +36,18 @@ namespace One
 
         Class* getClass(int id);
 
+        void* convertType(Object* obj, Class* type);
+        template<class T>
+        Reference<T> convertObjectType(const Reference<Object>& obj, int classId)
+        {
+            return Reference<T>((T*)convertType(obj.getObject(), getClass(classId)), obj.isInner(), true);
+        }
+        template<class T>
+        Reference<T> convertInterfaceType(const Reference<Interface>& interface, int classId)
+        {
+            return Reference<T>((T*)convertType(interface.getObject()->__obj__, getClass(classId)), interface.isInner(), true);
+        }
+
     protected:
         void loadPackage(Package* package);
         Class* loadClass();

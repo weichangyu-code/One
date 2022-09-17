@@ -5,6 +5,7 @@
 
 namespace One
 {
+    //T可以是Object或者Interface，或者他们的子类
     template<typename T>
     class Pointer
     {

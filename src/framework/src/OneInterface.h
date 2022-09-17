@@ -14,7 +14,7 @@ namespace One
         void __releaseObj__(bool inner);
         void __destroyObj__();
 
-    protected:
+    public:
         Object* __obj__;
     };
 } // namespace One

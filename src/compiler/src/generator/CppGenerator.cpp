@@ -17,6 +17,7 @@
 #include "../explainer/common/Keyword.h"
 #include <sstream>
 #include <fstream>
+#include <assert.h>
 #include "cpp/CppPackage.h"
 #include "cpp/CppFunc.h"
 #include "cpp/CppClass.h"
@@ -1390,6 +1391,47 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
             instruct->cppCode = stream.str();
         }
         break;
+    case TYPE_CONVERT:
+        {
+            MetaType& typeDst = instruct->retType;
+            MetaType typeSrc = instruct->params.front().getType();
+            if (metaContainer->getAutoConvertType(typeSrc, typeDst) != MetaContainer::ACT_CANNT)
+            {
+                //可以自动转换
+                instruct->cppCode = generateTypeData(instruct->params.front(), typeDst, false);
+            }
+            else
+            {
+                if (typeSrc.isRealNumber() && typeDst.isRealNumber())
+                {
+                    instruct->cppCode = "(" + generateType(typeDst) + ")" + generateData(instruct->params.front());
+                }
+                else if (typeSrc.isClass() && typeDst.isClass())
+                {
+                    CppClass* cppClass = CppClass::getCppClass(typeDst.clazz);
+                    if (typeSrc.clazz->isInterface)
+                    {
+                        //g_metaManager.convertInterfaceType<One::XXX>((const Reference<Interface>&)generateData(instruct->params.front()), typeDst.clazz->id)
+                        //
+                        //
+                        instruct->cppCode = "g_metaManager.convertInterfaceType<One::" + cppClass->cppName + ">"
+                                                "((const Reference<Interface>&)(" + generateData(instruct->params.front()) + ")"
+                                                ", " + StringUtils::itoa(typeDst.clazz->id) + ")";
+                    }
+                    else
+                    {
+                        instruct->cppCode = "g_metaManager.convertObjectType<One::" + cppClass->cppName + ">"
+                                                "((const Reference<Object>&)(" + generateData(instruct->params.front()) + ")"
+                                                ", " + StringUtils::itoa(typeDst.clazz->id) + ")";
+                    }
+                }
+                else
+                {
+                    return R_FAILED;
+                }
+            }
+        }
+        break;
     case VARDEF:
         {
             MetaVariable* var = instruct->var;
@@ -1871,27 +1913,58 @@ string CppGenerator::generateData(MetaData& data)
 string CppGenerator::generateTypeData(MetaData& data, const MetaType& type, bool pointer)
 {
     string str = generateData(data);
+
     MetaType dataType = data.getType();
     if (dataType == type)
     {
         return str;
     }
-    if (dataType.isClass() == false || type.isClass() == false)
+
+    int convertType = metaContainer->getAutoConvertType(dataType, type);
+    switch (convertType)
     {
-        return str;
+    case MetaContainer::ACT_CANNT:
+        {
+            assert(false);
+            return "";
+        }
+        break;
+    case MetaContainer::ACT_EQUAL:
+        {
+            return str;
+        }
+        break;
+    case MetaContainer::ACT_BASE_TYPE:
+        {
+            return str;
+        }
+        break;
+    case MetaContainer::ACT_PARENT_TYPE:
+        {
+            if (pointer)
+            {
+                return "convertPointer<" + generateType(dataType) + ", " + generateType(type) + ">(" + str + ")";
+            }
+            else if (type.clazz->isInterface)
+            {
+                return "convertInterfaceReference<" + generateType(dataType) + ", " + generateType(type) + ">(" + str + ")";
+            }
+            else
+            {
+                return "convertObjectReference<" + generateType(dataType) + ", " + generateType(type) + ">(" + str + ")";
+            }
+        }
+        break;
+    case MetaContainer::ACT_CONSTRUCT:
+        {
+            CppClass* cppClass = CppClass::getCppClass(type.clazz);
+            return cppClass->getFactoryName() + "::" KEY_CREATE_OBJECT_FUNC "(" + str + ")";
+        }
+        break;
+    default:
+        break;
     }
-    if (pointer)
-    {
-        return "convertPointer<" + generateType(dataType) + ", " + generateType(type) + ">(" + str + ")";
-    }
-    else if (type.clazz->isInterface)
-    {
-        return "convertInterfaceReference<" + generateType(dataType) + ", " + generateType(type) + ">(" + str + ")";
-    }
-    else
-    {
-        return "convertObjectReference<" + generateType(dataType) + ", " + generateType(type) + ">(" + str + ")";
-    }
+    return str;
 }
 
 int CppGenerator::getStringIndex(const string& str)

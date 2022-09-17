@@ -85,6 +85,27 @@ namespace One
             loadParentOffset(clazz, clazz);
         }
     }
+    
+    void* MetaManager::convertType(Object* obj, Class* type)
+    {
+        if (obj == nullptr)
+        {
+            return nullptr;
+        }
+        Class* clazz = obj->__class__;
+        if (clazz->id == type->id)
+        {
+            return obj;
+        }
+        for (auto& parent : clazz->parentOffsets)
+        {
+            if (parent.id == type->id)
+            {
+                return (char*)obj + parent.offset;
+            }
+        }
+        return nullptr;
+    }
         
     void MetaManager::loadParentOffset(Class* clazz, Class* parent)
     {

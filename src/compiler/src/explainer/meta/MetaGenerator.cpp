@@ -233,6 +233,7 @@ Result MetaGenerator::generateMetaFunctionStruct(MetaFunc* func)
     }
     
     // 解析参数
+    int noDefaultParamNum = 0;
     for (auto& syntaxVarDef : syntaxFunc->params)
     {
         if (syntaxVarDef->type == nullptr)
@@ -242,6 +243,11 @@ Result MetaGenerator::generateMetaFunctionStruct(MetaFunc* func)
         }
         MetaVariable* param = func->addParam(syntaxVarDef->name, syntaxVarDef);
         VR(generateMetaVarDefStruct(func, param, true));
+
+        if (syntaxVarDef->exp == nullptr)
+        {
+            noDefaultParamNum++;
+        }
     }
 
     // 解析返回值
@@ -255,6 +261,12 @@ Result MetaGenerator::generateMetaFunctionStruct(MetaFunc* func)
     else
     {
         VR(generateMetaType(func->outer, syntaxFunc->returnType, &func->returnType));
+    }
+
+    // 查看构造函数是否带参数，如果只有一个非默认参数，可以转换
+    if (func->funcType == FUNC_CONSTRUCT && noDefaultParamNum == 1)
+    {
+        metaContainer->addAutoConvertType(func->params.front()->type, func->getOuterClass(), MetaContainer::ACT_CONSTRUCT);
     }
 
     return {};
@@ -539,7 +551,7 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
                     }
                     VR(handleAutoVar(subBlock, varData, paramType[0]));
                     
-                    if (metaContainer->canAutoConvertType(paramType[0], varData.getType()) == false)
+                    if (metaContainer->getAutoConvertType(paramType[0], varData.getType()) == MetaContainer::ACT_CANNT)
                     {
                         return R_FAILED;
                     }
@@ -573,7 +585,7 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
                     MetaType varType = iterClass->params.front()->type;
                     VR(handleAutoVar(subBlock, varData, varType));
                     
-                    if (metaContainer->canAutoConvertType(varType, varData.getType()) == false)
+                    if (metaContainer->getAutoConvertType(varType, varData.getType()) == MetaContainer::ACT_CANNT)
                     {
                         return R_FAILED;
                     }
@@ -1026,7 +1038,7 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             MetaType leftType = left.getType();
             VR(handleAnonyClass(block, rightType, leftType));
 
-            if (metaContainer->canAutoConvertType(rightType, leftType) == false)
+            if (metaContainer->getAutoConvertType(rightType, leftType) == MetaContainer::ACT_CANNT)
             {
                 return R_FAILED;
             }
@@ -1113,7 +1125,7 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
                 type = instruct->params.front().getType();
                 VR(handleAnonyClass(block, type, retType));
             }
-            if (metaContainer->canAutoConvertType(type, retType) == false)
+            if (metaContainer->getAutoConvertType(type, retType) == MetaContainer::ACT_CANNT)
             {
                 return R_FAILED;
             }
@@ -1178,7 +1190,7 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             block->instructs.push_back(instruct);
         }
         break;
-    case TYPE:
+    case TYPE_CONVERT:
         {
             VR(generateMetaType(block, syntaxInstruct->type, &instruct->retType));
             MetaType type = instruct->params.front().getType();

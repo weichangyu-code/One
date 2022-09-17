@@ -13,6 +13,8 @@ class HttpServer
         }
         Out.println("listen success");
 
+        Socket tmp = (Socket)(Object)sockListen;
+
         while (1)
         {
             Socket newClient();

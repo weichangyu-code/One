@@ -44,7 +44,15 @@ namespace One
         }
         else
         {
-            return Pointer<T2>(r.getObject(), r.isInner());
+            if (r.isNull())
+            {
+                //子类变成基类，如果强转，会变成非0值
+                return Pointer<T2>();
+            }
+            else
+            {
+                return Pointer<T2>(r.getObject(), r.isInner());
+            }
         }
     }
 }    

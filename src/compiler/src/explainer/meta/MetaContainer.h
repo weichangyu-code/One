@@ -66,10 +66,30 @@ public:
     //从本box往上找，直到Class为止。如果是内嵌类，上层类的变量无法直接访问的
     MetaVarRef* searchVariable(MetaBoxBase* box, const string& name, bool onlyStatic);
 
-    //是否支持自动转换
-    bool canAutoConvertType(const MetaType& src, const MetaType& dst);
-
 protected:
     MetaFunc* searchMatchClassFunction(MetaClass* clazz, const string& name, list<MetaData>& params, int& matchValue, bool onlyStatic);
 
+//类型转换
+//自动转换类型：
+//0. 类型一样
+//1. 基础类型的转换
+//2. 子类到父类的转换，需要代码
+//3. 通过构造函数的转换，需要新建对象
+public:
+    enum
+    {
+        ACT_CANNT = -1,
+        ACT_EQUAL = 0,          //类型一样，不需要转换
+        ACT_BASE_TYPE,          //基础类型自动转换，大的转换成小的
+        ACT_PARENT_TYPE,        //子类到父类，需要叠加代码
+        ACT_CONSTRUCT,          //通过构造函数转换
+    };
+    void addAutoConvertType(const MetaType& src, const MetaType& dst, int type);
+    int  getAutoConvertType(const MetaType& src, const MetaType& dst);
+
+protected:
+    void addDefaultAutoConvert();
+
+protected:
+    map<MetaType, map<MetaType, int> > autoConvertData;
 };

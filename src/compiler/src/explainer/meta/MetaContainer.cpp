@@ -13,6 +13,8 @@ using namespace OneCommon;
 MetaContainer::MetaContainer()
 {
     rootPackage = new MetaPackage("", nullptr, this);
+
+    addDefaultAutoConvert();
 }
 
 MetaContainer::~MetaContainer()
@@ -338,7 +340,7 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
             } 
             else if (type1 != type2)
             {
-                if (canAutoConvertType(type2, type1))
+                if (getAutoConvertType(type2, type1) != ACT_CANNT)
                 {
                     value++;
                 }
@@ -468,32 +470,81 @@ MetaVarRef* MetaContainer::searchVariable(MetaBoxBase* box, const string& name, 
     return nullptr;
 }
     
-bool MetaContainer::canAutoConvertType(const MetaType& src, const MetaType& dst)
+// bool MetaContainer::canAutoConvertType(const MetaType& src, const MetaType& dst)
+// {
+//     if (src.isVoid() && dst.isVoid())
+//     {
+//         return true;
+//     }
+//     else if (src.isBool() && dst.isBool())
+//     {
+//         return src.type <= dst.type;
+//     }
+//     else if (src.isInteger() && dst.isInteger())
+//     {
+//         return src.type <= dst.type;
+//     }
+//     else if (src.isFloat() && dst.isFloat())
+//     {
+//         return src.type <= dst.type;
+//     }
+//     else if (src.isClass() && dst.isClass())
+//     {
+//         return src.clazz->isBaseOf(dst.clazz);
+//     }
+//     else if (src.isNull() && dst.isClass())
+//     {
+//         return true;
+//     }
+//     return false;
+// }
+    
+void MetaContainer::addDefaultAutoConvert()
 {
-    if (src.isVoid() && dst.isVoid())
+    addAutoConvertType(DT_CHAR, DT_SHORT, ACT_BASE_TYPE);
+    addAutoConvertType(DT_CHAR, DT_INT, ACT_BASE_TYPE);
+    addAutoConvertType(DT_CHAR, DT_LONG, ACT_BASE_TYPE);
+    addAutoConvertType(DT_SHORT, DT_INT, ACT_BASE_TYPE);
+    addAutoConvertType(DT_SHORT, DT_LONG, ACT_BASE_TYPE);
+    addAutoConvertType(DT_INT, DT_LONG, ACT_BASE_TYPE);
+    addAutoConvertType(DT_FLOAT, DT_DOUBLE, ACT_BASE_TYPE);
+}
+    
+void MetaContainer::addAutoConvertType(const MetaType& src, const MetaType& dst, int type)
+{
+    autoConvertData[src][dst] = type;
+}
+    
+int  MetaContainer::getAutoConvertType(const MetaType& src, const MetaType& dst)
+{
+    if (src == dst)
     {
-        return true;
-    }
-    else if (src.isBool() && dst.isBool())
-    {
-        return src.type <= dst.type;
-    }
-    else if (src.isInteger() && dst.isInteger())
-    {
-        return src.type <= dst.type;
-    }
-    else if (src.isFloat() && dst.isFloat())
-    {
-        return src.type <= dst.type;
+        return ACT_EQUAL;
     }
     else if (src.isClass() && dst.isClass())
     {
-        return src.clazz->isBaseOf(dst.clazz);
+        if (src.clazz->isBaseOf(dst.clazz))
+        {
+            //子类可以转换成子类
+            return ACT_PARENT_TYPE;
+        }
     }
     else if (src.isNull() && dst.isClass())
     {
-        return true;
+        //null可以转换任意类
+        return ACT_BASE_TYPE;
     }
-    return false;
+
+    auto iter1 = autoConvertData.find(src);
+    if (iter1 == autoConvertData.end())
+    {
+        return ACT_CANNT;
+    }
+    auto iter2 = iter1->second.find(dst);
+    if (iter2 == iter1->second.end())
+    {
+        return ACT_CANNT;
+    }
+    return iter2->second;
 }
    

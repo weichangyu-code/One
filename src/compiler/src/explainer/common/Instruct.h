@@ -64,7 +64,7 @@ enum INSTRUCT
     NEW_ARRAY,
     CALL,                       //函数调用，没有类前缀
     CALL_FIXED,                 //指定类函数调用，不会触发虚函数调用
-    TYPE,                       //类型转换
+    TYPE_CONVERT,               //类型转换
 
     VARDEF,                     //变量定义
     BLOCK,                      //定义BLOCK

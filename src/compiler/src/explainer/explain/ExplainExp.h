@@ -152,7 +152,8 @@ public:
 		SyntaxExp* exp = (SyntaxExp*)es[3].ptr;
 
 		SyntaxInstruct* instruct = new SyntaxInstruct(context);
-		instruct->cmd = TYPE;
+		instruct->cmd = TYPE_CONVERT;
+		instruct->params.push_back(exp->ret);
 		instruct->type = type;
 
 		exp->instructs.push_back(instruct);
