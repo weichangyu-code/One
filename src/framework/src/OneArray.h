@@ -40,6 +40,7 @@ namespace One
         {
             _length = 0;
         }
+
         static Reference<Array<T>> createArray(unsigned int length)
         {
             Array<T>* arr = g_objectPool.createObjectT<Array<T>>(sizeof(Array<T>) + length * sizeof(Array<T>::_data));
@@ -71,14 +72,14 @@ namespace One
             return _data < (_arrRef->_data + _arrRef->_length);
         }
 
-        virtual T next()
+        virtual typename TemplateType<T>::VarType& next()
         {
             return *(_data++);
         }
 
     public:
         Reference<Array<T>> _arrRef;
-        T* _data = nullptr;
+        typename TemplateType<T>::VarType* _data = nullptr;
     };
 
     template<class T>

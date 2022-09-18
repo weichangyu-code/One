@@ -64,6 +64,8 @@ Result CppGenerator::generate(const string& exeName, const string& mainClass, co
 
     VR(generateObjectSize(folder));
 
+    VR(generateClassPArray(folder));
+
     return {};
 }
     
@@ -120,6 +122,7 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
     cpp << "#include \"OneMeta.inl\"" << endl;
     cpp << "#include \"StringArray.inl\"" << endl;
     cpp << "#include \"ObjectSize.inl\"" << endl;
+    cpp << "#include \"ClassPArray.inl\"" << endl;
     cpp << "#include \"MetaManager.h\"" << endl;
     cpp << endl;
 
@@ -133,6 +136,7 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
 
     cpp << "    One::g_metaManager.loadMeta(oneMeta, sizeof(oneMeta));" << endl;
     cpp << "    One::g_metaManager.loadObjectSize(objectSize, sizeof(objectSize));" << endl;
+    cpp << "    One::g_metaManager.initClassP(arrayClassP);" << endl;
     cpp << endl;
 
     //
@@ -302,6 +306,33 @@ Result CppGenerator::generateObjectSize(const string& root)
     }
     
     f << KEY_TAB << "0" << endl << "};" << endl;
+    f << endl;
+
+    return {};
+}
+    
+Result CppGenerator::generateClassPArray(const string& root)
+{
+    ofstream f(FileUtils::appendFileName(root, "ClassPArray.inl"));
+    if (f.is_open() == false)
+    {
+        return R_FAILED;
+    }
+
+    f << "One::Class** arrayClassP[] = " << endl;
+    f << "{" << endl;
+    f << KEY_TAB << "nullptr," << endl;
+    for (auto& metaClass : metaContainer->getClasses())
+    {
+        auto cppClass = CppClass::getCppClass(metaClass);
+        if (metaClass->isTemplateClass())
+        {
+            f << KEY_TAB << "nullptr," << endl;
+            continue;
+        }
+        f << KEY_TAB << "&One::ClassP<One::" << cppClass->cppName << ">::clazz," << endl;
+    }
+    f << "};" << endl;
     f << endl;
 
     return {};
@@ -559,7 +590,7 @@ Result CppGenerator::generateFactoryClass(ofstream& f, MetaClass* metaClass)
         f << KEY_TAB << "{" << endl;
         
         f << KEY_TAB << KEY_TAB << "auto __var__ = (" << cppClass->cppName << "*)g_objectPool.createObject(sizeof(" << cppClass->cppName << "));" << endl;
-        f << KEY_TAB << KEY_TAB << "__var__->__class__ = g_metaManager.getClass(" << StringUtils::itoa(metaClass->id) << ");" << endl;
+        f << KEY_TAB << KEY_TAB << "__var__->initClass(One::ClassP<" << cppClass->cppName << ">::getClass());" << endl;
         if (cppClass->cppNative)
         {
             f << KEY_TAB << KEY_TAB << "CALL_CONSTRUCT(__var__, " << cppClass->cppName;
@@ -1318,7 +1349,7 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
     case NEW_ARRAY:
         {
             instruct->cppCode = "Array<" + generateType(instruct->retType.clazz->params.front()->type) + ">::createArray("
-                    + generateData(instruct->params.front()) + ")";
+                    + generateData(instruct->params.front()) +  ")";
         }
         break;
     case CALL:
@@ -1411,18 +1442,14 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
                     CppClass* cppClass = CppClass::getCppClass(typeDst.clazz);
                     if (typeSrc.clazz->isInterface)
                     {
-                        //g_metaManager.convertInterfaceType<One::XXX>((const Reference<Interface>&)generateData(instruct->params.front()), typeDst.clazz->id)
-                        //
-                        //
+                        //g_metaManager.convertInterfaceType<One::XXX>((const Reference<Interface>&)generateData(instruct->params.front()))
                         instruct->cppCode = "g_metaManager.convertInterfaceType<One::" + cppClass->cppName + ">"
-                                                "((const Reference<Interface>&)(" + generateData(instruct->params.front()) + ")"
-                                                ", " + StringUtils::itoa(typeDst.clazz->id) + ")";
+                                                "((const Reference<Interface>&)(" + generateData(instruct->params.front()) + "))";
                     }
                     else
                     {
                         instruct->cppCode = "g_metaManager.convertObjectType<One::" + cppClass->cppName + ">"
-                                                "((const Reference<Object>&)(" + generateData(instruct->params.front()) + ")"
-                                                ", " + StringUtils::itoa(typeDst.clazz->id) + ")";
+                                                "((const Reference<Object>&)(" + generateData(instruct->params.front()) + "))";
                     }
                 }
                 else
@@ -1834,7 +1861,7 @@ string CppGenerator::generateData(MetaData& data)
                     }
                     else if (index.var->varType == VAR_CLASS)
                     {
-                        cppData = "Pointer<Class>(g_metaManager.getClass(" + StringUtils::itoa(index.var->box->convertClass()->id) + "), false)";
+                        cppData = "Pointer<Class>(ClassP<" + index.var->box->convertClass()->name + ">::getClass(), false)";
                     }
                     else
                     {
@@ -1881,7 +1908,7 @@ string CppGenerator::generateData(MetaData& data)
             }
             else if (var->varType == VAR_CLASS)
             {
-                return "Pointer<Class>(g_metaManager.getClass(" + StringUtils::itoa(var->box->convertClass()->id) + "), false)";
+                return "Pointer<Class>(ClassP<" + var->box->convertClass()->name + ">::getClass(), false)";
             }
             else if (var->varType == VAR_MEMBER || var->varType == VAR_ANONY_THIS)
             {
@@ -1936,7 +1963,7 @@ string CppGenerator::generateTypeData(MetaData& data, const MetaType& type, bool
         break;
     case MetaContainer::ACT_BASE_TYPE:
         {
-            return str;
+            return "(" + generateType(type) + ")" + str;
         }
         break;
     case MetaContainer::ACT_PARENT_TYPE:
@@ -1952,6 +1979,18 @@ string CppGenerator::generateTypeData(MetaData& data, const MetaType& type, bool
             else
             {
                 return "convertObjectReference<" + generateType(dataType) + ", " + generateType(type) + ">(" + str + ")";
+            }
+        }
+        break;
+    case MetaContainer::ACT_TEMPLATE:
+        {
+            if (pointer)
+            {
+                return "convertPointerForce<" + generateType(dataType) + ", " + generateType(type) + ">(" + str + ")";
+            }
+            else
+            {
+                return "convertReferenceForce<" + generateType(dataType) + ", " + generateType(type) + ">(" + str + ")";
             }
         }
         break;

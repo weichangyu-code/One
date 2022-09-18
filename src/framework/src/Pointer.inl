@@ -55,4 +55,10 @@ namespace One
             }
         }
     }
+
+    template<typename T1, typename T2>
+    Pointer<T2> convertPointerForce(Pointer<T1> r)
+    {
+        return (Pointer<T2>&)r;
+    }
 }    

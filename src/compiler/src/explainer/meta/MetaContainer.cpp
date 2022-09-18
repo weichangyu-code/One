@@ -7,6 +7,7 @@
 #include "MetaFile.h"
 #include "MetaVariable.h"
 #include "MetaVarRef.h"
+#include "MetaTemplateParam.h"
 #include "../common/Keyword.h"
 using namespace OneCommon;
 
@@ -527,6 +528,36 @@ int  MetaContainer::getAutoConvertType(const MetaType& src, const MetaType& dst)
         {
             //子类可以转换成子类
             return ACT_PARENT_TYPE;
+        }
+        else if (src.clazz->templateClass != nullptr && src.clazz->templateClass == dst.clazz->templateClass)
+        {
+            //如果是同一个模板继承来的，判断模板
+            bool canConvert = true;
+            auto paramIterSrc = src.clazz->params.begin();
+            auto paramIterDst = dst.clazz->params.begin();
+            for (;paramIterSrc != src.clazz->params.end();++paramIterSrc, ++paramIterDst)
+            {
+                auto typeSrc = (*paramIterSrc)->type;
+                auto typeDst = (*paramIterDst)->type;
+                if (typeSrc == typeDst)
+                {
+
+                }
+                else if (typeSrc.isClass() && typeDst.isClass() 
+                    && typeSrc.clazz->isBaseOf(typeDst.clazz) && typeDst.clazz->isInterface == false)
+                {
+                    //继承关系，并且转换不能是接口，因为接口和对象的指针偏移不一样
+                }
+                else
+                {
+                    canConvert = false;
+                    break;
+                }
+            }
+            if (canConvert)
+            {
+                return ACT_TEMPLATE;
+            }
         }
     }
     else if (src.isNull() && dst.isClass())

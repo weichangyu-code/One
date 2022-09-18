@@ -75,4 +75,8 @@ namespace One
     {
         return Reference<Class>(__class__, false, true);
     }
+    void Object::initClass(Class* clazz)
+    {
+        __class__ = clazz;
+    }
 } // namespace One

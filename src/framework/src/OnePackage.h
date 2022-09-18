@@ -14,6 +14,9 @@ namespace One
         {
             this->parent = parent;
         }
+
+        Package* getPackage(const string& name);
+        Class* getClass(const string& name);
     
     public:
         string name;

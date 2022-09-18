@@ -39,4 +39,21 @@ namespace One
         vector<Function*> funcs;
         vector<Field*> fields;
     };
+
+    //存储每个类的Class指针
+    template<class T>
+    class ClassP
+    {
+    public:
+        static Class* getClass()
+        {
+            return clazz;
+        }
+
+    public:
+        static Class* clazz;
+    };
+    template<class T>
+    Class* ClassP<T>::clazz = nullptr;
+
 } // namespace One

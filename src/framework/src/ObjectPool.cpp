@@ -9,7 +9,7 @@ namespace One
     {
 
     }
-
+    
     Object* ObjectPool::createObject(unsigned int size)
     {
         Object* obj = (Object*)malloc(size);

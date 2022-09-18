@@ -13,6 +13,7 @@ namespace One
     class Class;
     class Object
     {
+        friend class MetaManager;
     public:
         Object(){}
         virtual ~Object(){}
@@ -29,9 +30,9 @@ namespace One
 
         //类
         Reference<Class> getClass();
+        void initClass(Class* clazz);
 
-
-    public:
+    protected:
         Class* __class__;           //在构造前被填充，不需要初始化
         enum
         {

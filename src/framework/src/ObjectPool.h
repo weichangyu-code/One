@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "OneObject.h"
+#include "OneClass.h"
 #include <new>
 
 #define CALL_CONSTRUCT(p, TYPE, ...)	{::new ((void*)(p)) TYPE (__VA_ARGS__);}
@@ -20,6 +21,7 @@ namespace One
         T* createObjectT(unsigned int size)
         {
             T* p = (T*)createObject(size);
+            p->initClass(ClassP<T>::getClass());
             CALL_CONSTRUCT(p, T);
             return p;
         }
@@ -35,7 +37,6 @@ namespace One
         {
             return Reference<T>(createObjectT<T>(), false, false);
         }
-
 
     protected:
         void* malloc(unsigned int size);

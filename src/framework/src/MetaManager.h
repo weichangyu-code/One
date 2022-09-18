@@ -33,19 +33,18 @@ namespace One
     public:
         void loadMeta(const void* data, unsigned int length);
         void loadObjectSize(const void* data, unsigned int length);
+        void initClassP(Class*** arrayClassP);
 
-        Class* getClass(int id);
-
-        void* convertType(Object* obj, Class* type);
+        //
         template<class T>
-        Reference<T> convertObjectType(const Reference<Object>& obj, int classId)
+        Reference<T> convertObjectType(const Reference<Object>& obj)
         {
-            return Reference<T>((T*)convertType(obj.getObject(), getClass(classId)), obj.isInner(), true);
+            return Reference<T>((T*)convertType(obj.getObject(), ClassP<T>::getClass()), obj.isInner(), true);
         }
         template<class T>
-        Reference<T> convertInterfaceType(const Reference<Interface>& interface, int classId)
+        Reference<T> convertInterfaceType(const Reference<Interface>& interface)
         {
-            return Reference<T>((T*)convertType(interface.getObject()->__obj__, getClass(classId)), interface.isInner(), true);
+            return Reference<T>((T*)convertType(interface.getObject()->getObject(), ClassP<T>::getClass()), interface.isInner(), true);
         }
 
     protected:
@@ -55,11 +54,16 @@ namespace One
         void loadField(Field* field);
         void loadParentOffset(Class* clazz, Class* parent);
 
+        void* convertType(Object* obj, Class* type);
+        
+        Class* getClass(int id);
+        Class* getClass(const string& classPath);
+
     protected:
         IByteStream _stream;
 
         Package* _root;
-        vector<Class*> _classes;
+        vector<Class> _classes;
     };
 
     extern MetaManager g_metaManager;

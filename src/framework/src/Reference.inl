@@ -20,4 +20,11 @@ namespace One
             return Reference<T2>(r.getObject(), r.isInner(), true);
         }
     }
+
+    template<typename T1, typename T2>
+    Reference<T2>& convertReferenceForce(const Reference<T1>& r)
+    {
+        return (Reference<T2>&)r;
+    }
+
 }
