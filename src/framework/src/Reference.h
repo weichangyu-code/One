@@ -20,6 +20,14 @@ namespace One
                 pointer.release();
             }
         }
+        Reference(T* obj)
+        {
+            pointer.set(obj, false);
+            if (obj)
+            {
+                pointer.acquire();
+            }
+        }
         Reference(T* obj, bool inner, bool acquire)
         {
             pointer.set(obj, inner);

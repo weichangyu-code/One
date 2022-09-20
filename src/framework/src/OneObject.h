@@ -11,6 +11,7 @@
 namespace One
 {
     class Class;
+    class String;
     class Object
     {
         friend class MetaManager;
@@ -31,6 +32,10 @@ namespace One
         //类
         Reference<Class> getClass();
         void initClass(Class* clazz);
+
+        virtual Reference<String> toString();
+        virtual Reference<Object> clone();
+        virtual bool equal(Object* obj);
 
     protected:
         Class* __class__;           //在构造前被填充，不需要初始化

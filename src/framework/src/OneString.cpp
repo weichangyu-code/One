@@ -48,4 +48,32 @@ namespace One
         return createString(StringUtils::itoa(v).c_str());
     }
 
+    Reference<String> String::toString()
+    {
+        return this;
+    }
+    
+    Reference<Object> String::clone()
+    {
+        return this;
+    }
+    
+    bool String::equal(Object* obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == nullptr)
+        {
+            return false;
+        }
+        if (__class__ != obj->getClass())
+        {
+            return false;
+        }
+        String* str = (String*)obj;
+        return strcmp(_c, str->_c) == 0;
+    }
+
 }

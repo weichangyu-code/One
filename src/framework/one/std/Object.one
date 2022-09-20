@@ -10,8 +10,21 @@ class Object
         return 0;
     }
 
+    //标准方法
     Class getClass()
     {
         return null;
+    }
+    virtual String toString()
+    {
+        return "";
+    }
+    virtual Object clone()
+    {
+        return null;
+    }
+    virtual bool equal(Object obj)
+    {
+        return false;
     }
 }

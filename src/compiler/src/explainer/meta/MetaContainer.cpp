@@ -319,7 +319,7 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
         {
             continue;
         }
-        if (func->name != name || func->params.size() < params.size())
+        if (func->name != name)
         {
             //会有默认参数，所以函数参数数量大于等于实际数量
             continue;
@@ -631,7 +631,7 @@ int  MetaContainer::getAutoConvertType(const MetaType& src, const MetaType& dst)
     else if (src.isNull() && dst.isClass())
     {
         //null可以转换任意类
-        return ACT_BASE_TYPE;
+        return ACT_NULL;
     }
 
     auto iter1 = autoConvertData.find(src);

@@ -14,6 +14,13 @@ namespace One
         {}
         Pointer(nullptr_t n)
         {}
+        Pointer(T* ptr)
+        {
+            if (ptr)
+            {
+                this->ptr = ptr;
+            }
+        }
         Pointer(T* ptr, bool inner)
         {
             if (ptr)

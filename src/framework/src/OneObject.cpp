@@ -2,6 +2,7 @@
 #include "ObjectPool.h"
 #include "engine/Engine.h"
 #include "OneClass.h"
+#include "OneString.h"
 
 namespace One
 {
@@ -78,5 +79,20 @@ namespace One
     void Object::initClass(Class* clazz)
     {
         __class__ = clazz;
+    }
+    
+    Reference<String> Object::toString()
+    {
+        return String::createString("");
+    }
+    
+    Reference<Object> Object::clone()
+    {
+        return nullptr;
+    }
+    
+    bool Object::equal(Object* obj)
+    {
+        return this == obj;
     }
 } // namespace One

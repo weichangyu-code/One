@@ -1378,7 +1378,7 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
                         {
                             stream << ", ";
                         }
-                        stream << generateTypeData(instruct->params.back(), type, false);
+                        stream << generateTypeData(*iter, type, false);
 
                         instruct->params.erase(iter++);
                     }
@@ -1999,6 +1999,11 @@ string CppGenerator::generateTypeData(MetaData& data, const MetaType& type, bool
         }
         break;
     case MetaContainer::ACT_EQUAL:
+        {
+            return str;
+        }
+        break;
+    case MetaContainer::ACT_NULL:
         {
             return str;
         }
