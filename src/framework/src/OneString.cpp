@@ -28,11 +28,6 @@ namespace One
         _length = 0;
         _c[0] = 0;
     }
-        
-    void String::setData(const char* str)
-    {
-        StringUtils::strncpy_z(_c, str, _length + 1);
-    }
 
     Reference<String> String::createString(unsigned int length)
     {
@@ -40,4 +35,17 @@ namespace One
         str->_length = length;
         return Reference<String>(str, false, false);
     }
+    
+    Reference<String> String::createString(const char* str)
+    {
+        Reference<String> strRef = createString(strlen(str));
+        strcpy(strRef->_c, str);
+        return strRef;
+    }
+
+    Reference<String> String::valueOf(int v)
+    {
+        return createString(StringUtils::itoa(v).c_str());
+    }
+
 }

@@ -19,6 +19,8 @@ public:
     MetaVariable* getVariable(const string& name, bool onlyStatic);
 
     bool isInitVarFunc();
+    bool isDynamicParamFunc();
+    MetaType getDynamicParamType();
     
 public:
     int funcType = FUNC_NORMAL;

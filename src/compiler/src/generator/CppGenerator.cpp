@@ -1355,12 +1355,45 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
     case CALL:
     case CALL_FIXED:
         {
-            ostringstream stream;
-
             MetaFunc* metaFunc = instruct->func;
             auto cppFunc = CppFunc::getCppFunc(metaFunc);
             auto cppClass = CppClass::getCppClass(metaFunc->getOuterClass());
 
+            string dynamicParam;
+            if (metaFunc->isDynamicParamFunc())
+            {
+                MetaType type = metaFunc->getDynamicParamType();
+
+                //将最后几个可变参数转换成数组
+                ostringstream stream;
+                stream << "Array<" << generateType(type) << ">::createArray({";
+
+                int staticParamNum = (metaFunc->isStatic ? 0 : 1) + (metaFunc->params.size() - 1);
+                int i = 0;
+                for (auto iter = instruct->params.begin();iter != instruct->params.end();)
+                {
+                    if (i >= staticParamNum)
+                    {
+                        if (i > staticParamNum)
+                        {
+                            stream << ", ";
+                        }
+                        stream << generateTypeData(instruct->params.back(), type, false);
+
+                        instruct->params.erase(iter++);
+                    }
+                    else
+                    {
+                        ++iter;
+                    }
+                    i++;
+                }
+
+                stream << "})";
+                dynamicParam = stream.str();
+            }
+
+            ostringstream stream;
             if (metaFunc->isStatic)
             {
                 //直接调用
@@ -1382,7 +1415,6 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
                     ++paramTypeIter;
                     index++;
                 }
-                stream << ")";
             }
             else
             {
@@ -1416,9 +1448,19 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
                     }
 
                     index++;
-                } 
-                stream << ")";
+                }
             }
+
+            if (metaFunc->isDynamicParamFunc())
+            {
+                if (metaFunc->params.size() > 1)
+                {
+                    stream << ", ";
+                }
+                stream << dynamicParam;
+            }
+
+            stream << ")";
             instruct->cppCode = stream.str();
         }
         break;
@@ -2000,6 +2042,12 @@ string CppGenerator::generateTypeData(MetaData& data, const MetaType& type, bool
             return cppClass->getFactoryName() + "::" KEY_CREATE_OBJECT_FUNC "(" + str + ")";
         }
         break;
+    case MetaContainer::ACT_VALUEOF:
+        {
+            CppClass* cppClass = CppClass::getCppClass(type.clazz);
+            return cppClass->cppName + "::" KEY_VALUEOF_FUNC "(" + str + ")";
+        }
+        break;
     default:
         break;
     }
@@ -2016,4 +2064,9 @@ int CppGenerator::getStringIndex(const string& str)
     int index = stringMap.size();
     stringMap.insert({str, index});
     return index;
+}
+    
+unsigned int CppGenerator::getUniqueId()
+{
+    return ++uniqueIdSeed;
 }

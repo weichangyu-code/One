@@ -9,4 +9,10 @@ class String
 	{
 		return 0;
 	}
+
+	//类型转换
+	static String valueOf(int v)
+	{
+		return null;
+	}
 }

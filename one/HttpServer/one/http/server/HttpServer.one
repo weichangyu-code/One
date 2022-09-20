@@ -11,7 +11,7 @@ class HttpServer
             Out.println("listen failed");
             return;
         }
-        Out.println("listen success");
+        Out.println("listen {} success", 80);
 
         String[] tmp1 = new String[2];
         Object[] tmp2 = tmp1;

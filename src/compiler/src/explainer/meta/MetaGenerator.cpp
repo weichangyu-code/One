@@ -234,6 +234,7 @@ Result MetaGenerator::generateMetaFunctionStruct(MetaFunc* func)
     
     // 解析参数
     int noDefaultParamNum = 0;
+    int defaultParamNum = 0;
     for (auto& syntaxVarDef : syntaxFunc->params)
     {
         if (syntaxVarDef->type == nullptr)
@@ -246,7 +247,25 @@ Result MetaGenerator::generateMetaFunctionStruct(MetaFunc* func)
 
         if (syntaxVarDef->exp == nullptr)
         {
+            if (defaultParamNum > 0)
+            {
+                //默认参数后面不能有非默认参数，只有最后几个是默认参数
+                return R_FAILED;
+            }
             noDefaultParamNum++;
+        }
+        else
+        {
+            defaultParamNum++;
+        }
+
+        if (param->isDynamic)
+        {
+            if (syntaxVarDef != syntaxFunc->params.back())
+            {
+                //可变参数必须是最后一个
+                return R_FAILED;
+            }
         }
     }
 
@@ -264,9 +283,16 @@ Result MetaGenerator::generateMetaFunctionStruct(MetaFunc* func)
     }
 
     // 查看构造函数是否带参数，如果只有一个非默认参数，可以转换
-    if (func->funcType == FUNC_CONSTRUCT && noDefaultParamNum == 1)
+    if (noDefaultParamNum == 1)
     {
-        metaContainer->addAutoConvertType(func->params.front()->type, func->getOuterClass(), MetaContainer::ACT_CONSTRUCT);
+        if (func->funcType == FUNC_CONSTRUCT)
+        {
+            metaContainer->addAutoConvertType(func->params.front()->type, func->getOuterClass(), MetaContainer::ACT_CONSTRUCT);
+        }
+        else if (func->isStatic && func->name == KEY_VALUEOF_FUNC && func->returnType == MetaType(func->getOuterClass()))
+        {
+            metaContainer->addAutoConvertType(func->params.front()->type, func->getOuterClass(), MetaContainer::ACT_VALUEOF);
+        }
     }
 
     return {};

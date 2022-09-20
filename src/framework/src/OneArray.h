@@ -6,9 +6,12 @@
 
 namespace One
 {
+    template<class T> class ArrayIterator;
+
     template<class T>
     class Array : public Object, public Iterable<T>
     {
+        friend class ArrayIterator<T>;
     public:
         Array() : Iterable<T>(this)
         {
@@ -16,6 +19,11 @@ namespace One
         }
 
         typename TemplateType<T>::VarType& operator [] (int index)
+        {
+            return at(index);
+        }
+
+        typename TemplateType<T>::VarType& at(int index)
         {
             if (index < 0 || index >= _length)
             {
@@ -27,6 +35,7 @@ namespace One
                 return _data[index];
             }
         }
+
 
         int length()
         {
@@ -48,7 +57,19 @@ namespace One
             return Reference<Array<T>>(arr, false, false);
         }
 
-    public:
+        static Reference<Array<T>> createArray(std::initializer_list<typename TemplateType<T>::VarType> init)
+        {
+            Reference<Array<T>> arrRef = createArray(init.size());
+            int i = 0;
+            for (auto& v : init)
+            {
+                arrRef->_data[i] = v;
+                i++;
+            }
+            return arrRef;
+        }
+
+    protected:
         unsigned int _length = 0;
         typename TemplateType<T>::VarType _data[1];
     };

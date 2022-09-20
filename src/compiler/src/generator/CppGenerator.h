@@ -98,6 +98,12 @@ protected:
     int getStringIndex(const string& str);
 protected:
     map<string, int> stringMap;
+
+//维护一个唯一ID，避免冲突
+protected:
+    unsigned int uniqueIdSeed = 0;
+protected:
+    unsigned int getUniqueId();
 };
 
 

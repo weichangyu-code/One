@@ -238,6 +238,7 @@ neq= !=
 and= &&
 or= ||
 arr= []
+dot3= ...
 
 exp(newobject)=newobject
 exp(newarray)=newarray
@@ -305,6 +306,7 @@ vardefitemnew=type identifier callfuncparam
 vardefitemassign=type identifier=exp
 vardefitemarray=type identifier[exp]
 vardefitemtype=type identifier
+vardefitemdot=type... identifier
 
 vardefsentence=vardefitemautoassign
 vardefsentence=vardefitemnew
@@ -318,6 +320,7 @@ vardeffor=vardefitemtype
 
 vardeffuncparam=vardefitemassign
 vardeffuncparam=vardefitemtype
+vardeffuncparam=vardefitemdot
 
 vardefclass=vardefitemnew
 vardefclass=vardefitemassign

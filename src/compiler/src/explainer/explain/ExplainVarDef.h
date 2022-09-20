@@ -17,6 +17,7 @@ public:
         registe("vardefitemassign", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemAssign);
         registe("vardefitemarray", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemArray);
         registe("vardefitemtype", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemType);
+        registe("vardefitemdot", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemDot);
 
         registe("vardefsentence", "prefix", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefPrefix);
         registe("vardefclass", "prefix", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefPrefix);
@@ -109,6 +110,18 @@ public:
         SyntaxVarDef* varDef = new SyntaxVarDef(context);
         varDef->name = es[1].remark;
         varDef->type = (SyntaxType*)es[0].ptr;
+
+        out.ptr = varDef;
+        return {};
+    }
+
+    Result onExplainVarDefItemDot(Rule* rule, vector<LexElement>& es, LexElement& out)
+    {
+        SyntaxVarDef* varDef = new SyntaxVarDef(context);
+        varDef->name = es[2].remark;
+        varDef->type = (SyntaxType*)es[0].ptr;
+        varDef->type->arrNum++;                             //变成一个数组
+        varDef->isDynamic = true;
 
         out.ptr = varDef;
         return {};

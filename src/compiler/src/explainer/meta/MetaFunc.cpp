@@ -1,6 +1,7 @@
 #include "MetaFunc.h"
 #include "MetaVariable.h"
 #include "MetaClass.h"
+#include "MetaTemplateParam.h"
 #include "../syntax/SyntaxFunc.h"
 #include "../syntax/SyntaxClass.h"
 #include "../common/Keyword.h"
@@ -64,4 +65,15 @@ MetaVariable* MetaFunc::getVariable(const string& name, bool onlyStatic)
 bool MetaFunc::isInitVarFunc()
 {
     return this->funcType == FUNC_INIT || this->funcType == FUNC_STATIC_INIT;
+}
+    
+bool MetaFunc::isDynamicParamFunc()
+{
+    return params.empty() == false && params.back()->isDynamic;
+}
+    
+MetaType MetaFunc::getDynamicParamType()
+{
+    //最后一个参数的第一个模板
+    return params.back()->type.clazz->params.front()->type;
 }

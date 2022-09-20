@@ -25,4 +25,6 @@
 #define KEY_CLEAR_VAR_FUNC          "__clearVar__"
 #define KEY_DESTROY_FUNC            "__destroy__"
 
+#define KEY_VALUEOF_FUNC            "valueOf"
+
 #define KEY_TAB         "    "

@@ -84,6 +84,7 @@ public:
         ACT_PARENT_TYPE,        //子类到父类，需要叠加代码
         ACT_TEMPLATE,           //模板参数继承
         ACT_CONSTRUCT,          //通过构造函数转换
+        ACT_VALUEOF,            //通过valueOf函数转换
     };
     void addAutoConvertType(const MetaType& src, const MetaType& dst, int type);
     int  getAutoConvertType(const MetaType& src, const MetaType& dst);

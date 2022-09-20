@@ -14,6 +14,8 @@ public:
 
     bool isStatic = false;
     bool isConst = false;
+    bool isDynamic = false;
+
     MetaType type;                          //NONE表示自动
     MetaBoxBase* box = nullptr;
 

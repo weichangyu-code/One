@@ -8,15 +8,18 @@ namespace One
     public:
         int length();
         const char* str();
+
+        static Reference<String> valueOf(int v);
         
     //内部接口
     public:
         virtual void __destruct__();
-        void setData(const char* str);
+        
         static Reference<String> createString(unsigned int length);
+        static Reference<String> createString(const char* str);
 
-    public:
+    protected:
         unsigned int _length = 0;
-        char _c[1];
+        char _c[1] = {0};
     };
 }

@@ -22,9 +22,7 @@ namespace One
         String*& string = _pool[index];
         if (string == nullptr)
         {
-            const char* str = _stringArray[index];
-            string = String::createString(strlen(str)).detach();
-            string->setData(str);
+            string = String::createString(_stringArray[index]).detach();
         }
         return Reference<String>(string, false, true);
     }

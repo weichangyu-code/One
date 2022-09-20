@@ -324,48 +324,121 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
             //会有默认参数，所以函数参数数量大于等于实际数量
             continue;
         }
-    
-        //比对参数
-        int value = 0;
-        auto iter1 = func->params.begin();
-        auto iter2 = params.begin();
-        for (;iter2 != params.end();++iter1, ++iter2)
-        {
-            MetaType type1 = (*iter1)->type;
-            MetaType type2 = (*iter2).getType();
 
-            //判断是不是匿名
-            if (type1.isClass() && type2.isClass() && type2.clazz->isAnonyClass)
+        int value = 0;
+        //判断是否有可变参数
+        if (func->isDynamicParamFunc())
+        {
+            if (func->params.size() - 1 > params.size())
             {
-                //匿名类，算匹配
-            } 
-            else if (type1 != type2)
+                //除了可变参数，其他参数必填
+                continue;
+            }
+
+            //比对参数
+            auto iter1 = func->params.begin();
+            auto iter2 = params.begin();
+            for (;iter1 != func->params.end();++iter1, ++iter2)
             {
-                if (getAutoConvertType(type2, type1) != ACT_CANNT)
+                if ((*iter1)->isDynamic)
                 {
-                    value++;
+                    break;
                 }
-                else
+
+                MetaType type1 = (*iter1)->type;
+                MetaType type2 = (*iter2).getType();
+
+                //判断是不是匿名
+                if (type1.isClass() && type2.isClass() && type2.clazz->isAnonyClass)
                 {
-                    //不匹配
+                    //匿名类，算匹配
+                } 
+                else if (type1 != type2)
+                {
+                    if (getAutoConvertType(type2, type1) != ACT_CANNT)
+                    {
+                        value++;
+                    }
+                    else
+                    {
+                        //不匹配
+                        value = 0xFFFF;
+                        break;
+                    }
+                }
+            }
+
+            //判断多余的参数有没有默认参数
+            MetaType type1 = func->getDynamicParamType();    //数组里面的第一个模板参数
+            for (;iter2 != params.end();++iter2)
+            {
+                MetaType type2 = (*iter2).getType();
+
+                //判断是不是匿名
+                if (type1 != type2)
+                {
+                    if (getAutoConvertType(type2, type1) != ACT_CANNT)
+                    {
+                        value++;
+                    }
+                    else
+                    {
+                        //不匹配
+                        value = 0xFFFF;
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (func->params.size() < params.size())
+            {
+                //会有默认参数，所以函数参数数量大于等于实际数量
+                continue;
+            }
+
+            //比对参数
+            auto iter1 = func->params.begin();
+            auto iter2 = params.begin();
+            for (;iter2 != params.end();++iter1, ++iter2)
+            {
+                MetaType type1 = (*iter1)->type;
+                MetaType type2 = (*iter2).getType();
+
+                //判断是不是匿名
+                if (type1.isClass() && type2.isClass() && type2.clazz->isAnonyClass)
+                {
+                    //匿名类，算匹配
+                } 
+                else if (type1 != type2)
+                {
+                    if (getAutoConvertType(type2, type1) != ACT_CANNT)
+                    {
+                        value++;
+                    }
+                    else
+                    {
+                        //不匹配
+                        value = 0xFFFF;
+                        break;
+                    }
+                }
+            }
+
+            //判断多余的参数有没有默认参数
+            for (;iter1 != func->params.end();++iter1)
+            {
+                MetaVariable* var = *iter1;
+                if (var->initBlock == nullptr)
+                {
+                    //不是默认参数，不匹配
                     value = 0xFFFF;
                     break;
                 }
             }
         }
-
-        //判断多余的参数有没有默认参数
-        for (;iter1 != func->params.end();++iter1)
-        {
-            MetaVariable* var = *iter1;
-            if (var->initBlock == nullptr)
-            {
-                //不是默认参数，不匹配
-                value = 0xFFFF;
-                break;
-            }
-        }
-
+    
         if (value < matchValue)
         {
             matchValue = value;
@@ -390,11 +463,6 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
                 return match;
             }
         }
-    }
-
-    if (clazz->isAnonyClass)
-    {
-        //匿名函数，
     }
 
     return match;
