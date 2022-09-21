@@ -88,7 +88,7 @@ lambda=(multiidentifier) codeblock
 lambda(null)=() codeblock
 newanony=NEW type classbody
 
-#操作符定义
+#操作符定义（不支持）
 operator=arr
 operator=inc
 operator=dec
@@ -252,7 +252,7 @@ newobject=NEW type
 
 #赋值语句，这样的编排为了赋值操作从右到左
 assign(deepassign)=exp deepassign assign
-assign(refassign)=exp=assign
+assign(refassign)=exp = assign
 assign(addassign)=exp addassign assign
 assign(subassign)=exp subassign assign
 assign(mulassign)=exp mulassign assign

@@ -11,8 +11,8 @@ public:
 
     MetaType getType();
 
-    void setObj(MetaVariable* obj);
     void addMember(MetaVariable* member);
+    void addIndex(const MetaData& index);
 
     static MetaVarRef* makeVarRef(MetaContainer* metaContainer, MetaVarRef* ref, MetaVariable* var);
 

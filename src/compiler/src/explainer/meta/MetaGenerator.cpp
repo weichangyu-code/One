@@ -895,20 +895,22 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             {
                 return R_FAILED;
             }
+
+            MetaVarRef* varRef;
             if (left.type == left.VARREF)
             {
-                MetaVarRef* varRef = left.varRef;
-                varRef->indexes.push_back(right);
+                varRef = left.varRef;
+                varRef->addIndex(right);
                 instruct->params.pop_back();
             }
             else
             {
-                MetaVarRef* varRef = new MetaVarRef(left, metaContainer);
-                varRef->indexes.push_back(right);
+                varRef = new MetaVarRef(left, metaContainer);
+                varRef->addIndex(right);
                 instruct->params.clear();
                 instruct->params.push_back(varRef);
             }
-            instruct->retType = type1.clazz->params.front()->type;  //第一个模板参数
+            instruct->retType = varRef->getType();
             block->instructs.push_back(instruct);
         }
         break;

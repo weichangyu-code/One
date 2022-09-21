@@ -1923,7 +1923,7 @@ string CppGenerator::generateData(MetaData& data)
                 else
                 {
                     assert(metaContainer->isArray(type));
-                    cppData = "(*" + cppData + ")[" + generateData(index) + "]";
+                    cppData = cppData + "->indexOf(" + generateData(index) + ")";
                     type = type.clazz->params.front()->type;
                 }
             }

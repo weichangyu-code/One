@@ -86,13 +86,13 @@ namespace One
         return String::createString("");
     }
     
-    Reference<Object> Object::clone()
-    {
-        return nullptr;
-    }
+    // Reference<Object> Object::clone()
+    // {
+    //     return nullptr;
+    // }
     
-    bool Object::equal(Object* obj)
-    {
-        return this == obj;
-    }
+    // bool Object::equal(Object* obj)
+    // {
+    //     return this == obj;
+    // }
 } // namespace One

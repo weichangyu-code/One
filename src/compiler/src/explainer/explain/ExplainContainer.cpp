@@ -41,7 +41,9 @@ ExplainContainer::ExplainContainer(RuleContainer* ruleContainer, ExplainContext*
     explains.push_back(new ExplainIfBlock(this, context));
     explains.push_back(new ExplainWhileBlock(this, context));
     explains.push_back(new ExplainForBlock(this, context));
-    explains.push_back(new ExplainOperator(this, context));
+    
+    //不支持操作符重载
+    //explains.push_back(new ExplainOperator(this, context));
 }
 
 ExplainContainer::~ExplainContainer()

@@ -18,12 +18,7 @@ namespace One
 
         }
 
-        typename TemplateType<T>::VarType& operator [] (int index)
-        {
-            return at(index);
-        }
-
-        typename TemplateType<T>::VarType& at(int index)
+        typename TemplateType<T>::VarType& indexOf(int index)
         {
             if (index < 0 || index >= _length)
             {

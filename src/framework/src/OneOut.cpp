@@ -28,7 +28,7 @@ namespace One
             
             if (i < args->length())
             {
-                dst += args->at(i)->str();
+                dst += args->indexOf(i)->str();
             }
             else
             {

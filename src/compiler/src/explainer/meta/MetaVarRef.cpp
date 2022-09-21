@@ -1,6 +1,7 @@
 ﻿#include "MetaVarRef.h"
 #include "MetaVariable.h"
 #include "MetaClass.h"
+#include "MetaTemplateParam.h"
 
 MetaVarRef::MetaVarRef(MetaContainer* metaContainer)
     :MetaBase(metaContainer, nullptr)
@@ -19,15 +20,16 @@ MetaType MetaVarRef::getType()
     return type;
 }
     
-void MetaVarRef::setObj(MetaVariable* obj)
-{
-    this->obj.setData(obj);
-}
-    
 void MetaVarRef::addMember(MetaVariable* member)
 {
     this->indexes.push_back(MetaData(MetaData::MEMBER, member));
     this->type = member->type;
+}
+    
+void MetaVarRef::addIndex(const MetaData& index)
+{
+    this->indexes.push_back(index);
+    this->type = this->type.clazz->params.front()->type;
 }
     
 MetaVarRef* MetaVarRef::makeVarRef(MetaContainer* metaContainer, MetaVarRef* ref, MetaVariable* var)

@@ -53,27 +53,27 @@ namespace One
         return this;
     }
     
-    Reference<Object> String::clone()
-    {
-        return this;
-    }
+    // Reference<Object> String::clone()
+    // {
+    //     return this;
+    // }
     
-    bool String::equal(Object* obj)
-    {
-        if (this == obj)
-        {
-            return true;
-        }
-        if (obj == nullptr)
-        {
-            return false;
-        }
-        if (__class__ != obj->getClass())
-        {
-            return false;
-        }
-        String* str = (String*)obj;
-        return strcmp(_c, str->_c) == 0;
-    }
+    // bool String::equal(Object* obj)
+    // {
+    //     if (this == obj)
+    //     {
+    //         return true;
+    //     }
+    //     if (obj == nullptr)
+    //     {
+    //         return false;
+    //     }
+    //     if (__class__ != obj->getClass())
+    //     {
+    //         return false;
+    //     }
+    //     String* str = (String*)obj;
+    //     return strcmp(_c, str->_c) == 0;
+    // }
 
 }

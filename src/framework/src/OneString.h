@@ -12,8 +12,6 @@ namespace One
         static Reference<String> valueOf(int v);
         
         virtual Reference<String> toString();
-        virtual Reference<Object> clone();
-        virtual bool equal(Object* obj);
         
     //内部接口
     public:
