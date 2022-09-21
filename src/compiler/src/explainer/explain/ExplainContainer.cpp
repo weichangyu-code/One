@@ -16,6 +16,7 @@
 #include "ExplainIfBlock.h"
 #include "ExplainWhileBlock.h"
 #include "ExplainForBlock.h"
+#include "ExplainOperator.h"
 
 ExplainContainer::ExplainContainer(RuleContainer* ruleContainer, ExplainContext* context)
     :ruleContainer(ruleContainer)
@@ -40,6 +41,7 @@ ExplainContainer::ExplainContainer(RuleContainer* ruleContainer, ExplainContext*
     explains.push_back(new ExplainIfBlock(this, context));
     explains.push_back(new ExplainWhileBlock(this, context));
     explains.push_back(new ExplainForBlock(this, context));
+    explains.push_back(new ExplainOperator(this, context));
 }
 
 ExplainContainer::~ExplainContainer()

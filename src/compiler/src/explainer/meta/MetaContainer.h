@@ -58,16 +58,16 @@ public:
     MetaPackage* searchPackage(MetaBoxBase* box, const string& name);
 
     //查找本来和父类最匹配的方法
-    MetaFunc* searchClassFunction(MetaClass* clazz, const string& name, list<MetaData>& params, bool onlyStatic);
+    MetaFunc* searchClassFunction(MetaClass* clazz, const string& name, list<MetaData>& params, int filterType);
 
     //从Box开始查找Function
-    MetaFunc* searchFunction(MetaBoxBase* box, const string& name, list<MetaData>& params, bool onlyStatic, MetaVarRef** varRef);
+    MetaFunc* searchFunction(MetaBoxBase* box, const string& name, list<MetaData>& params, int filterType, MetaVarRef** varRef);
 
     //从本box往上找，直到Class为止。如果是内嵌类，上层类的变量无法直接访问的
-    MetaVarRef* searchVariable(MetaBoxBase* box, const string& name, bool onlyStatic);
+    MetaVarRef* searchVariable(MetaBoxBase* box, const string& name, int filterType);
 
 protected:
-    MetaFunc* searchMatchClassFunction(MetaClass* clazz, const string& name, list<MetaData>& params, int& matchValue, bool onlyStatic);
+    MetaFunc* searchMatchClassFunction(MetaClass* clazz, const string& name, list<MetaData>& params, int& matchValue, int filterType);
 
 //类型转换
 //自动转换类型：

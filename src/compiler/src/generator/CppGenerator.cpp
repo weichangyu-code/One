@@ -103,7 +103,7 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
     {
         return R_FAILED;
     }
-    MetaFunc* metaFunc = metaClass->getFunction("main", false);
+    MetaFunc* metaFunc = metaClass->getFunction("main", MFT_ONLY_NORMAL);
     if (metaFunc == nullptr)
     {
         return R_FAILED;

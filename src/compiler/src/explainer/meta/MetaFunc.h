@@ -16,7 +16,7 @@ public:
     
     MetaClass* addAnonyClass(MetaBoxBase* box, SyntaxBase* syntaxObj);
 
-    MetaVariable* getVariable(const string& name, bool onlyStatic);
+    MetaVariable* getVariable(const string& name, int filterType);
 
     bool isInitVarFunc();
     bool isDynamicParamFunc();

@@ -273,10 +273,10 @@ MetaPackage* MetaContainer::searchPackage(MetaBoxBase* box, const string& name)
     return nullptr;
 }
     
-MetaFunc* MetaContainer::searchFunction(MetaBoxBase* box, const string& name, list<MetaData>& params, bool onlyStatic, MetaVarRef** varRef)
+MetaFunc* MetaContainer::searchFunction(MetaBoxBase* box, const string& name, list<MetaData>& params, int filterType, MetaVarRef** varRef)
 {
     MetaClass* clazz = box->getOuterClass();
-    MetaFunc* func = searchClassFunction(clazz, name, params, onlyStatic);
+    MetaFunc* func = searchClassFunction(clazz, name, params, filterType);
     if (func)
     {
         return func;
@@ -289,7 +289,7 @@ MetaFunc* MetaContainer::searchFunction(MetaBoxBase* box, const string& name, li
         {
             if (anonyThis->varType == VAR_ANONY_THIS)
             {
-                func = searchClassFunction(anonyThis->type.clazz, name, params, onlyStatic);
+                func = searchClassFunction(anonyThis->type.clazz, name, params, filterType);
                 if (func)
                 {
                     *varRef = MetaVarRef::makeVarRef(this, nullptr, anonyThis);
@@ -302,20 +302,20 @@ MetaFunc* MetaContainer::searchFunction(MetaBoxBase* box, const string& name, li
     return nullptr;
 }
     
-MetaFunc* MetaContainer::searchClassFunction(MetaClass* clazz, const string& name, list<MetaData>& params, bool onlyStatic)
+MetaFunc* MetaContainer::searchClassFunction(MetaClass* clazz, const string& name, list<MetaData>& params, int filterType)
 {
     int matchValue;
-    return searchMatchClassFunction(clazz, name, params, matchValue, onlyStatic);
+    return searchMatchClassFunction(clazz, name, params, matchValue, filterType);
 }
     
-MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string& name, list<MetaData>& params, int& matchValue, bool onlyStatic)
+MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string& name, list<MetaData>& params, int& matchValue, int filterType)
 {
     //先查找类型一样的
     MetaFunc* match = nullptr;
     matchValue = 0xFFFF;
     for (auto& func : clazz->funcs)
     {
-        if (onlyStatic && func->isStatic == false)
+        if (filterMember(func->isStatic, filterType) == false)
         {
             continue;
         }
@@ -453,7 +453,7 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
     for (auto& parent : clazz->parents)
     {
         int value;
-        MetaFunc* func = searchMatchClassFunction(parent, name, params, value, onlyStatic);
+        MetaFunc* func = searchMatchClassFunction(parent, name, params, value, filterType);
         if (value < matchValue)
         {
             matchValue = value;
@@ -468,12 +468,12 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
     return match;
 }
     
-MetaVarRef* MetaContainer::searchVariable(MetaBoxBase* box, const string& name, bool onlyStatic)
+MetaVarRef* MetaContainer::searchVariable(MetaBoxBase* box, const string& name, int filterType)
 {
     //先找方法再找类
     while (box->isBlock() || box->isFunc())
     {
-        MetaVariable* var = box->getVariable(name, onlyStatic);
+        MetaVariable* var = box->getVariable(name, filterType);
         if (var)
         {
             return MetaVarRef::makeVarRef(this, nullptr, var);
@@ -483,7 +483,7 @@ MetaVarRef* MetaContainer::searchVariable(MetaBoxBase* box, const string& name, 
     if (box->isClass())
     {
         MetaClass* clazz = box->convertClass();
-        MetaVariable* var = clazz->getVariable(name, onlyStatic);
+        MetaVariable* var = clazz->getVariable(name, filterType);
         if (var)
         {
             return MetaVarRef::makeVarRef(this, nullptr, var);
@@ -496,7 +496,7 @@ MetaVarRef* MetaContainer::searchVariable(MetaBoxBase* box, const string& name, 
             {
                 if (anonyThis->varType == VAR_ANONY_THIS)
                 {
-                    MetaVariable* var = anonyThis->type.clazz->getVariable(name, false);
+                    MetaVariable* var = anonyThis->type.clazz->getVariable(name, MFT_ALL);
                     if (var)
                     {
                         return MetaVarRef::makeVarRef(this, MetaVarRef::makeVarRef(this, nullptr, anonyThis), var);
@@ -511,7 +511,7 @@ MetaVarRef* MetaContainer::searchVariable(MetaBoxBase* box, const string& name, 
             box = box->outer;
             while (box)
             {
-                MetaVariable* var = box->getVariable(name, false);
+                MetaVariable* var = box->getVariable(name, MFT_ALL);
                 if (var)
                 {
                     for (auto& anonyClass : anonyClasses)

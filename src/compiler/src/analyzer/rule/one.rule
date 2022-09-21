@@ -124,7 +124,8 @@ operator=bitandassign
 operator=bitxorassign
 operatordefheader=funcdefreturn OPERATOR operator funcdefparam
 operatordef=operatordefheader codeblock
-operatordef(virtual)=operatordefheader sentenceend
+operatordef(virtual)=VIRTUAL operatordefheader sentenceend
+operatordef(vnormal)=VIRTUAL operatordefheader codeblock
 
 #函数调用
 callfuncparam(null)=()
@@ -204,8 +205,6 @@ exp(callfunc)=callfunc
 exp(var)=var
 exp(lambda)=lambda
 
-exp(forcetype)=(type) exp						#强转类型
-
 exp(index)=exp[exp]								#数组访问
 exp(linc)=inc exp ;; exp(ldec)=dec exp
 exp(rinc)=exp inc ;; exp(rdec)=exp dec
@@ -239,6 +238,8 @@ and= &&
 or= ||
 arr= []
 dot3= ...
+
+exp(forcetype)=(type) exp						#强转类型
 
 exp(newobject)=newobject
 exp(newarray)=newarray

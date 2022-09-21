@@ -2,6 +2,7 @@
 #include "MetaBoxBase.h"
 #include "../../common/Result.h"
 #include "MetaType.h"
+#include "../common/Member.h"
 
 class MetaPackage;
 class MetaFunc;
@@ -42,11 +43,11 @@ public:
     bool            isTemplateClass();                          //纯模板类，不能实例化
     MetaClass*      createRealClass(const list<MetaType>& types);
 
-    MetaVariable* getVariable(const string& name, bool onlyStatic);
+    MetaVariable* getVariable(const string& name, int filterType);
     MetaVariable* getThisVariable();
     MetaVariable* getSuperVariable();
 
-    MetaFunc* getFunction(const string& name, bool onlyStatic);
+    MetaFunc* getFunction(const string& name, int filterType);
 
     Result verifyAndRepair();
 

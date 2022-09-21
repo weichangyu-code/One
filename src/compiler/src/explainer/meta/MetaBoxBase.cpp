@@ -143,7 +143,7 @@ MetaFunc* MetaBoxBase::getOuterFunc()
     return nullptr;
 }
     
-MetaVariable* MetaBoxBase::getVariable(const string& name, bool onlyStatic)
+MetaVariable* MetaBoxBase::getVariable(const string& name, int filterType)
 {
     return nullptr;
 }

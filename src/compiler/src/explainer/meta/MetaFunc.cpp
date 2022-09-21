@@ -50,7 +50,7 @@ MetaClass* MetaFunc::addAnonyClass(MetaBoxBase* box, SyntaxBase* syntaxObj)
     return clazz;
 }
 
-MetaVariable* MetaFunc::getVariable(const string& name, bool onlyStatic)
+MetaVariable* MetaFunc::getVariable(const string& name, int filterType)
 {
     for (auto& param : params)
     {

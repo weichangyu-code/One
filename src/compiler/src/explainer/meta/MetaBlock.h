@@ -7,7 +7,7 @@ class MetaBlock : public MetaBoxBase
 public:
     MetaBlock(MetaBoxBase* outer, MetaContainer* metaContainer, SyntaxBase* syntaxObj);
 
-    MetaVariable* getVariable(const string& name, bool onlyStatic);
+    MetaVariable* getVariable(const string& name, int filterType);
     MetaVariable* addVeriable(const string& name, SyntaxBase* syntaxObj);
 
 public:

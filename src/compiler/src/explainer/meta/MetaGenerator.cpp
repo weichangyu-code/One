@@ -699,8 +699,7 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
             if (iterClass)
             {
                 //只能访问静态变量
-                MetaVariable* var = iterClass->getVariable(item->typeName, iterVarRef ? false : true);
-                //MetaVariable* var = metaContainer->searchVariable(iterClass, item->typeName, iterVarRef ? false : true);
+                MetaVariable* var = iterClass->getVariable(item->typeName, iterVarRef ? MFT_ALL : MFT_ONLY_STATIC);
                 if (var == nullptr)
                 {
                     return R_FAILED;
@@ -715,8 +714,7 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
                 }
                 //对象
                 MetaClass* clazz = iterVarRef->getType().clazz;
-                MetaVariable* var = clazz->getVariable(item->typeName, false);
-                //MetaVariable* var = metaContainer->searchVariable(clazz, item->typeName, false);
+                MetaVariable* var = clazz->getVariable(item->typeName, MFT_ALL);
                 if (var == nullptr)
                 {
                     //找不到
@@ -731,7 +729,7 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
             else
             {
                 //代表当前对象
-                iterVarRef = metaContainer->searchVariable(block, item->typeName, inFunc->isStatic);
+                iterVarRef = metaContainer->searchVariable(block, item->typeName, inFunc->isStatic ? MFT_ONLY_STATIC : MFT_ALL);
                 if (iterVarRef == nullptr)
                 {
                     //找不到
@@ -745,7 +743,7 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
         else if (first)
         {
             //搜索变量名
-            iterVarRef = metaContainer->searchVariable(block, item->typeName, inFunc->isStatic);
+            iterVarRef = metaContainer->searchVariable(block, item->typeName, inFunc->isStatic ? MFT_ONLY_STATIC : MFT_ALL);
             if (iterVarRef)
             {
                 continue;
@@ -802,7 +800,7 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
             else if (iterClass)
             {
                 //搜索变量
-                MetaVariable* var = iterClass->getVariable(item->typeName, iterVarRef ? false : true);
+                MetaVariable* var = iterClass->getVariable(item->typeName, iterVarRef ? MFT_ALL : MFT_ONLY_STATIC);
                 if (var)
                 {
                     //只能访问静态成员变量
@@ -830,7 +828,7 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
                 }
                 //对象
                 MetaClass* clazz = iterVarRef->getType().clazz;
-                MetaVariable* var = clazz->getVariable(item->typeName, false);
+                MetaVariable* var = clazz->getVariable(item->typeName, MFT_ALL);
                 if (var)
                 {
                     iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, var);
@@ -1187,7 +1185,7 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
                 {
                     return R_FAILED;
                 }
-                instruct->func = metaContainer->searchClassFunction(instruct->retType.clazz, instruct->retType.clazz->name, instruct->params, false);
+                instruct->func = metaContainer->searchClassFunction(instruct->retType.clazz, instruct->retType.clazz->name, instruct->params, MFT_ONLY_NORMAL);
                 if (instruct->func == nullptr)
                 {
                     return R_FAILED;
@@ -1280,7 +1278,7 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
             if (iterClass)
             {
                 //只能调用静态函数
-                MetaFunc* func = metaContainer->searchClassFunction(iterClass, item->typeName, instruct->params, iterVarRef ? false : true);
+                MetaFunc* func = metaContainer->searchClassFunction(iterClass, item->typeName, instruct->params, iterVarRef ? MFT_ALL : MFT_ONLY_STATIC);
                 if (func == nullptr)
                 {
                     return R_FAILED;
@@ -1301,7 +1299,7 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                 }
                 //对象
                 MetaClass* clazz = iterVarRef->getType().clazz;
-                MetaFunc* func = metaContainer->searchClassFunction(clazz, item->typeName, instruct->params, false);
+                MetaFunc* func = metaContainer->searchClassFunction(clazz, item->typeName, instruct->params, MFT_ALL);
                 if (func == nullptr)
                 {
                     //找不到
@@ -1321,7 +1319,7 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
             else
             {
                 //代表当前对象
-                MetaFunc* func = metaContainer->searchFunction(block, item->typeName, instruct->params, inFunc->isStatic, &iterVarRef);
+                MetaFunc* func = metaContainer->searchFunction(block, item->typeName, instruct->params, inFunc->isStatic ? MFT_ONLY_STATIC : MFT_ALL, &iterVarRef);
                 if (func == nullptr)
                 {
                     //找不到
@@ -1366,7 +1364,7 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
         else if (first)
         {
             //搜索变量名
-            iterVarRef = metaContainer->searchVariable(block, item->typeName, inFunc->isStatic);
+            iterVarRef = metaContainer->searchVariable(block, item->typeName, inFunc->isStatic ? MFT_ONLY_STATIC : MFT_ALL);
             if (iterVarRef)
             {
                 continue;
@@ -1423,7 +1421,7 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
             else if (iterClass)
             {
                 //搜索变量
-                MetaVariable* var = iterClass->getVariable(item->typeName, iterVarRef ? false : true);
+                MetaVariable* var = iterClass->getVariable(item->typeName, iterVarRef ? MFT_ALL : MFT_ONLY_STATIC);
                 if (var)
                 {
                     //只能访问静态成员变量
@@ -1451,7 +1449,7 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                 }
                 //对象
                 MetaClass* clazz = iterVarRef->getType().clazz;
-                MetaVariable* var = clazz->getVariable(item->typeName, false);
+                MetaVariable* var = clazz->getVariable(item->typeName, MFT_ALL);
                 if (var)
                 {
                     iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, var);

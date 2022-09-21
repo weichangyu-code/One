@@ -28,7 +28,7 @@ public:
     MetaClass* getOuterClass();
     MetaFunc* getOuterFunc();
 
-    virtual MetaVariable* getVariable(const string& name, bool onlyStatic);
+    virtual MetaVariable* getVariable(const string& name, int filterType);
 
 public:
     enum

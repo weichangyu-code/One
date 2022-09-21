@@ -296,14 +296,16 @@ MetaVariable* MetaClass::getSuperVariable()
     return super_;
 }
 
-MetaVariable* MetaClass::getVariable(const string& name, bool onlyStatic)
+MetaVariable* MetaClass::getVariable(const string& name, int filterType)
 {
-    if (class_->name == name)
+    if (filterType & MFT_ONLY_STATIC)
     {
-        return class_;
+        if (class_->name == name)
+        {
+            return class_;
+        }
     }
-
-    if (onlyStatic == false)
+    if (filterType & MFT_ONLY_NORMAL)
     {
         if (this_->name == name)
         {
@@ -313,28 +315,19 @@ MetaVariable* MetaClass::getVariable(const string& name, bool onlyStatic)
         {
             return super_;
         }
-        for (auto& var : vars)
-        {
-            if (var->name == name)
-            {
-                return var;
-            }
-        }
     }
-    else
+
+    for (auto& var : vars)
     {
-        for (auto& var : vars)
+        if (var->name == name && filterMember(var->isStatic, filterType))
         {
-            if (var->name == name && var->isStatic)
-            {
-                return var;
-            }
+            return var;
         }
     }
 
     for (auto& parent : parents)
     {
-        MetaVariable* var = parent->getVariable(name, onlyStatic);
+        MetaVariable* var = parent->getVariable(name, filterType);
         if (var)
         {
             return var;
@@ -344,16 +337,12 @@ MetaVariable* MetaClass::getVariable(const string& name, bool onlyStatic)
     return nullptr;
 }
     
-MetaFunc* MetaClass::getFunction(const string& name, bool onlyStatic)
+MetaFunc* MetaClass::getFunction(const string& name, int filterType)
 {
     for (auto& func : funcs)
     {
-        if (func->name == name)
+        if (func->name == name && filterMember(func->isStatic, filterType))
         {
-            if (onlyStatic && func->isStatic == false)
-            {
-                continue;
-            }
             return func;
         }
     }

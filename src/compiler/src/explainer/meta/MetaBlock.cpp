@@ -2,6 +2,7 @@
 #include "MetaVariable.h"
 #include "MetaData.h"
 #include "MetaInstruct.h"
+#include "../common/Member.h"
 
 MetaBlock::MetaBlock(MetaBoxBase* outer, MetaContainer* metaContainer, SyntaxBase* syntaxObj)
     :MetaBoxBase(BOX_BLOCK, outer, metaContainer, syntaxObj)
@@ -9,11 +10,11 @@ MetaBlock::MetaBlock(MetaBoxBase* outer, MetaContainer* metaContainer, SyntaxBas
 
 }
 
-MetaVariable* MetaBlock::getVariable(const string& name, bool onlyStatic)
+MetaVariable* MetaBlock::getVariable(const string& name, int filterType)
 {
     for (auto& var : vars)
     {
-        if (var->name == name)
+        if (var->name == name && filterMember(var->isStatic, filterType))
         {
             return var;
         }
