@@ -13,10 +13,12 @@ class HttpServer
         }
         Out.println("listen {} success", 80);
 
-        String aaa = "";
+        String aaa = "++";
         String bbb := aaa;
         bool tmp = bbb !== null;
-        bool tmp1 = null >= sockListen;
+        bool tmp1 = bbb > "";
+        String tmp2 = bbb + "aaa" + "bbb" + 1;
+        Out.println(tmp2);
 
         while (1)
         {

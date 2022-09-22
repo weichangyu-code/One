@@ -1,6 +1,7 @@
 ﻿#include "OneString.h"
 #include "ObjectPool.h"
 #include "StringUtils.h"
+#include "OneArray.h"
 using namespace OneCommon;
 
 namespace One
@@ -69,23 +70,27 @@ namespace One
         const char* right = str == nullptr ? "" : str->_c;
         return strcmp(left, right);
     }
+        
+    Reference<String> String::combine(Array<String>* strs)
+    {
+        //计算长度
+        unsigned int len = length();
+        for (int i = 0;i < strs->length();i++)
+        {
+            len += strs->indexOf(i)->length();
+        }
 
-    // bool String::equal(Object* obj)
-    // {
-    //     if (this == obj)
-    //     {
-    //         return true;
-    //     }
-    //     if (obj == nullptr)
-    //     {
-    //         return false;
-    //     }
-    //     if (__class__ != obj->getClass())
-    //     {
-    //         return false;
-    //     }
-    //     String* str = (String*)obj;
-    //     return strcmp(_c, str->_c) == 0;
-    // }
+        //字符串叠加
+        Reference<String> strRef = createString(len);
+        char* buf = strRef->_c;
+        strcpy(buf, str());
+        buf += _length;
+        for (int i = 0;i < strs->length();i++)
+        {
+            strcpy(buf, strs->indexOf(i)->str());
+            buf += strs->indexOf(i)->length();
+        }
 
+        return strRef;
+    }
 }

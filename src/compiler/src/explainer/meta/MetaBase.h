@@ -9,6 +9,8 @@ public:
     MetaBase(MetaContainer* metaContainer, SyntaxBase* syntaxObj);
     virtual ~MetaBase();
 
+    void bind(SyntaxBase* syntaxObj);
+
 public:
     MetaContainer* metaContainer = nullptr;
     SyntaxBase* syntaxObj = nullptr;

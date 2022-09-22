@@ -952,10 +952,62 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             block->instructs.push_back(instruct);
         }
         break;
+    case ADD:
+        {
+            MetaType type1 = instruct->params.front().getType();
+            MetaType type2 = instruct->params.back().getType();
+            if (type1.isRealNumber() && type2.isRealNumber())
+            {
+                instruct->retType = MetaType::max(type1, type2);
+                block->instructs.push_back(instruct);
+            }
+            else
+            {
+                MetaData firstParam = instruct->params.front();
+                if (firstParam.type == MetaData::INSTRUCT 
+                    && firstParam.instructTmp->cmd == CALL_FIXED 
+                    && firstParam.instructTmp->func->name == KEY_COMBINE_FUNC
+                    && firstParam.instructTmp->func->params.size() == 1
+                    && firstParam.instructTmp->func->params.front()->isDynamic)
+                {
+                    list<MetaData> params;
+                    params.insert(params.end(), ++firstParam.instructTmp->params.begin(), firstParam.instructTmp->params.end());
+                    params.push_back(instruct->params.back());
+                    MetaFunc* func = metaContainer->searchClassFunction(type1.clazz, KEY_COMBINE_FUNC, params, MFT_ONLY_NORMAL);
+                    if (func == firstParam.instructTmp->func)
+                    {
+                        //+可以叠加
+                        firstParam.instructTmp->params.push_back(instruct->params.back());
+                        firstParam.instructTmp->bind(syntaxInstruct);
+                        break;
+                    }
+                }
+
+                if (type1.isClass())
+                {
+                    MetaFunc* func = metaContainer->searchClassFunction(type1.clazz, KEY_COMBINE_FUNC, {instruct->params.back()}, MFT_ONLY_NORMAL);
+                    if (func && func->params.front()->isDynamic)
+                    {
+                        //
+                        instruct->cmd = CALL_FIXED;
+                        instruct->func = func;
+                        //参数顺序一致，不用调整
+                    }
+                }
+
+                if (instruct->func == nullptr)
+                {
+                    return R_FAILED;
+                }
+
+                instruct->retType = instruct->func->returnType;
+                block->instructs.push_back(instruct);
+            }
+        }
+        break;
     case MUL:
     case DIV:
     case REC:
-    case ADD:
     case SUB:
         {
             MetaType type1 = instruct->params.front().getType();
@@ -1184,7 +1236,7 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
                     return R_FAILED;
                 }
                 
-                MetaInstruct* instructClone = new MetaInstruct(metaContainer, syntaxInstruct);
+                MetaInstruct* instructClone = new MetaInstruct(metaContainer, nullptr);
                 instructClone->cmd = CALL_FIXED;
                 instructClone->func = func;
                 instructClone->params.push_back(right);

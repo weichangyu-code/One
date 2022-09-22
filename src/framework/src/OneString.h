@@ -3,6 +3,7 @@
 
 namespace One
 {
+    template<class T> class Array;
     class String : public Object
     {
     public:
@@ -15,6 +16,7 @@ namespace One
         Reference<String> clone();
         bool equal(String* str);
         int  compare(String* str);
+        Reference<String> combine(Array<String>* strs);
         
     //内部接口
     public:

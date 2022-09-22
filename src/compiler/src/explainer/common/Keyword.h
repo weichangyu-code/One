@@ -29,5 +29,6 @@
 #define KEY_CLONE_FUNC              "clone"
 #define KEY_EQUAL_FUNC              "equal"
 #define KEY_COMPARE_FUNC            "compare"
+#define KEY_COMBINE_FUNC            "combine"
 
 #define KEY_TAB         "    "

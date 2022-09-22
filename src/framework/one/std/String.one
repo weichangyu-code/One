@@ -24,4 +24,12 @@ class String
 	{
 		return false;
 	}
+	int compare(String str)
+	{
+		return 0;
+	}
+	String combine(String... strs)
+	{
+		return "";
+	}
 }

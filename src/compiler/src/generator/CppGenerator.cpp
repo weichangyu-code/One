@@ -498,27 +498,27 @@ Result CppGenerator::generateNativeClass(const string& root, MetaClass* metaClas
         return R_FAILED;
     }
 
-    //
     set<string> includes;
     includes.insert(cppClass->cppNativeHPath);
     for (auto& parent : metaClass->parents)
     {
         includes.insert(CppClass::getCppClass(parent)->cppHPath);
     }
-    set<string> classNames;
-    for (auto& link : metaClass->linkClasses)
-    {
-        CppClass* cppLink = CppClass::getCppClass(link);
-        if (cppLink->cppNative)
-        {
-            //因为cppNative用typedef定义的，不能用class声明
-            includes.insert(cppLink->cppHPath);
-        }
-        else
-        {
-            classNames.insert(cppLink->cppName);
-        }
-    }
+    // 原生已经包含对应头文件，不需要重新包含
+    // set<string> classNames;
+    // for (auto& link : metaClass->linkClasses)
+    // {
+    //     CppClass* cppLink = CppClass::getCppClass(link);
+    //     if (cppLink->cppNative)
+    //     {
+    //         //因为cppNative用typedef定义的，不能用class声明
+    //         includes.insert(cppLink->cppHPath);
+    //     }
+    //     else
+    //     {
+    //         classNames.insert(cppLink->cppName);
+    //     }
+    // }
 
     //头文件包含
     h << "#pragma once" << endl;
@@ -533,10 +533,10 @@ Result CppGenerator::generateNativeClass(const string& root, MetaClass* metaClas
     h << "namespace One {" << endl << endl;
     
     //声明类
-    for (auto& name : classNames)
-    {
-        h << "class " << name << ";" << endl;
-    }
+    // for (auto& name : classNames)
+    // {
+    //     h << "class " << name << ";" << endl;
+    // }
 
     //类型转换
     if (metaClass->isTemplateClass())
@@ -752,27 +752,27 @@ Result CppGenerator::generateNativeInterface(const string& root, MetaClass* meta
         return R_FAILED;
     }
 
-    //
     set<string> includes;
     includes.insert(cppClass->cppNativeHPath);
     for (auto& parent : metaClass->parents)
     {
         includes.insert(CppClass::getCppClass(parent)->cppHPath);
     }
-    set<string> classNames;
-    for (auto& link : metaClass->linkClasses)
-    {
-        CppClass* cppLink = CppClass::getCppClass(link);
-        if (cppLink->cppNative)
-        {
-            //因为cppNative用typedef定义的，不能用class声明
-            includes.insert(cppLink->cppHPath);
-        }
-        else
-        {
-            classNames.insert(cppLink->cppName);
-        }
-    }
+    // 原生已经包含
+    // set<string> classNames;
+    // for (auto& link : metaClass->linkClasses)
+    // {
+    //     CppClass* cppLink = CppClass::getCppClass(link);
+    //     if (cppLink->cppNative)
+    //     {
+    //         //因为cppNative用typedef定义的，不能用class声明
+    //         includes.insert(cppLink->cppHPath);
+    //     }
+    //     else
+    //     {
+    //         classNames.insert(cppLink->cppName);
+    //     }
+    // }
 
     //头文件包含
     h << "#pragma once" << endl;
@@ -786,10 +786,10 @@ Result CppGenerator::generateNativeInterface(const string& root, MetaClass* meta
     h << "namespace One {" << endl << endl;
     
     //声明类
-    for (auto& name : classNames)
-    {
-        h << "class " << name << ";" << endl;
-    }
+    // for (auto& name : classNames)
+    // {
+    //     h << "class " << name << ";" << endl;
+    // }
 
     //类型转换
     if (metaClass->isTemplateClass())
