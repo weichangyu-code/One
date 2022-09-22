@@ -1149,12 +1149,6 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
             instruct->cppCode = "(" + generateData(instruct->params.front()) + " != " + generateData(instruct->params.back()) + ")";
         }
         break;
-    case EQ_DEEP:
-    case NEQ_DEEP:
-        {
-            //TODO
-        }
-        break;
     case BITAND:
         {
             instruct->cppCode = "(" + generateData(instruct->params.front()) + " & " + generateData(instruct->params.back()) + ")";
@@ -1173,7 +1167,6 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
     case AND:
         {
             instruct->cppCode = "(" + generateData(instruct->params.front()) + " && " + generateData(instruct->params.back()) + ")";
-            //instruct->cppCode = "(" + instruct->cppCode + ")";
         }
         break;
     case OR:
@@ -1191,15 +1184,8 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
         break;
     case ASSIGN:
         {
-            //instruct->cppCode = generateData(instruct->params.front()) + " = " + generateData(instruct->params.back());
             instruct->cppCode = generateData(instruct->params.front()) + " = " 
                 + generateTypeData(instruct->params.back(), instruct->params.front().getType(), false);
-
-        }
-        break;
-    case DEEP_ASSIGN:
-        {
-            //TODO:
         }
         break;
     case MUL_ASSIGN:
@@ -1861,11 +1847,51 @@ string CppGenerator::generateData(MetaData& data)
                 }
                 break;
             case DT_INT:
+                {
+                    if (const_->remark.empty() == false)
+                    {
+                        return const_->remark;
+                    }
+                    else
+                    {
+                        return StringUtils::itoa(const_->ivalue);
+                    }
+                }
+                break;
             case DT_LONG:
+                {
+                    if (const_->remark.empty() == false)
+                    {
+                        return const_->remark;
+                    }
+                    else
+                    {
+                        return StringUtils::ltoa(const_->lvalue);
+                    }
+                }
+                break;
             case DT_FLOAT:
+                {
+                    if (const_->remark.empty() == false)
+                    {
+                        return const_->remark;
+                    }
+                    else
+                    {
+                        return StringUtils::ftoa(const_->fvalue);
+                    }
+                }
+                break;
             case DT_DOUBLE:
                 {
-                    return const_->remark;
+                    if (const_->remark.empty() == false)
+                    {
+                        return const_->remark;
+                    }
+                    else
+                    {
+                        return StringUtils::dtoa(const_->dvalue);
+                    }
                 }
                 break;
             case DT_STRING:

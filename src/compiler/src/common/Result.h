@@ -27,6 +27,11 @@ public:
 	Result() = default;
 	Result(int err, const string& msg = "")
 	{
+		if (err != R_SUCCESS)
+		{
+			assert(false);
+		}
+
 		this->error = err;
 		this->errMsg = msg;
 	}
@@ -61,4 +66,6 @@ public:
 		return r; \
 	} \
 }
+
+
 

@@ -12,6 +12,9 @@ namespace One
         static Reference<String> valueOf(int v);
         
         virtual Reference<String> toString();
+        Reference<String> clone();
+        bool equal(String* str);
+        int  compare(String* str);
         
     //内部接口
     public:

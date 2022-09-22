@@ -23,7 +23,7 @@ void SyntaxVarDef::addVarDefAndAssginInstruct(ExplainContext* context)
     if (right.isNone() == false)
     {
         SyntaxInstruct* instructAssgin = new SyntaxInstruct(context);
-        instructAssgin->cmd = ASSIGN;
+        instructAssgin->cmd = deepAssign ? DEEP_ASSIGN : ASSIGN;
         instructAssgin->params.push_back(instructLeft);
         instructAssgin->params.push_back(right);
         exp->instructs.push_back(instructAssgin);
@@ -39,7 +39,7 @@ void SyntaxVarDef::addAssginInstruct(ExplainContext* context)
     }
     
     SyntaxInstruct* instructAssgin = new SyntaxInstruct(context);
-    instructAssgin->cmd = ASSIGN;
+    instructAssgin->cmd = deepAssign ? DEEP_ASSIGN : ASSIGN;
     instructAssgin->params.push_back(this);
     instructAssgin->params.push_back(exp->ret);
     exp->instructs.push_back(instructAssgin);

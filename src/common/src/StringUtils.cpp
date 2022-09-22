@@ -54,6 +54,20 @@ namespace OneCommon
 	#endif
 		return buf;
 	}
+		
+	string StringUtils::ftoa(float f)
+	{
+		char buf[32];
+		sprintf(buf, "%f", f);
+		return buf;
+	}
+		
+	string StringUtils::dtoa(double d)
+	{
+		char buf[32];
+		sprintf(buf, "%lf", d);
+		return buf;
+	}
 
 	int StringUtils::atoi(const string& str)
 	{

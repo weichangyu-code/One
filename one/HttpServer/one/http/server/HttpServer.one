@@ -13,9 +13,10 @@ class HttpServer
         }
         Out.println("listen {} success", 80);
 
-        String[] tmp1 = new String[2];
-        Object[] tmp2 = tmp1;
-        Socket[] tmp3 = (Socket[])tmp1[0];
+        String aaa = "";
+        String bbb := aaa;
+        bool tmp = bbb !== null;
+        bool tmp1 = null >= sockListen;
 
         while (1)
         {

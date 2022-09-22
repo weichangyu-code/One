@@ -64,7 +64,7 @@ public:
         return this->type == DT_NULL;
     }
 
-    MetaType getType();
+    MetaType getType() const;
 
 public:
     int type = DT_NONE;

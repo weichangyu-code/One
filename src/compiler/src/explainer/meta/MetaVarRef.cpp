@@ -15,7 +15,7 @@ MetaVarRef::MetaVarRef(MetaData obj, MetaContainer* metaContainer)
     this->type = obj.getType();
 }
 
-MetaType MetaVarRef::getType()
+MetaType MetaVarRef::getType() const
 {
     return type;
 }

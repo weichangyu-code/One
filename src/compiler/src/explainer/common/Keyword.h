@@ -26,5 +26,8 @@
 #define KEY_DESTROY_FUNC            "__destroy__"
 
 #define KEY_VALUEOF_FUNC            "valueOf"
+#define KEY_CLONE_FUNC              "clone"
+#define KEY_EQUAL_FUNC              "equal"
+#define KEY_COMPARE_FUNC            "compare"
 
 #define KEY_TAB         "    "

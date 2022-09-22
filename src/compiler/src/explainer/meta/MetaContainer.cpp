@@ -7,6 +7,7 @@
 #include "MetaFile.h"
 #include "MetaVariable.h"
 #include "MetaVarRef.h"
+#include "MetaConst.h"
 #include "MetaTemplateParam.h"
 #include "../common/Keyword.h"
 using namespace OneCommon;
@@ -150,6 +151,17 @@ MetaPackage* MetaContainer::getRootPackage()
 {
     return rootPackage;
 }
+    
+MetaConst* MetaContainer::getZeroConst()
+{
+    if (zeroConst == nullptr)
+    {
+        zeroConst = new MetaConst(this, nullptr);
+        zeroConst->setIntValue(0);
+        zeroConst->remark = "0";
+    }
+    return zeroConst;
+}
 
 MetaClass* MetaContainer::searchClass(MetaBoxBase* box, const string& name)
 {
@@ -273,7 +285,7 @@ MetaPackage* MetaContainer::searchPackage(MetaBoxBase* box, const string& name)
     return nullptr;
 }
     
-MetaFunc* MetaContainer::searchFunction(MetaBoxBase* box, const string& name, list<MetaData>& params, int filterType, MetaVarRef** varRef)
+MetaFunc* MetaContainer::searchFunction(MetaBoxBase* box, const string& name, const list<MetaData>& params, int filterType, MetaVarRef** varRef)
 {
     MetaClass* clazz = box->getOuterClass();
     MetaFunc* func = searchClassFunction(clazz, name, params, filterType);
@@ -302,13 +314,13 @@ MetaFunc* MetaContainer::searchFunction(MetaBoxBase* box, const string& name, li
     return nullptr;
 }
     
-MetaFunc* MetaContainer::searchClassFunction(MetaClass* clazz, const string& name, list<MetaData>& params, int filterType)
+MetaFunc* MetaContainer::searchClassFunction(MetaClass* clazz, const string& name, const list<MetaData>& params, int filterType)
 {
     int matchValue;
     return searchMatchClassFunction(clazz, name, params, matchValue, filterType);
 }
     
-MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string& name, list<MetaData>& params, int& matchValue, int filterType)
+MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string& name, const list<MetaData>& params, int& matchValue, int filterType)
 {
     //先查找类型一样的
     MetaFunc* match = nullptr;

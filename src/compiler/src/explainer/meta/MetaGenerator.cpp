@@ -989,12 +989,68 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
         {
             MetaType type1 = instruct->params.front().getType();
             MetaType type2 = instruct->params.back().getType();
-            if (type1.isRealNumber() == false || type2.isRealNumber() == false)
+            if (type1.isRealNumber() && type2.isRealNumber())
             {
-                return R_FAILED;
+                //实数可以比大小
+                instruct->retType.setBool();
+                block->instructs.push_back(instruct);
             }
-            instruct->retType.setBool();
-            block->instructs.push_back(instruct);
+            else
+            {
+                int oldCmd = instruct->cmd;
+                if (type1.isClass())
+                {
+                    MetaFunc* func = metaContainer->searchClassFunction(type1.clazz, KEY_COMPARE_FUNC, {instruct->params.back()}, MFT_ONLY_NORMAL);
+                    if (func && func->returnType.isInteger())
+                    {
+                        //
+                        instruct->cmd = CALL_FIXED;
+                        instruct->func = func;
+                        //参数顺序一致，不用调整
+                    }
+                }
+                if (instruct->func == nullptr && type2.isClass())
+                {
+                    MetaFunc* func = metaContainer->searchClassFunction(type2.clazz, KEY_COMPARE_FUNC, {instruct->params.front()}, MFT_ONLY_NORMAL);
+                    if (func && func->returnType.isInteger())
+                    {
+                        //顺序反了
+                        switch (oldCmd)
+                        {
+                        case GT:oldCmd = LT;break;
+                        case GTE:oldCmd = LTE;break;
+                        case LT:oldCmd = GT;break;
+                        case LTE:oldCmd = GTE;break;
+                        default:break;
+                        }
+
+                        //还是找不到，返回错误
+                        instruct->cmd = CALL_FIXED;
+                        instruct->func = func;
+
+                        //两个参数反一下
+                        MetaData tmp = instruct->params.front();
+                        instruct->params.pop_front();
+                        instruct->params.push_back(tmp);
+                    }
+                }
+
+                if (instruct->func == nullptr)
+                {
+                    return R_FAILED;
+                }
+
+                instruct->retType = instruct->func->returnType;
+                block->instructs.push_back(instruct);
+
+                //添加和0的比较
+                MetaInstruct* instructNew = new MetaInstruct(metaContainer, syntaxInstruct);
+                instructNew->cmd = oldCmd;
+                instructNew->params.push_back(instruct);
+                instructNew->params.push_back(metaContainer->getZeroConst());
+                instructNew->retType.setBool();
+                block->instructs.push_back(instructNew);
+            }
         }
         break;
     case EQ:
@@ -1008,7 +1064,7 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             {
                 return R_FAILED;
             }
-            instruct->retType = type1;
+            instruct->retType.setBool();
             block->instructs.push_back(instruct);
         }
         break;
@@ -1017,14 +1073,64 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
         {
             MetaType type1 = instruct->params.front().getType();
             MetaType type2 = instruct->params.back().getType();
-            if (((type1.isRealNumber() && type2.isRealNumber())
-                || (type1.isBool() && type2.isBool())
-                || ((type1.isClass() || type1.isNull()) && (type2.isClass() || type2.isNull()))) == false)
+
+            if ((type1.isRealNumber() && type2.isRealNumber()) 
+                || (type1.isBool() && type2.isBool()) 
+                || (type1.isNull() && type2.isNull()))
             {
-                return R_FAILED;
+                //不需要任何处理
+                instruct->cmd = (instruct->cmd == EQ_DEEP) ? EQ : NEQ;
+                instruct->retType.setBool();
+                block->instructs.push_back(instruct);
             }
-            instruct->retType = type1;
-            block->instructs.push_back(instruct);
+            else
+            {
+                int oldCmd = instruct->cmd;
+                if (type1.isClass())
+                {
+                    MetaFunc* func = metaContainer->searchClassFunction(type1.clazz, KEY_EQUAL_FUNC, {instruct->params.back()}, MFT_ONLY_NORMAL);
+                    if (func && func->returnType.isBool())
+                    {
+                        //
+                        instruct->cmd = CALL_FIXED;
+                        instruct->func = func;
+                        //参数顺序一致，不用调整
+                    }
+                }
+                if (instruct->func == nullptr && type2.isClass())
+                {
+                    MetaFunc* func = metaContainer->searchClassFunction(type2.clazz, KEY_EQUAL_FUNC, {instruct->params.front()}, MFT_ONLY_NORMAL);
+                    if (func && func->returnType.isBool())
+                    {
+                        //还是找不到，返回错误
+                        instruct->cmd = CALL_FIXED;
+                        instruct->func = func;
+
+                        //两个参数反一下
+                        MetaData tmp = instruct->params.front();
+                        instruct->params.pop_front();
+                        instruct->params.push_back(tmp);
+                    }
+                }
+
+                if (instruct->func == nullptr)
+                {
+                    return R_FAILED;
+                }
+
+                instruct->retType.setBool();
+                block->instructs.push_back(instruct);
+
+                if (oldCmd == NEQ_DEEP)
+                {
+                    //添加一个或指令
+                    MetaInstruct* instructNot = new MetaInstruct(metaContainer, syntaxInstruct);
+                    instructNot->cmd = NOT;
+                    instructNot->params.push_back(instruct);
+                    instructNot->retType.setBool();
+                    block->instructs.push_back(instructNot);
+                }
+            }
         }
         break;
     case BITAND:
@@ -1068,12 +1174,27 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             {
                 return R_FAILED;
             }
-            // if (((type1.isRealNumber() && type2.isRealNumber())
-            //     || (type1.isBool() && type2.isBool())
-            //     || (type1.isClass() && type2.isClass())) == false)
-            // {
-            //     return R_FAILED;
-            // }
+
+            if (instruct->cmd == DEEP_ASSIGN && rightType.isClass())
+            {
+                //添加一个clone调用的指令
+                MetaFunc* func = metaContainer->searchClassFunction(rightType.clazz, KEY_CLONE_FUNC, {}, MFT_ONLY_NORMAL);
+                if (func == nullptr || func->returnType != rightType)
+                {
+                    return R_FAILED;
+                }
+                
+                MetaInstruct* instructClone = new MetaInstruct(metaContainer, syntaxInstruct);
+                instructClone->cmd = CALL_FIXED;
+                instructClone->func = func;
+                instructClone->params.push_back(right);
+                instructClone->retType = rightType;
+                block->instructs.push_back(instructClone);
+
+                right.setData(instructClone);
+            }
+
+            instruct->cmd = ASSIGN;
             instruct->retType = leftType;
             block->instructs.push_back(instruct);
         }

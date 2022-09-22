@@ -9,7 +9,7 @@ public:
     MetaVarRef(MetaContainer* metaContainer);
     MetaVarRef(MetaData obj, MetaContainer* metaContainer);
 
-    MetaType getType();
+    MetaType getType() const;
 
     void addMember(MetaVariable* member);
     void addIndex(const MetaData& index);

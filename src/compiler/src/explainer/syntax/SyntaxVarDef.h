@@ -29,5 +29,6 @@ public:
 
     //包含赋值语句和定义语句
     //只包含赋值表达式
+    bool deepAssign = false;
     SyntaxExp* exp = nullptr;
 };

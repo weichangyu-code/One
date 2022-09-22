@@ -1,7 +1,7 @@
 ﻿#include "MetaConst.h"
 #include "MetaContainer.h"
 
-MetaType MetaConst::getType()
+MetaType MetaConst::getType() const
 {
     if (type == DT_STRING)
     {

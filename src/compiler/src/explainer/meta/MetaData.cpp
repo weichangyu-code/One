@@ -89,7 +89,7 @@ bool MetaData::isInstructTmp()
     return this->type == INSTRUCT;
 }
 
-MetaType MetaData::getType()
+MetaType MetaData::getType() const
 {
     if (this->type == CONST)
     {

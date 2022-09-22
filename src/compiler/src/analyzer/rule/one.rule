@@ -215,7 +215,7 @@ exp(add)=exp+exp ;; exp(sub)=exp-exp
 exp(rbitmov)=exp rbitmov exp ;; exp(rbitmov2)=exp rbitmov2 exp ;; exp(lbitmov)=exp lbitmov exp			#>>>高位补0
 exp(gt)=exp>exp ;; exp(gte)=exp gte exp ;; exp(lt)=exp<exp ;; exp(lte)=exp lte exp
 exp(eq)=exp eq exp ;; exp(neq)=exp neq exp
-exp(eqd)=exp eqd exp ;; exp(neq)=exp neqd exp
+exp(eqd)=exp eqd exp ;; exp(neqd)=exp neqd exp
 exp(bitand)=exp&exp
 exp(bitxor)=exp^exp
 exp(bitor)=exp|exp
@@ -301,10 +301,12 @@ orassign= ||=
 exp(assign)=assign
 
 #变量定义
-vardefitemautoassign=AUTO identifier=exp
+vardefitemautoassign=AUTO identifier = exp
+vardefitemautoassign=AUTO identifier deepassign exp
 vardefitemauto=AUTO identifier
 vardefitemnew=type identifier callfuncparam
-vardefitemassign=type identifier=exp
+vardefitemassign=type identifier = exp
+vardefitemassign=type identifier deepassign exp
 vardefitemarray=type identifier[exp]
 vardefitemtype=type identifier
 vardefitemdot=type... identifier

@@ -30,6 +30,7 @@ public:
         SyntaxVarDef* varDef = new SyntaxVarDef(context);
         varDef->name = es[1].remark;
         varDef->exp = exp;
+        varDef->deepAssign = es[2].remark != "=";
 
         out.ptr = varDef;
         return {};
@@ -74,6 +75,7 @@ public:
         varDef->name = es[1].remark;
         varDef->type = (SyntaxType*)es[0].ptr;
         varDef->exp = exp;
+        varDef->deepAssign = es[2].remark != "=";
 
         out.ptr = varDef;
         return {};

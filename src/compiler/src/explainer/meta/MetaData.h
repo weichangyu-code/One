@@ -28,7 +28,7 @@ public:
     bool isVariable();
     bool isInstructTmp();
 
-    MetaType getType();
+    MetaType getType() const;
 
     bool operator == (const MetaData& r);
 

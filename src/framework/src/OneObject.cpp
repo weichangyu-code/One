@@ -3,6 +3,8 @@
 #include "engine/Engine.h"
 #include "OneClass.h"
 #include "OneString.h"
+#include "PointerUtils.h"
+using namespace OneCommon;
 
 namespace One
 {
@@ -85,14 +87,14 @@ namespace One
     {
         return String::createString("");
     }
-    
-    // Reference<Object> Object::clone()
-    // {
-    //     return nullptr;
-    // }
-    
-    // bool Object::equal(Object* obj)
-    // {
-    //     return this == obj;
-    // }
+        
+    bool Object::equal(Object* obj)
+    {
+        return this == obj;
+    }
+        
+    int Object::compare(Object* obj)
+    {
+        return PointerUtils::compare(this, obj);
+    }
 } // namespace One

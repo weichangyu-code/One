@@ -53,11 +53,23 @@ namespace One
         return this;
     }
     
-    // Reference<Object> String::clone()
-    // {
-    //     return this;
-    // }
+    Reference<String> String::clone()
+    {
+        return this;
+    }
     
+    bool String::equal(String* str)
+    {
+        return compare(str) == 0;
+    }
+        
+    int String::compare(String* str)
+    {
+        const char* left = this == nullptr ? "" : _c;
+        const char* right = str == nullptr ? "" : str->_c;
+        return strcmp(left, right);
+    }
+
     // bool String::equal(Object* obj)
     // {
     //     if (this == obj)

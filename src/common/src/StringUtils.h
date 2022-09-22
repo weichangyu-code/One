@@ -11,6 +11,8 @@ namespace OneCommon
 		// 注意：只支持10进制转换
 		static string itoa(int v);
 		static string ltoa(long long v);
+		static string ftoa(float f);
+		static string dtoa(double d);
 		static int atoi(const char* str);
 		static int atoi(const string& str);
 

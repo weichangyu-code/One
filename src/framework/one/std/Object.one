@@ -19,12 +19,12 @@ class Object
     {
         return "";
     }
-    virtual Object clone()
+	bool equal(Object obj)
+	{
+		return false;
+	}
+    int  compare(Object obj)
     {
-        return null;
-    }
-    virtual bool equal(Object obj)
-    {
-        return false;
+        return 0;
     }
 }
