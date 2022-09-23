@@ -103,7 +103,7 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
     {
         return R_FAILED;
     }
-    MetaFunc* metaFunc = metaClass->getFunction("main", MFT_ONLY_NORMAL);
+    MetaFunc* metaFunc = metaClass->getFunction("main", MFT_ONLY_STATIC);
     if (metaFunc == nullptr)
     {
         return R_FAILED;
@@ -152,15 +152,13 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
     }
     cpp << endl;
 
-    
-    cpp << "        auto app = One::" << cppClass->getFactoryName() << "::" << KEY_CREATE_OBJECT_FUNC << "();" << endl;
     if (metaFunc->returnType.isInteger())
     {
-        cpp << "        ret = app->main();" << endl;
+        cpp << "        ret = One::" << cppClass->cppName << "::main();" << endl;
     }
     else
     {
-        cpp << "        app->main();" << endl;
+        cpp << "        One::" << cppClass->cppName << "::main();" << endl;
     }
     cpp << "    });" << endl;
     cpp << "    engine.run();" << endl;

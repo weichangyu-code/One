@@ -485,7 +485,7 @@ MetaVarRef* MetaContainer::searchVariable(MetaBoxBase* box, const string& name, 
     //先找方法再找类
     while (box->isBlock() || box->isFunc())
     {
-        MetaVariable* var = box->getVariable(name, filterType);
+        MetaVariable* var = box->getVariable(name, MFT_ALL);
         if (var)
         {
             return MetaVarRef::makeVarRef(this, nullptr, var);

@@ -1541,6 +1541,16 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                 }
             }
 
+            //是否有可变参数，需要把可变参数类型加到link里面
+            if (instruct->func->isDynamicParamFunc())
+            {
+                MetaType type = instruct->func->getDynamicParamType();
+                if (type.isClass())
+                {
+                    block->getOuterClass()->addLinkClass(type.clazz);
+                }
+            }
+
             instruct->retType = instruct->func->returnType;
             return {};
         }

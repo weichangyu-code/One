@@ -2,7 +2,7 @@
 
 class HttpServer
 {
-    void main()
+    static void main()
     {
         Socket sockListen();
         int ret = sockListen.listen("0.0.0.0", 8000);
@@ -12,10 +12,6 @@ class HttpServer
             return;
         }
         Out.println("listen {} success", 80);
-        Out.println(sockListen.this.getClass().toString());
-        Out.println(sockListen.super.class.toString());
-        Socket tmp = Reference<Socket>.toInner(sockListen);
-
         while (1)
         {
             Socket newClient();

@@ -2,7 +2,7 @@
 
 class HttpClient
 {
-    void main()
+    static void main()
     {
         Socket sock();
         int ret = sock.connect("127.0.0.1", 8000);
