@@ -1,6 +1,7 @@
 
 class Object
 {
+    //错误码管理
     static void setLastError(int err)
     {
 

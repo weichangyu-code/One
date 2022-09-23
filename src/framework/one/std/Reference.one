@@ -1,0 +1,12 @@
+
+class Reference<T>
+{
+    static T toOwner(T obj)
+    {
+        return null;
+    }
+    static T toInner(T obj)
+    {
+        return null;
+    }
+}

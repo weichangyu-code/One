@@ -15,8 +15,8 @@ namespace One
         }
 
     public:
-        void __acquireObj__(bool inner);
-        void __releaseObj__(bool inner);
+        void __acquireObj__(bool owner);
+        void __releaseObj__(bool owner);
         void __destroyObj__();
 
     protected:

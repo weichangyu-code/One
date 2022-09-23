@@ -20,6 +20,7 @@ class SyntaxConst;
 class SyntaxVar;
 class SyntaxInstruct;
 class SyntaxClass;
+class SyntaxTypePathItem;
 class MetaFile;
 class MetaClass;
 class MetaFunc;
@@ -66,6 +67,7 @@ protected:
 
     //
     Result generateRealClass(MetaBoxBase* box, MetaClass* clazz, const list<MetaType>& types, MetaClass** out);
+    Result generateRealClass(MetaBoxBase* box, MetaClass* clazz, SyntaxTypePathItem* item, MetaClass** out);
 
     //匿名类处理
     Result generateAnonyClass(MetaBoxBase* box, MetaInstruct* instruct, SyntaxClass* syntaxAnonyClass, MetaType* out);

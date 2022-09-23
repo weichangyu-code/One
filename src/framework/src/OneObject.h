@@ -21,8 +21,8 @@ namespace One
         virtual void __destruct__(){}    //假析构
 
     public:
-        void __acquire__(bool inner);
-        void __release__(bool inner);
+        void __acquire__(bool owner);
+        void __release__(bool owner);
         void __destroy__();              //强制析构
 
         //错误码

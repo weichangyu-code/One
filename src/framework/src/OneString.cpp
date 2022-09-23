@@ -34,7 +34,7 @@ namespace One
     {
         String* str = g_objectPool.createObjectT<String>(sizeof(String) + length);
         str->_length = length;
-        return Reference<String>(str, false, false);
+        return Reference<String>(str, true, false);
     }
     
     Reference<String> String::createString(const char* str)
@@ -53,7 +53,7 @@ namespace One
     {
         return this;
     }
-    
+
     Reference<String> String::clone()
     {
         return this;

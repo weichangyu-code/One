@@ -1,4 +1,5 @@
 #include "OneClass.h"
+#include "OneString.h"
 
 namespace One
 {
@@ -20,6 +21,11 @@ namespace One
             }
         }
         return false;
+    }
+        
+    Reference<String> Class::toString()
+    {
+        return String::createString(name.c_str());
     }
     
 } // namespace One

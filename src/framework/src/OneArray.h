@@ -49,7 +49,7 @@ namespace One
         {
             Array<T>* arr = g_objectPool.createObjectT<Array<T>>(sizeof(Array<T>) + length * sizeof(Array<T>::_data));
             arr->_length = length;
-            return Reference<Array<T>>(arr, false, false);
+            return Reference<Array<T>>(arr, true, false);
         }
 
         static Reference<Array<T>> createArray(std::initializer_list<typename TemplateType<T>::VarType> init)

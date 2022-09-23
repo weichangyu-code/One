@@ -27,6 +27,7 @@ public:
 	Result() = default;
 	Result(int err, const string& msg = "")
 	{
+		//测试
 		if (err != R_SUCCESS)
 		{
 			assert(false);

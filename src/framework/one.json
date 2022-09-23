@@ -31,6 +31,11 @@
             "cppClass":"String"
         },
         {
+            "oneClass":"one.std.Reference",
+            "hPath":"framework/OneReference.h",
+            "cppClass":"ReferenceT"
+        },
+        {
             "oneClass":"one.std.Array",
             "hPath":"framework/OneArray.h",
             "cppClass":"Array"

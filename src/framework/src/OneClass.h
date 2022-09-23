@@ -9,6 +9,7 @@ namespace One
     class Function;
     class Field;
     class Package;
+    class String;
     class Class : public Object
     {
     public:
@@ -17,6 +18,8 @@ namespace One
         }
 
         bool isBaseOf(Class* clazz);
+
+        virtual Reference<String> toString();
     
     public:
         int id = 0;

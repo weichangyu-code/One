@@ -753,6 +753,8 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
             MetaClass* clazz = metaContainer->searchClass(block, item->typeName);
             if (clazz)
             {
+                VR(generateRealClass(block, clazz, item, &clazz));
+
                 MetaClass* inClass = inFunc->getOuterClass();
                 if (inClass->isBaseOf(clazz))
                 {
@@ -782,6 +784,8 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
                 MetaClass* clazz = iterPackage->getClass(item->typeName);
                 if (clazz)
                 {
+                    VR(generateRealClass(block, clazz, item, &clazz));
+
                     iterClass = clazz;
                     iterPackage = nullptr;
                     continue;
@@ -813,6 +817,8 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
                 MetaClass* clazz = iterClass->getInnerClass(item->typeName);
                 if (clazz)
                 {
+                    VR(generateRealClass(block, clazz, item, &clazz));
+
                     iterVarRef = nullptr;
                     iterClass = clazz;
                     continue;
@@ -839,6 +845,8 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
                 MetaClass* innerClass = clazz->getInnerClass(item->typeName);
                 if (innerClass)
                 {
+                    VR(generateRealClass(block, clazz, item, &innerClass));
+
                     iterVarRef = nullptr;
                     iterClass = innerClass;
                     continue;
@@ -1549,6 +1557,8 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
             MetaClass* clazz = metaContainer->searchClass(block, item->typeName);
             if (clazz)
             {
+                VR(generateRealClass(block, clazz, item, &clazz));
+
                 MetaClass* inClass = inFunc->getOuterClass();
                 if (inClass->isBaseOf(clazz))
                 {
@@ -1578,6 +1588,8 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                 MetaClass* clazz = iterPackage->getClass(item->typeName);
                 if (clazz)
                 {
+                    VR(generateRealClass(block, clazz, item, &clazz));
+
                     iterClass = clazz;
                     iterPackage = nullptr;
                     continue;
@@ -1609,6 +1621,8 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                 MetaClass* clazz = iterClass->getInnerClass(item->typeName);
                 if (clazz)
                 {
+                    VR(generateRealClass(block, clazz, item, &clazz));
+
                     iterVarRef = nullptr;
                     iterClass = clazz;
                     continue;
@@ -1635,6 +1649,8 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                 MetaClass* innerClass = clazz->getInnerClass(item->typeName);
                 if (innerClass)
                 {
+                    VR(generateRealClass(block, clazz, item, &innerClass));
+
                     iterVarRef = nullptr;
                     iterClass = innerClass;
                     continue;
@@ -1968,6 +1984,28 @@ Result MetaGenerator::generateRealClass(MetaBoxBase* box, MetaClass* clazz, cons
     box->getOuterClass()->addLinkClass(realClass);
 
     *out = realClass;
+    return {};
+}
+    
+Result MetaGenerator::generateRealClass(MetaBoxBase* box, MetaClass* clazz, SyntaxTypePathItem* item, MetaClass** out)
+{
+    if (clazz->params.size() != item->templateTypes.size())
+    {
+        return R_FAILED;
+    }
+    if (clazz->params.empty())
+    {
+        *out = clazz;
+        return {};
+    }
+    list<MetaType> params;
+    for (auto& syntaxType : item->templateTypes)
+    {
+        MetaType type;
+        VR(generateMetaType(box, syntaxType, &type));
+        params.push_back(type);
+    }
+    VR(generateRealClass(box, clazz, params, out));
     return {};
 }
     

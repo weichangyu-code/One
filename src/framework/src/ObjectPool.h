@@ -35,7 +35,7 @@ namespace One
         template<typename T>
         Reference<T> createObjectR()
         {
-            return Reference<T>(createObjectT<T>(), false, false);
+            return Reference<T>(createObjectT<T>(), true, false);
         }
 
     protected:

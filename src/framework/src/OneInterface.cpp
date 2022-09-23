@@ -13,14 +13,14 @@ namespace One
         
     }
 
-    void Interface::__acquireObj__(bool inner)
+    void Interface::__acquireObj__(bool owner)
     {
-        __obj__->__acquire__(inner);
+        __obj__->__acquire__(owner);
     }
         
-    void Interface::__releaseObj__(bool inner)
+    void Interface::__releaseObj__(bool owner)
     {
-        __obj__->__release__(inner);
+        __obj__->__release__(owner);
     }
         
     void Interface::__destroyObj__()

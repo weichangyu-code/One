@@ -21,11 +21,11 @@ namespace One
                 this->ptr = ptr;
             }
         }
-        Pointer(T* ptr, bool inner)
+        Pointer(T* ptr, bool owner)
         {
             if (ptr)
             {
-                this->ptr = (char*)ptr + (inner ? 1 : 0);
+                this->ptr = (char*)ptr + (owner ? 0 : 1);
             }
         }
         Pointer(const Pointer<T>& r)
@@ -33,17 +33,11 @@ namespace One
             this->ptr = r.ptr;
         }
 
-        // template<typename TT>
-        // Pointer(const Pointer<TT>& r)
-        // {
-        //     set(r.getObject(), r.isInner());
-        // }
-
-        void set(T* ptr, bool inner)
+        void set(T* ptr, bool owner)
         {
             if (ptr)
             {
-                this->ptr = (char*)ptr + (inner ? 1 : 0);
+                this->ptr = (char*)ptr + (owner ? 0 : 1);
             }
             else
             {
@@ -63,9 +57,9 @@ namespace One
         {
             return (T*) ((intptr_t)ptr & (~0x3));
         }
-        bool isInner() const
+        bool isOwner() const
         {
-            return ((intptr_t)ptr & 0x1) == 1;
+            return ((intptr_t)ptr & 0x1) == 0;
         }
         bool isNull() const
         {
@@ -133,15 +127,6 @@ namespace One
 
         void acquire();
         void release();
-        
-        Pointer<T> toOwnerPointer()
-        {
-            return Pointer<T>(getObject(), false);
-        }
-        Pointer<T> toInnerPointer()
-        {
-            return Pointer<T>(getObject(), true);
-        }
 
     public:
         char* ptr = nullptr;

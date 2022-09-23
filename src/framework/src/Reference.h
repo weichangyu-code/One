@@ -22,15 +22,15 @@ namespace One
         }
         Reference(T* obj)
         {
-            pointer.set(obj, false);
+            pointer.set(obj, true);
             if (obj)
             {
                 pointer.acquire();
             }
         }
-        Reference(T* obj, bool inner, bool acquire)
+        Reference(T* obj, bool owner, bool acquire)
         {
-            pointer.set(obj, inner);
+            pointer.set(obj, owner);
             if (obj && acquire)
             {
                 pointer.acquire();
@@ -66,55 +66,44 @@ namespace One
             r.pointer.clear();
         }
 
-        //支持不同类型的转换，需要手动转换
-        // template<typename TT>
-        // Reference(const Reference<TT>& r)
-        // {
-        //     pointer.set(r.pointer.getObject(), r.pointer.isInner());
-        //     if (pointer)
-        //     {
-        //         pointer.acquire();
-        //     }
-        // }
-        // template<typename TT>
-        // Reference(Reference<TT>&& r)
-        // {
-        //     pointer.set(r.pointer.getObject(), r.pointer.isInner());
-        //     r.pointer.clear();
-        // }
-
-        void set(T* obj, bool inner, bool acquire)
+        void set(T* obj, bool owner, bool acquire)
         {
-            clear();
-            pointer.set(obj, inner);
+            //要先加索引再减，避免自己赋值给自己，把自己销毁了
+            Pointer<T> pointer(obj, owner);
             if (obj && acquire)
             {
                 pointer.acquire();
             }
+            clear();
+            this->pointer = pointer;
         }
         void set(const Pointer<T>& r, bool acquire)
         {
-            clear();
-            pointer = r;
+            //先拷贝出来，避免被clear
+            Pointer<T> pointer = r;
             if (pointer && acquire)
             {
                 pointer.acquire();
             }
+            clear();
+            this->pointer = pointer;
         }
         void set(const Reference<T>& r)
         {
-            clear();
-            pointer = r.pointer;
+            Pointer<T> pointer = r.pointer;
             if (pointer)
             {
                 pointer.acquire();
             }
+            clear();
+            this->pointer = pointer;
         }
         void set(Reference<T>&& r)
         {
-            clear();
-            pointer = r.pointer;
+            Pointer<T> pointer = r.pointer;
             r.pointer.clear();
+            clear();
+            this->pointer = pointer;
         }
         void clear()
         {
@@ -139,9 +128,9 @@ namespace One
         {
             return pointer;
         }
-        bool isInner() const
+        bool isOwner() const
         {
-            return pointer.isInner();
+            return pointer.isOwner();
         }
         bool isNull() const
         {
@@ -217,15 +206,6 @@ namespace One
         T& operator*()
         {
             return *getObject();
-        }
-
-        Reference<T> toOwnerReference()
-        {
-            return Reference<T>(pointer->toOwnerPointer(), true);
-        }
-        Reference<T> toInnerReference()
-        {
-            return Reference<T>(pointer->toInnerPointer(), true);
         }
 
     public:

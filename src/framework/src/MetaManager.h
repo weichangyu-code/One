@@ -39,12 +39,12 @@ namespace One
         template<class T>
         Reference<T> convertObjectType(const Reference<Object>& obj)
         {
-            return Reference<T>((T*)convertType(obj.getObject(), ClassP<T>::getClass()), obj.isInner(), true);
+            return Reference<T>((T*)convertType(obj.getObject(), ClassP<T>::getClass()), obj.isOwner(), true);
         }
         template<class T>
         Reference<T> convertInterfaceType(const Reference<Interface>& interface)
         {
-            return Reference<T>((T*)convertType(interface.getObject()->getObject(), ClassP<T>::getClass()), interface.isInner(), true);
+            return Reference<T>((T*)convertType(interface.getObject()->getObject(), ClassP<T>::getClass()), interface.isOwner(), true);
         }
 
     protected:

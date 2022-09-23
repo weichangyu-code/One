@@ -8,13 +8,13 @@ namespace One
         if (std::is_base_of<Object, T>::value)
         {
             Object* obj = (Object*)(void*)getObject();
-            obj->__acquire__(isInner());
+            obj->__acquire__(isOwner());
         }
         else
         {
             //规避多重继承的歧义问题
             Interface* i = (Interface*)(void*)getObject();
-            i->__acquireObj__(isInner());
+            i->__acquireObj__(isOwner());
         }
     }
     
@@ -24,13 +24,13 @@ namespace One
         if (std::is_base_of<Object, T>::value)
         {
             Object* obj = (Object*)(void*)getObject();
-            obj->__release__(isInner());
+            obj->__release__(isOwner());
         }
         else
         {
             //规避多重继承的歧义问题
             Interface* i = (Interface*)(void*)getObject();
-            i->__releaseObj__(isInner());
+            i->__releaseObj__(isOwner());
         }
     }
 
@@ -51,7 +51,7 @@ namespace One
             }
             else
             {
-                return Pointer<T2>(r.getObject(), r.isInner());
+                return Pointer<T2>(r.getObject(), r.isOwner());
             }
         }
     }

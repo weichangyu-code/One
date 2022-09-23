@@ -24,7 +24,7 @@ namespace One
         {
             string = String::createString(_stringArray[index]).detach();
         }
-        return Reference<String>(string, false, true);
+        return Reference<String>(string, true, true);
     }
 
 } // namespace One

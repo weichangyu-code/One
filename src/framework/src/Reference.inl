@@ -17,7 +17,7 @@ namespace One
         }
         else
         {
-            return Reference<T2>(r.getObject(), r.isInner(), true);
+            return Reference<T2>(r.getObject(), r.isOwner(), true);
         }
     }
 

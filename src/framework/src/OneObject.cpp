@@ -8,44 +8,44 @@ using namespace OneCommon;
 
 namespace One
 {
-    void Object::__acquire__(bool inner)
+    void Object::__acquire__(bool owner)
     {
         if (this == nullptr)
         {
             return;
         }
 
-        if (inner)
-        {
-            __innerRefNum__++;
-        }
-        else
+        if (owner)
         {
             __refNum__++;
         }
+        else
+        {
+            __innerRefNum__++;
+        }
     }
 
-    void Object::__release__(bool inner)
+    void Object::__release__(bool owner)
     {
         if (this == nullptr)
         {
             return;
         }
 
-        if (inner)
-        {
-            if (--__innerRefNum__ == 0)
-            {
-                g_objectPool.freeObject(this);
-            }
-        }
-        else
+        if (owner)
         {
             if (--__refNum__ == 0)
             {
                 // 外部引用已结束，假析构
                 __destroy__();
                 __release__(true);
+            }
+        }
+        else
+        {
+            if (--__innerRefNum__ == 0)
+            {
+                g_objectPool.freeObject(this);
             }
         }
     }
@@ -76,7 +76,7 @@ namespace One
         
     Reference<Class> Object::getClass()
     {
-        return Reference<Class>(__class__, false, true);
+        return Reference<Class>(__class__, true, true);
     }
     void Object::initClass(Class* clazz)
     {

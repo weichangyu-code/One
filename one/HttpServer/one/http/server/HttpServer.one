@@ -12,13 +12,9 @@ class HttpServer
             return;
         }
         Out.println("listen {} success", 80);
-
-        String aaa = "++";
-        String bbb := aaa;
-        bool tmp = bbb !== null;
-        bool tmp1 = bbb > "";
-        String tmp2 = bbb + "aaa" + "bbb" + 1;
-        Out.println(tmp2);
+        Out.println(sockListen.this.getClass().toString());
+        Out.println(sockListen.super.class.toString());
+        Socket tmp = Reference<Socket>.toInner(sockListen);
 
         while (1)
         {

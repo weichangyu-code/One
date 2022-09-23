@@ -504,21 +504,27 @@ Result CppGenerator::generateNativeClass(const string& root, MetaClass* metaClas
     {
         includes.insert(CppClass::getCppClass(parent)->cppHPath);
     }
-    // 原生已经包含对应头文件，不需要重新包含
-    // set<string> classNames;
-    // for (auto& link : metaClass->linkClasses)
-    // {
-    //     CppClass* cppLink = CppClass::getCppClass(link);
-    //     if (cppLink->cppNative)
-    //     {
-    //         //因为cppNative用typedef定义的，不能用class声明
-    //         includes.insert(cppLink->cppHPath);
-    //     }
-    //     else
-    //     {
-    //         classNames.insert(cppLink->cppName);
-    //     }
-    // }
+    set<string> classNames;
+    for (auto& link : metaClass->linkClasses)
+    {
+        CppClass* cppLink = CppClass::getCppClass(link);
+        if (cppLink->cppNative)
+        {
+            //因为cppNative用typedef定义的，不能用class声明
+            if (cppClass->cppNative && metaClass->templateClass == nullptr)
+            {
+                //不需要包含，本身是原生非模板类，该包含的在原生文件里已经包含了
+            }
+            else
+            {
+                includes.insert(cppLink->cppHPath);
+            }
+        }
+        else
+        {
+            classNames.insert(cppLink->cppName);
+        }
+    }
 
     //头文件包含
     h << "#pragma once" << endl;
@@ -533,10 +539,10 @@ Result CppGenerator::generateNativeClass(const string& root, MetaClass* metaClas
     h << "namespace One {" << endl << endl;
     
     //声明类
-    // for (auto& name : classNames)
-    // {
-    //     h << "class " << name << ";" << endl;
-    // }
+    for (auto& name : classNames)
+    {
+        h << "class " << name << ";" << endl;
+    }
 
     //类型转换
     if (metaClass->isTemplateClass())
@@ -616,7 +622,7 @@ Result CppGenerator::generateFactoryClass(ofstream& f, MetaClass* metaClass)
             }
             f << ");" << endl;
         }
-        f << KEY_TAB << KEY_TAB << "return Reference<" << cppClass->cppName << ">(__var__, false, false);" << endl;
+        f << KEY_TAB << KEY_TAB << "return Reference<" << cppClass->cppName << ">(__var__, true, false);" << endl;
 
         f << KEY_TAB << "}" << endl << endl;
     }
@@ -758,21 +764,27 @@ Result CppGenerator::generateNativeInterface(const string& root, MetaClass* meta
     {
         includes.insert(CppClass::getCppClass(parent)->cppHPath);
     }
-    // 原生已经包含
-    // set<string> classNames;
-    // for (auto& link : metaClass->linkClasses)
-    // {
-    //     CppClass* cppLink = CppClass::getCppClass(link);
-    //     if (cppLink->cppNative)
-    //     {
-    //         //因为cppNative用typedef定义的，不能用class声明
-    //         includes.insert(cppLink->cppHPath);
-    //     }
-    //     else
-    //     {
-    //         classNames.insert(cppLink->cppName);
-    //     }
-    // }
+    set<string> classNames;
+    for (auto& link : metaClass->linkClasses)
+    {
+        CppClass* cppLink = CppClass::getCppClass(link);
+        if (cppLink->cppNative)
+        {
+            //因为cppNative用typedef定义的，不能用class声明
+            if (cppClass->cppNative && metaClass->templateClass == nullptr)
+            {
+                //不需要包含，本身是原生非模板类，该包含的在原生文件里已经包含了
+            }
+            else
+            {
+                includes.insert(cppLink->cppHPath);
+            }
+        }
+        else
+        {
+            classNames.insert(cppLink->cppName);
+        }
+    }
 
     //头文件包含
     h << "#pragma once" << endl;
@@ -786,10 +798,10 @@ Result CppGenerator::generateNativeInterface(const string& root, MetaClass* meta
     h << "namespace One {" << endl << endl;
     
     //声明类
-    // for (auto& name : classNames)
-    // {
-    //     h << "class " << name << ";" << endl;
-    // }
+    for (auto& name : classNames)
+    {
+        h << "class " << name << ";" << endl;
+    }
 
     //类型转换
     if (metaClass->isTemplateClass())
@@ -1790,7 +1802,7 @@ string CppGenerator::generateVarDefType(const MetaType& type)
         return "Reference<" + CppClass::getCppClass(type.clazz)->cppName + ">";
     }
 }
-    
+
 string CppGenerator::generateFuncParamType(const MetaType& type)
 {
     if (type.isBaseType())
@@ -1920,16 +1932,18 @@ string CppGenerator::generateData(MetaData& data)
                 {
                     if (index.var->varType == VAR_THIS)
                     {
-                        //转换成内部引用指针
-                        cppData = "Pointer<" + generateType(index.var->type) + ">(" + cppData + ", true)";
+                        //指的是自己，不需要任何变化
+                        //cppData = "Pointer<" + generateType(index.var->type) + ">(" + cppData + ", true)";
                     }
                     else if (index.var->varType == VAR_SUPER)
                     {
-                        cppData = "Pointer<" + generateType(index.var->type) + ">(" + cppData + ", true)";
+                        //转换成父类型
+                        //cppData = "Pointer<" + generateType(index.var->type) + ">(" + cppData + ", true)";
+                        cppData = "convertPointerForce<" + generateType(type) + ", " + generateType(index.var->type) + ">(" + cppData + ")";
                     }
                     else if (index.var->varType == VAR_CLASS)
                     {
-                        cppData = "Pointer<Class>(ClassP<" + index.var->box->convertClass()->name + ">::getClass(), false)";
+                        cppData = "Pointer<Class>(ClassP<" + index.var->box->convertClass()->name + ">::getClass(), true)";
                     }
                     else
                     {
@@ -1976,7 +1990,7 @@ string CppGenerator::generateData(MetaData& data)
             }
             else if (var->varType == VAR_CLASS)
             {
-                return "Pointer<Class>(ClassP<" + var->box->convertClass()->name + ">::getClass(), false)";
+                return "Pointer<Class>(ClassP<" + var->box->convertClass()->name + ">::getClass(), true)";
             }
             else if (var->varType == VAR_MEMBER || var->varType == VAR_ANONY_THIS)
             {

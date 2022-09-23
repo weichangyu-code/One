@@ -27,11 +27,15 @@ MetaClass::MetaClass(const string& name, MetaBoxBase* outer, MetaContainer* meta
     this->this_ = createVeriable(syntaxClass->this_->name, syntaxClass->this_);
     this->this_->varType = VAR_THIS;
     this->this_->type.setClass(this);
-    this->super_ = createVeriable(syntaxClass->super_->name, syntaxClass->super_);
-    this->super_->varType = VAR_SUPER;
     this->class_ = createVeriable(syntaxClass->class_->name, syntaxClass->class_);
     this->class_->varType = VAR_CLASS;
     this->class_->isStatic = true;
+    if (this->isInterface == false)
+    {
+        //接口没有super_
+        this->super_ = createVeriable(syntaxClass->super_->name, syntaxClass->super_);
+        this->super_->varType = VAR_SUPER;
+    }
 
     this->varInitFunc = createFunction(syntaxClass->varInitFunc->name, syntaxClass->varInitFunc);
     this->staticVarInitFunc = createFunction(syntaxClass->staticVarInitFunc->name, syntaxClass->staticVarInitFunc);
@@ -81,7 +85,14 @@ bool MetaClass::isBaseOf(MetaClass* parent)
 MetaClass* MetaClass::getParentClass()
 {
     //Object的父类为NULL
-    return super_->type.clazz;
+    if (super_ == nullptr)
+    {
+        return nullptr;
+    }
+    else
+    {
+        return super_->type.clazz;
+    }
 }
     
 MetaClass* MetaClass::getParentClass(const string& name)
@@ -311,7 +322,7 @@ MetaVariable* MetaClass::getVariable(const string& name, int filterType)
         {
             return this_;
         }
-        if (super_->name == name)
+        if (super_ && super_->name == name)
         {
             return super_;
         }
@@ -408,6 +419,11 @@ Result MetaClass::verifyAndRepair()
         {
             //第一个是父类
             super_->type.setClass(parents.front());
+        }
+        else
+        {
+            //
+            super_->type.setClass(metaContainer->getObjectClass());
         }
 
         // 看有没有构造函数和析构函数，不然补充一个空的
