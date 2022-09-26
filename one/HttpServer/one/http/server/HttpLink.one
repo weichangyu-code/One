@@ -3,6 +3,8 @@ class HttpLink
 {
     HttpLink(Socket sock)
     {
+        Out.println("new link");
+
         _sock = sock;
 
         System.co(() {
@@ -22,6 +24,11 @@ class HttpLink
                 sendResponse("hello one");
             }
         });
+    }
+
+    ~HttpLink()
+    {
+        Out.println("delete link");
     }
 
     void sendResponse(String str)

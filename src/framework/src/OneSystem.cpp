@@ -10,10 +10,10 @@ namespace One
         {
             return;
         }
-        runner->__acquireObj__(false);       
+        runner->__acquireObj__(true);       
         CoSystem::createCoroutine([runner](Coroutine* co) {
             runner->run();
-            runner->__releaseObj__(false);
+            runner->__releaseObj__(true);
         });
     }
     
