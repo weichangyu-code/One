@@ -21,7 +21,7 @@ public:
 		registe("exp", "boolean", (MyRuleExecuteFunction)&ExplainExp::onExeExpBoolean);
 		registe("exp", "null", (MyRuleExecuteFunction)&ExplainExp::onExeExpNull);
 
-		registe("exp", "multishortsentence", (MyRuleExecuteFunction)&ExplainExp::onExeExpMultiShortSentence);
+		registe("exp", "multiexp", (MyRuleExecuteFunction)&ExplainExp::onExeExpMultiExp);
 		registe("exp", "exp", (MyRuleExecuteFunction)&ExplainExp::onExeExpExp);
 
 		registe("exp", "callfunc", (MyRuleExecuteFunction)&ExplainExp::onExeExpCallFunc);
@@ -117,10 +117,11 @@ public:
 		return {};
 	}
 
-	Result onExeExpMultiShortSentence(Rule* rule, vector<LexElement>& es, LexElement& out)
+	Result onExeExpMultiExp(Rule* rule, vector<LexElement>& es, LexElement& out)
 	{
-		SyntaxExp* exp = (SyntaxExp*)es[1].ptr;
-        out.ptr = exp;
+		SyntaxMulti<SyntaxExp*>* multiExp = (SyntaxMulti<SyntaxExp*>*)es[1].ptr;
+
+		out.ptr = SyntaxExp::combine(multiExp, true, context);
 		return {};
 	}
 

@@ -15,6 +15,7 @@ namespace OneCommon
 		static string dtoa(double d);
 		static int atoi(const char* str);
 		static int atoi(const string& str);
+		static void itoa(int v, char* buf);
 
 		static string replace(const string& str, const char* oldStr, const char* newStr);
 		static list<string> getLines(const string& str, bool ignoreBlank = true);

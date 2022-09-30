@@ -199,10 +199,10 @@ namespace One
         {
             return getObject();
         }
-        operator bool()
-        {
-            return isNull() == false;
-        }
+        // operator bool()
+        // {
+        //     return isNull() == false;
+        // }
         T& operator*()
         {
             return *getObject();

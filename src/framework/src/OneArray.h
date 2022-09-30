@@ -88,12 +88,12 @@ namespace One
             return _data < (_arrRef->_data + _arrRef->_length);
         }
 
-        virtual typename TemplateType<T>::VarType& next()
+        virtual typename TemplateType<T>::VarType next()
         {
             return *(_data++);
         }
 
-    public:
+    protected:
         Reference<Array<T>> _arrRef;
         typename TemplateType<T>::VarType* _data = nullptr;
     };

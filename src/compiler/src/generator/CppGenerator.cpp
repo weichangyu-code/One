@@ -1286,7 +1286,7 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
             for (auto& param : instruct->params)
             {
                 string paramString = generateData(param);
-                if (&param == &instruct->params.front())
+                if (&param != &instruct->params.front())
                 {
                     stream << ", ";
                 }
@@ -1570,9 +1570,9 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
 
             ostringstream ss;
             ss << space << "auto __iter__ = " << param0 << "->iterator();" << endl;
-            ss << space << "bool hasNext = __iter__->hasNext();" << endl;
-            ss << space << "if (hasNext)" << endl;
-            ss << space << "for (auto " << var->name << "=__iter__->next();hasNext;hasNext=__iter__->hasNext(),hasNext?(" << var->name << "=__iter__->next(),true):false)" << endl;
+            ss << space << "bool __hasNext__ = __iter__->hasNext();" << endl;
+            ss << space << "if (__hasNext__)" << endl;
+            ss << space << "for (auto " << var->name << "=__iter__->next();__hasNext__;__hasNext__=__iter__->hasNext(),__hasNext__?(" << var->name << "=__iter__->next(),true):false)" << endl;
             instruct->cppCode = ss.str();
         }
         break;

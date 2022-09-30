@@ -36,12 +36,17 @@ namespace OneCommon
 	string StringUtils::itoa(int v)
 	{
 		char buf[16];
+		itoa(v, buf);
+		return buf;
+	}
+		
+	void StringUtils::itoa(int v, char* buf)
+	{
 	#ifdef _WIN32
 		::itoa(v, buf, 10);
 	#else
 		sprintf(buf, "%d", v);
 	#endif
-		return buf;
 	}
 
 	string StringUtils::ltoa(long long v)

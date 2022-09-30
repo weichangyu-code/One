@@ -40,33 +40,47 @@ public:
     
     Result onExplainMultiShortSentence(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
-        return {};
+		SyntaxExp* exp = (SyntaxExp*)es[0].ptr;
+
+		SyntaxMulti<SyntaxExp*>* multiExp = new SyntaxMulti<SyntaxExp*>(context);
+		multiExp->items.push_back(exp);
+
+		out.ptr = multiExp;
+		return {};
     }
 
     Result onExplainMultiShortSentenceAdd(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
-        SyntaxExp* exp = (SyntaxExp*)es[0].ptr;
-        SyntaxExp* exp2 = (SyntaxExp*)es[2].ptr;
+        // SyntaxExp* exp = (SyntaxExp*)es[0].ptr;
+        // SyntaxExp* exp2 = (SyntaxExp*)es[2].ptr;
 
-        SyntaxInstruct* instruct = exp->instructs.back();
-        if (instruct->cmd != COMMA)
-        {
-            instruct = new SyntaxInstruct(context);
-            instruct->cmd = COMMA;
-        }
-        else
-        {
-            exp->instructs.pop_back();
-        }
+        // SyntaxInstruct* instruct = exp->instructs.back();
+        // if (instruct->cmd != COMMA)
+        // {
+        //     instruct = new SyntaxInstruct(context);
+        //     instruct->cmd = COMMA;
+        // }
+        // else
+        // {
+        //     exp->instructs.pop_back();
+        // }
 
-        instruct->params.push_back(exp2->ret);
-        exp->append(exp2);
+        // instruct->params.push_back(exp2->ret);
+        // exp->append(exp2);
 
-        exp->instructs.push_back(instruct);
-        exp->ret.setInstruct(instruct);
+        // exp->instructs.push_back(instruct);
+        // exp->ret.setInstruct(instruct);
 
-        out.ptr = exp;
-        return {};
+        // out.ptr = exp;
+        // return {};
+        
+		SyntaxMulti<SyntaxExp*>* multiExp = (SyntaxMulti<SyntaxExp*>*)es[0].ptr;
+		SyntaxExp* exp = (SyntaxExp*)es[2].ptr;
+
+		multiExp->items.push_back(exp);
+
+		out.ptr = multiExp;
+		return {};
     }
 
     Result onExplainSentenceReturn(Rule* rule, vector<LexElement>& es, LexElement& out)
@@ -104,10 +118,10 @@ public:
 
     Result onExplainSentenceShort(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
-        SyntaxExp* exp = (SyntaxExp*)es[0].ptr;
-
+        SyntaxMulti<SyntaxExp*>* multiExp = (SyntaxMulti<SyntaxExp*>*)es[0].ptr;
+        
         SyntaxSentence* sentence = new SyntaxSentence(context);
-        sentence->exp = exp;
+        sentence->exp = SyntaxExp::combine(multiExp, false, context);
 
         out.ptr = sentence;
         return {};

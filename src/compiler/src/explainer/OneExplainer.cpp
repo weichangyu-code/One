@@ -62,6 +62,7 @@ Result OneExplainer::explainSyntaxFolder(const string& folder, MetaPackage* pack
             {
                 continue;
             }
+            printf("explain %s\n", sub.c_str());
             string code = FileUtils::readFile(path);
             if (code.empty())
             {

@@ -18,6 +18,8 @@ public:
 protected:
 	Result executeElement();
 
+	Result rollback();
+	Result finishRule(Rule* rule);
 	Result executeRule(Rule* rule, vector<LexElement>& es, LexElement& out);
 	Result executeDelayRule(Rule* rule, vector<RuleMapLink*>& links, vector<LexElement>& es);
 

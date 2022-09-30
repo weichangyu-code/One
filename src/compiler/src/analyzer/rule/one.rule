@@ -165,8 +165,6 @@ ifblock(else)=ifblockstart else
 ifblock=ifblockstart
 
 #for语句
-forstart(range)=FOR (vardeffor : [exp, exp])
-forstart(each)=FOR (vardeffor : exp)					#自动循环
 #forstart=FOR (multishortsentence ; multishortsentence ; multishortsentence)
 forstart0=FOR (
 forstart1=forstart0 multishortsentence;
@@ -176,6 +174,8 @@ forstart2(null)=forstart1 ;
 forstart3=forstart2 multishortsentence)
 forstart3(null)=forstart2 )
 forstart=forstart3
+forstart(range)=forstart0 vardeffor : [exp, exp])
+forstart(each)=forstart0 vardeffor : exp)					#自动循环
 forblock=forstart codeblock
 
 #while语句
@@ -198,7 +198,7 @@ exp(char)=char
 exp(boolean)=boolean
 exp(null)=null
 
-exp(multishortsentence)=(multishortsentence)						#括号+逗号表达式
+exp(multiexp)=(multiexp)						#括号+逗号表达式
 exp(exp)=(exp)
 
 exp(callfunc)=callfunc

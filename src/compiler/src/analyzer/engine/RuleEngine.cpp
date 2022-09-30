@@ -85,42 +85,20 @@ Result RuleEngine::executeElement()
 		}
 		if (finishRuleStep.empty() == false)
 		{
-			//取出堆栈
-			vector<RuleMapLink*> links;
-			vector<LexElement> es;
-			es.resize(finishRuleStep.rule->elements.size());
-			links.resize(es.size());
-			for (int i = 0;i < (int)es.size();i++)
-			{
-				ExeStep& exeStep = exeStack.back();
-				int index = (int)es.size() - 1 - i;
-
-				links[index] = exeStep.link;
-				es[index] = std::move(exeStep.element);
-
-				exeStack.pop_back();
-			}
-
-			//处理延迟规则
-			VR(executeDelayRule(finishRuleStep.rule, links, es));
-
-			//
-			LexElement out;
-			VR(executeRule(finishRuleStep.rule, es, out));
-
-			waitEles.push_back(std::move(out));
+			VR(finishRule(finishRuleStep.rule));
 			return {};
 		}
 	}
 
 	if (element.empty())
 	{
-		return Result((int)R_FAILED, "");
+		return rollback();
 	}
 	auto iter = link->node->nextNodes.find(element);
 	if (iter == link->node->nextNodes.end())
 	{
-		return Result((int)R_FAILED, "");
+		//无法继续，回滚
+		return rollback();
 	}
 	RuleMapLink* next = iter->second;
 
@@ -130,6 +108,53 @@ Result RuleEngine::executeElement()
 	exeStack.push_back(step);
 	waitEles.pop_back();
 
+	return {};
+}
+	
+Result RuleEngine::rollback()
+{
+	while (exeStack.empty() == false)
+	{
+		RuleStep finishRuleStep = exeStack.back().link->node->finishRuleStep;
+		if (finishRuleStep.empty() == false)
+		{
+			//激活规则
+			VR(finishRule(finishRuleStep.rule));
+			return {};
+		}
+
+		waitEles.push_back(exeStack.back().element);
+		exeStack.pop_back();
+	}
+	return R_FAILED;
+}
+	
+Result RuleEngine::finishRule(Rule* rule)
+{
+	//取出堆栈
+	vector<RuleMapLink*> links;
+	vector<LexElement> es;
+	es.resize(rule->elements.size());
+	links.resize(es.size());
+	for (int i = 0;i < (int)es.size();i++)
+	{
+		ExeStep& exeStep = exeStack.back();
+		int index = (int)es.size() - 1 - i;
+
+		links[index] = exeStep.link;
+		es[index] = std::move(exeStep.element);
+
+		exeStack.pop_back();
+	}
+
+	//处理延迟规则
+	VR(executeDelayRule(rule, links, es));
+
+	//
+	LexElement out;
+	VR(executeRule(rule, es, out));
+
+	waitEles.push_back(std::move(out));
 	return {};
 }
 	

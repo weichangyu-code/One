@@ -1,6 +1,7 @@
 #pragma once
 #include "SyntaxBase.h"
 #include "SyntaxData.h"
+#include "SyntaxMulti.h"
 
 class SyntaxInstruct;
 class SyntaxExp : public SyntaxBase
@@ -12,17 +13,9 @@ public:
         
     }
 
-    void append(SyntaxExp* exp, bool start = false)
-    {
-        if (start)
-        {
-            this->instructs.splice(this->instructs.begin(), exp->instructs);
-        }
-        else
-        {
-            this->instructs.splice(this->instructs.end(), exp->instructs);
-        }
-    }
+    void append(SyntaxExp* exp, bool start = false);
+
+    static SyntaxExp* combine(SyntaxMulti<SyntaxExp*>* multiExp, bool addCommaInstruct, ExplainContext* context);
 
 public:
     list<SyntaxInstruct*> instructs;

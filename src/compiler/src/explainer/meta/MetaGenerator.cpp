@@ -638,6 +638,18 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
                         VR(generateMetaExpInstruct(subBlock, syntaxForBlock->exp[2], &tmp[2]));
                     }
 
+                    //把变量定义都提到外层
+                    for (auto& instructTmp : subBlock->instructs)
+                    {
+                        for (auto& paramTmp : instructTmp->params)
+                        {
+                            if (paramTmp.type == MetaData::INSTRUCT && paramTmp.instructTmp->cmd == VARDEF)
+                            {
+                                paramTmp.setData(paramTmp.instructTmp->var);
+                            }
+                        }
+                    }
+
                     instruct = new MetaInstruct(metaContainer, nullptr);
                     instruct->cmd = FOR;
                     instruct->params.push_back(tmp[0]);

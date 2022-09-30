@@ -11,6 +11,6 @@ namespace One
         {}
     public:
         virtual bool hasNext() = 0;
-        virtual typename TemplateType<T>::VarType& next() = 0;
+        virtual typename TemplateType<T>::VarType next() = 0;
     };
 }

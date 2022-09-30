@@ -1,5 +1,5 @@
 
-class String
+class String : Iterable<char>
 {
 	String()
 	{
@@ -12,6 +12,10 @@ class String
 
 	//类型转换
 	static String valueOf(int v)
+	{
+		return null;
+	}
+	static String valueOf(char c)
 	{
 		return null;
 	}
@@ -31,5 +35,35 @@ class String
 	String combine(String... strs)
 	{
 		return "";
+	}
+	
+	String substr(int start = 0, int size = -1)
+	{
+		return null;
+	}
+	int find(String str, int start = 0)
+	{
+		return 0;
+	}
+	String replace(String src, String dst)
+	{
+		return null;
+	}
+	String replace(char src, char dst)
+	{
+		return null;
+	}
+    String toUpper()
+	{
+		return null;
+	}
+    String toLower()
+	{
+		return null;
+	}
+
+	virtual Iterator<char> iterator()
+	{
+		return null;
 	}
 }
