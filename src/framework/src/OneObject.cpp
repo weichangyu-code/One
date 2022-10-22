@@ -60,7 +60,17 @@ namespace One
         if (!(__flag__ & FLAG_DESTRUCT))
         {
             __flag__ |= FLAG_DESTRUCT;
-            __destruct__();
+
+            try
+            {
+                __destruct__();
+            }
+            catch(...)
+            {
+                //捕获析构异常，避免其他资源无法释放。C++不允许析构抛出异常。
+                printf("__destruct__: catch exception\n");
+            }
+            __clearVar__();
         }
     }
         

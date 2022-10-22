@@ -41,7 +41,16 @@ namespace OneCoroutine
 
     void Coroutine::run(void* data)
     {
-        runner(this);
+        try
+        {
+            runner(this);
+        }
+        catch(...)
+        {
+            //发送异常，协程关闭
+            printf("Coroutine: catch exception. exit\n");
+        }
+        
 
         //堆栈越界判断
         // if (costackBeginCheck != 0 || costackEndCheck != 0)

@@ -19,6 +19,7 @@ namespace One
         Object(){}
         virtual ~Object(){}
         virtual void __destruct__(){}    //假析构
+        virtual void __clearVar__(){}   //释放变量
 
     public:
         void __acquire__(bool owner);

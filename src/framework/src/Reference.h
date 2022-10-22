@@ -195,18 +195,19 @@ namespace One
         {
             return pointer;
         }
+
         T* operator->()
         {
-            return getObject();
+            return pointer.operator->();
         }
         // operator bool()
         // {
         //     return isNull() == false;
         // }
-        T& operator*()
-        {
-            return *getObject();
-        }
+        // T& operator*()
+        // {
+        //     return *getObject();
+        // }
 
     public:
         Pointer<T> pointer;

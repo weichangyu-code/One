@@ -5,6 +5,8 @@
 
 namespace One
 {
+    void throwNullPointExeption();
+
     //T可以是Object或者Interface，或者他们的子类
     template<typename T>
     class Pointer
@@ -111,19 +113,26 @@ namespace One
         {
             return getObject();
         }
+
         T* operator->()
         {
-            return getObject();
+            T* p = getObject();
+            if (p > (void*)0x100000)
+            {
+                return p;
+            }
+            throwNullPointExeption();
+            return nullptr;
         }
         // operator bool()
         // {
         //     return isNull() == false;
         // }
 
-        T& operator*()
-        {
-            return *getObject();
-        }
+        // T& operator*()
+        // {
+        //     return *getObject();
+        // }
 
         void acquire();
         void release();

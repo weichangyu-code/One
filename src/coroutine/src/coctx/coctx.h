@@ -14,6 +14,10 @@ struct coctx_t
 	void* rbp;
 
 	void* r[8];
+
+	void* stackBase;			//支持try catch
+	void* stackLimit;
+	void* dealloctionStack;
 };
 
 /**

@@ -1661,7 +1661,7 @@ Result CppGenerator::generateFuncDeclare(ofstream& h, MetaFunc* metaFunc)
     if (metaFunc->funcType == FUNC_DESTRUCT)
     {
         //添加一个清除变量的接口
-        h << KEY_TAB << "void " << KEY_CLEAR_VAR_FUNC << "();" << endl;
+        h << KEY_TAB << "virtual void " << KEY_CLEAR_VAR_FUNC << "();" << endl;
     }
 
     return {};
@@ -1747,9 +1747,6 @@ Result CppGenerator::generateFuncImpl(ofstream& f, const string& space, MetaFunc
     
     if (metaFunc->funcType == FUNC_DESTRUCT)
     {
-        //变量释放
-        f << space << KEY_TAB << KEY_CLEAR_VAR_FUNC << "();" << endl;
-
         //调用父类的析构函数
         if (cppParentClass->cppNative == false)
         {
@@ -1771,6 +1768,13 @@ Result CppGenerator::generateFuncImpl(ofstream& f, const string& space, MetaFunc
                 f << space << KEY_TAB << "this->" << var->name << ".clear();" << endl;
             }
         }
+
+        //调用父类的析构函数
+        if (cppParentClass->cppNative == false)
+        {
+            f << space << KEY_TAB << cppParentClass->cppName << "::" << KEY_CLEAR_VAR_FUNC << "();" << endl;
+        }
+
         f << space << "}" << endl << endl;
     }
 

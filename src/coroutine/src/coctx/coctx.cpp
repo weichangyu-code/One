@@ -34,8 +34,12 @@ void one_coctx_make(coctx_t* ctx, void* stack, unsigned int size, coctx_pfn_t pf
     void* stack_top = (char*)stack + size;
     stack_top = (void*)((intptr_t)stack_top & -16LL);
 
+    ctx->stackBase = stack_top;
+    ctx->stackLimit = stack;
+    ctx->dealloctionStack = stack;
+
     stack_top = (char*)stack_top - 64;          //确保16位对齐，因为媒体指令要求16位对齐。预留一部分的空间给pfn局部变量用
-    *(void**)stack_top = (void*)one_coctx_run;      //存放返回地址
+    *(void**)stack_top = (void*)one_coctx_run;  //存放返回地址
 
     ctx->rax = (void*)pfn;
     ctx->rcx = (void*)s1;

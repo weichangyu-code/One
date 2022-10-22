@@ -16,6 +16,21 @@ one_coctx_swap:
     movq %r14, 112(%rcx)
     //movq %r15, 120(%rcx)
 
+    movq %gs:(0x30), %rax
+    movq 0x08(%rax), %rbx
+    movq %rbx, 128(%rcx)
+    movq 0x10(%rax), %rbx
+    movq %rbx, 136(%rcx)
+    movq 0x1478(%rax), %rbx
+    movq %rbx, 144(%rcx)
+
+    movq 128(%rdx), %rbx
+    movq %rbx, 0x08(%rax)
+    movq 136(%rdx), %rbx
+    movq %rbx, 0x10(%rax)
+    movq 144(%rdx), %rbx
+    movq %rbx, 0x1478(%rax)
+
     movq (%rdx), %rax
     movq 8(%rdx), %rbx
     movq 32(%rdx), %rsi

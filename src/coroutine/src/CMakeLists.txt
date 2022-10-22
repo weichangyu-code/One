@@ -2,7 +2,7 @@
 
 #
 if(WIN32)
-set(SEARCH_LIST ./coctx/coctx.cpp ./coctx/coctx_swap_rcxrdx.s)
+set(SEARCH_LIST ./coctx/coctx.cpp ./coctx/coctx_swap_win.s)
 else()
 set(SEARCH_LIST ./coctx/coctx.cpp ./coctx/coctx_swap_rsirdi.s)
 endif()
