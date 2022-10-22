@@ -4,7 +4,7 @@
 if(WIN32)
 set(SEARCH_LIST ./coctx/coctx.cpp ./coctx/coctx_swap_win.s)
 else()
-set(SEARCH_LIST ./coctx/coctx.cpp ./coctx/coctx_swap_rsirdi.s)
+set(SEARCH_LIST ./coctx/coctx.cpp ./coctx/coctx_swap_linux.s)
 endif()
 set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 
