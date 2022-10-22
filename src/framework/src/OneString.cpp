@@ -136,7 +136,7 @@ namespace One
     int String::find(String* str, int start)
     {
         start = min(max(0, start), length());
-        char* f = strstr(this->str() + start, str->str());
+        char* f = strstr((char*)this->str() + start, str->str());
         if (f == nullptr)
         {
             return 0;
@@ -152,7 +152,7 @@ namespace One
         const char* start = this->str();
         while (1)
         {
-            char* find = strstr(start, src->str());
+            char* find = strstr((char*)start, src->str());
             if (find == nullptr)
             {
                 break;
