@@ -238,6 +238,9 @@ Result CppGenerator::generateCMakeList(const string& root, const string& exeName
     f << ")" << endl;
     f << "if(WIN32)" << endl;
     f << "  target_link_libraries(" << exeName << " wsock32 ws2_32)" << endl;
+    f << "else()" << endl;
+    f << "  find_package(Threads)" << endl;
+    f << "  target_link_libraries(" << exeName << " ${CMAKE_THREAD_LIBS_INIT})" << endl;
     f << "endif()" << endl;
 
     return {};

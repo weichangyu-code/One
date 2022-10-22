@@ -50,7 +50,7 @@ namespace OneCommon
     #ifdef _WIN32
         mkdir(path.c_str());
     #else
-        mkdir(path.c_str(), 0);
+        mkdir(path.c_str(), 0777);
     #endif
         return true;
     }
