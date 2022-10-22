@@ -1,6 +1,4 @@
 cmake_minimum_required(VERSION 3.0.0)
-include_directories(../../../../Demo/boost_1_80_0)
-link_directories(../../../../Demo/boost_1_80_0/stage/lib)
 
 add_executable(CoctxSwapTest CoctxSwapTest.cpp)
 target_link_libraries(CoctxSwapTest coroutine common)
@@ -22,9 +20,6 @@ target_link_libraries(CoFileTest coroutine common)
 
 add_executable(ThreadSwitchTest ThreadSwitchTest.cpp)
 target_link_libraries(ThreadSwitchTest coroutine common)
-
-add_executable(FiberTest FiberTest.cpp)
-target_link_libraries(FiberTest boostfiber boostcontext)
 
 if(WIN32)
   target_link_libraries(CoroutineTest wsock32 ws2_32)
