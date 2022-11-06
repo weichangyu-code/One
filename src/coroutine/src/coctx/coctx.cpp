@@ -4,15 +4,11 @@
 #include <string.h>
 #include <stdint.h>
 
+#ifdef _MSC_VER
+extern "C" void one_coctx_swap(coctx_t* from, coctx_t* to);
+#else
 extern "C" void one_coctx_swap(coctx_t* from, coctx_t* to) asm("one_coctx_swap");
-
-extern "C" void one_coctx_run()
-{
-    register void* func asm ("rax");
-    register void* s1 asm ("rcx");
-    register void* s2 asm ("rdx");
-    (*(coctx_pfn_t)func)(s1, s2);
-}
+#endif
 
 // 这个兼容性会好点，但是不能优化
 // void one_coctx_swap(coctx_t* from, coctx_t* to)
@@ -39,11 +35,15 @@ void one_coctx_make(coctx_t* ctx, void* stack, unsigned int size, coctx_pfn_t pf
     ctx->dealloctionStack = stack;
 
     stack_top = (char*)stack_top - 64;          //确保16位对齐，因为媒体指令要求16位对齐。预留一部分的空间给pfn局部变量用
-    *(void**)stack_top = (void*)one_coctx_run;  //存放返回地址
+    *(void**)stack_top = (void*)pfn;            //存放返回地址
 
-    ctx->rax = (void*)pfn;
+#ifdef _WIN32
     ctx->rcx = (void*)s1;
     ctx->rdx = (void*)s2;
+#else
+    ctx->rdi = (void*)s1;
+    ctx->rsi = (void*)s2;
+#endif
     ctx->rsp = stack_top;
 }
 

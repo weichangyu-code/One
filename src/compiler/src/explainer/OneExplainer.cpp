@@ -1,5 +1,6 @@
 #include "OneExplainer.h"
 #include "FileUtils.h"
+#include "FolderUtils.h"
 #include "meta/MetaClass.h"
 #include "meta/MetaFile.h"
 #include "syntax/SyntaxFile.h"
@@ -48,37 +49,50 @@ Result OneExplainer::explainSyntax(const string& code, SyntaxFile** out)
 
 Result OneExplainer::explainSyntaxFolder(const string& folder, MetaPackage* package)
 {
-    list<string> subs = FileUtils::listSub(folder);
-    for (auto& sub : subs)
-    {
-        string path = FileUtils::appendFileName(folder, sub);
-        if (FileUtils::isDir(path))
+    Result result;
+    FolderUtils::findEach(folder, [&result, this, folder, package](const string& name, bool isDir) {
+        string path = FileUtils::appendFileName(folder, name);
+        if (isDir)
         {
-            VR(explainSyntaxFolder(path, package->getPackage(sub, true)));
+            result = explainSyntaxFolder(path, package->getPackage(name, true));
+            if (result.isError())
+            {
+                return false;
+            }
         }
         else
         {
-            if (FileUtils::getFileExt(sub) != "one")
+            if (FileUtils::getFileExt(name) != "one")
             {
-                continue;
+                return true;
             }
-            printf("explain %s\n", sub.c_str());
+            printf("explain %s\n", name.c_str());
             string code = FileUtils::readFile(path);
             if (code.empty())
             {
-                continue;
+                return true;
             }
             SyntaxFile* syntaxFile = nullptr;
-            VR(explainSyntax(code, &syntaxFile));
-            if (syntaxFile->classes.size() != 1 || syntaxFile->classes.front()->name != FileUtils::getFileTitle(sub))
+            result = explainSyntax(code, &syntaxFile);
+            if (result.isError())
+            {
+                return false;
+            }
+            if (syntaxFile->classes.size() != 1 || syntaxFile->classes.front()->name != FileUtils::getFileTitle(name))
             {
                 // 类里面超过一个类，或者类名不等于文件名，错误
-                return R_FAILED;
+                result = R_FAILED;
+                return false;
             }
-            VR(metaGenerator.addSyntaxFile(package, sub, syntaxFile));
+            result = metaGenerator.addSyntaxFile(package, name, syntaxFile);
+            if (result.isError())
+            {
+                return false;
+            }
         }
-    }
-    return {};
+        return true;
+    });
+    return result;
 }
     
 

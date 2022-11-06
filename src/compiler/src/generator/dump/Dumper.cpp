@@ -10,7 +10,7 @@
 
 Result Dumper::dump(MetaContainer* container, const string& path)
 {
-    _stream << container->getClasses().size();
+    _stream << (int)container->getClasses().size();
 
     //设置包名
     VR(dumpPackage(container->getRootPackage()));
@@ -23,12 +23,12 @@ Result Dumper::dump(MetaContainer* container, const string& path)
 Result Dumper::dumpPackage(MetaPackage* package)
 {
     _stream << package->name;
-    _stream << package->packages.size();
+    _stream << (int)package->packages.size();
     for (auto& subPackage : package->packages)
     {
         VR(dumpPackage(subPackage));
     }
-    _stream << package->classes.size();
+    _stream << (int)package->classes.size();
     for (auto& clazz : package->classes)
     {
         VR(dumpClass(clazz));
@@ -41,13 +41,13 @@ Result Dumper::dumpClass(MetaClass* clazz)
     _stream << clazz->id;
     _stream << clazz->name;
 
-    _stream << clazz->parents.size();
+    _stream << (int)clazz->parents.size();
     for (auto& parent : clazz->parents)
     {
         _stream << parent->id;
     }
 
-    _stream << clazz->innerClasses.size();
+    _stream << (int)clazz->innerClasses.size();
     for (auto& inner : clazz->innerClasses)
     {
         VR(dumpClass(inner));
@@ -72,7 +72,7 @@ Result Dumper::dumpClass(MetaClass* clazz)
         VR(dumpFunc(func));
     }
 
-    _stream << clazz->vars.size();
+    _stream << (int)clazz->vars.size();
     for (auto& var : clazz->vars)
     {
         VR(dumpField(var));
@@ -85,7 +85,7 @@ Result Dumper::dumpFunc(MetaFunc* func)
 {
     _stream << func->name;
 
-    _stream << func->anonyClasses.size();
+    _stream << (int)func->anonyClasses.size();
     for (auto& anony : func->anonyClasses)
     {
         VR(dumpClass(anony));
@@ -112,7 +112,7 @@ Result Dumper::toCppFile(const string& path)
     }
 
     f << "unsigned int oneMeta[] = {";
-    for (int i = 0;i < num;i++)
+    for (int i = 0;i < (int)num;i++)
     {
         char buf[16] = {0};
         sprintf(buf, "0x%x", data[i]);

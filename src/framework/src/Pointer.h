@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include <stdint.h>
-#include <bits/move.h>
-#include <cstddef>
+//#include <stdint.h>
+//#include <bits/move.h>
+//#include <cstddef>
 
 namespace One
 {

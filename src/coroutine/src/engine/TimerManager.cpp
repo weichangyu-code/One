@@ -49,7 +49,7 @@ namespace OneCoroutine
         unsigned int msStart = curTime % 1024;
         unsigned int msNum = time - curTime + 1;        //包含当前时间触发
         msNum = (msNum > 1024) ? 1024 : msNum;
-        for (int i = 0;i < msNum;i++)
+        for (int i = 0;i < (int)msNum;i++)
         {
             ListHead& head = microSecArr[(msStart + i) % 1024];
             if (head.empty() == false)
@@ -62,7 +62,7 @@ namespace OneCoroutine
         unsigned int secStart = (curTime / 1024) % 1024;
         unsigned int secNum = (time / 1024) - (curTime / 1024);
         secNum = (secNum > 1024) ? 1024 : secNum;
-        for (int i = 0;i < secNum;i++)
+        for (int i = 0;i < (int)secNum;i++)
         {
             ListHead& head = secondArr[(secStart + i) % 1024];
             if (head.empty() == false)

@@ -28,13 +28,13 @@ void OneRuleMap::loadStrings(OneIStream& stream)
     
 void OneRuleMap::saveRules(OneOStream& stream)
 {
-    stream << block.rules.size();
+    stream << (int)block.rules.size();
     for (auto& rule : block.rules)
     {
         stream << rule->nameIndex;
         stream << rule->aliasIndex;
         stream << rule->priority;
-        stream << rule->elements.size();
+        stream << (int)rule->elements.size();
         for (auto& element : rule->elements)
         {
             stream << element.uv;
@@ -67,12 +67,12 @@ void OneRuleMap::loadRules(OneIStream& stream)
     
 void OneRuleMap::saveNodes(OneOStream& stream)
 {
-    stream << nodes.size();
+    stream << (int)nodes.size();
     for(auto& node : nodes)
     {
         stream << node->finishRuleStep.uv;
         stream << node->maxPriority;
-        stream << node->ruleSteps.size();
+        stream << (int)node->ruleSteps.size();
         for (auto& step : node->ruleSteps)
         {
             stream << step.uv;
@@ -110,18 +110,18 @@ void OneRuleMap::loadNodes(OneIStream& stream)
     
 void OneRuleMap::saveLinks(OneOStream& stream)
 {
-    stream << links.size();
+    stream << (int)links.size();
     for (auto& link : links)
     {
         stream << link->node->index;
-        stream << link->explainMap.size();
+        stream << (int)link->explainMap.size();
         for (auto& kv : link->explainMap)
         {
             const RuleStep& step = kv.first;
             const vector<Rule*>& rules = kv.second;
 
             stream << step.uv;
-            stream << rules.size();
+            stream << (int)rules.size();
             for (auto& rule : rules)
             {
                 stream << rule->index;
@@ -170,7 +170,7 @@ void OneRuleMap::saveNodeLinks(OneOStream& stream)
 {
     for (auto& node : nodes)
     {
-        stream << node->nextNodes.size();
+        stream << (int)node->nextNodes.size();
         for (auto& kv : node->nextNodes)
         {
             const Element& element = kv.first;

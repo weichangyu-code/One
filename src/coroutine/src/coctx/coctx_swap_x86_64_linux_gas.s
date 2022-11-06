@@ -1,10 +1,12 @@
-
+//from rdi, to rsi
 .globl one_coctx_swap
 one_coctx_swap:
     movq %rax, (%rdi)
     movq %rbx, 8(%rdi)
     movq %rcx, 16(%rdi)
     movq %rdx, 24(%rdi)
+    movq %rsi, 32(%rdi)
+    movq %rdi, 40(%rdi)
     movq %rsp, 48(%rdi)
     movq %rbp, 56(%rdi)
     movq %r8,  64(%rdi)
@@ -30,5 +32,8 @@ one_coctx_swap:
     movq 104(%rsi), %r13
     movq 112(%rsi), %r14
     //movq 120(%rsi), %r15
+
+    movq 40(%rsi), %rdi
+    movq 32(%rsi), %rsi
 
 	ret

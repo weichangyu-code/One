@@ -1,18 +1,34 @@
 #include "Atomic.h"
 
+#ifdef _MSC_VER
+#include "Windows.h"
+#endif
+
 namespace OneCoroutine
 {
 	intptr_t AtomicApi::comp_exchange(volatile intptr_t* value, intptr_t comp, intptr_t exchange)
     {
+#ifdef _MSC_VER
+		return InterlockedCompareExchange64(value, exchange, comp);
+#else
 		return __sync_val_compare_and_swap(value, comp, exchange);
+#endif
     }
 	intptr_t AtomicApi::exchange(volatile intptr_t* value, intptr_t exchange)
     {
+#ifdef _MSC_VER
+		return InterlockedExchange64(value, exchange);
+#else
 		return __sync_lock_test_and_set(value, exchange);
+#endif
     }
 	intptr_t AtomicApi::exchange_add(volatile intptr_t* value, intptr_t add)
     {
+#ifdef _MSC_VER
+		return InterlockedExchangeAdd64(value, add);
+#else
 		return __sync_fetch_and_add(value, add);
+#endif
     }
     
     // Atomic::Atomic(intptr_t count)

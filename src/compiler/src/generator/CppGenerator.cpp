@@ -13,6 +13,7 @@
 #include "../explainer/meta/MetaInstruct.h"
 #include "../explainer/meta/MetaTemplateParam.h"
 #include "FileUtils.h"
+#include "FolderUtils.h"
 #include "StringUtils.h"
 #include "../explainer/common/Keyword.h"
 #include <sstream>
@@ -38,7 +39,7 @@ CppGenerator::~CppGenerator()
 Result CppGenerator::generate(const string& exeName, const string& mainClass, const string& folder)
 {
     //避免误删的情况
-    FileUtils::remove(FileUtils::appendFileName(folder, "one"));
+    FolderUtils::removeDir(FileUtils::appendFileName(folder, "one"));
 
     //添加原生类
     for (auto& native : natives)
@@ -203,10 +204,15 @@ Result CppGenerator::generateCMakeList(const string& root, const string& exeName
 
     f << "cmake_minimum_required(VERSION 3.0.0)" << endl;
     f << "project(" << exeName << " VERSION 0.1.0)" << endl;
-    f << "add_definitions(-std=c++11 -ffixed-r15)" << endl;
+    
+    f << "if(MSVC)" << endl;
+    f << "add_definitions(/EHa /wd4819 /wd4996)" << endl;
+    f << "else()" << endl;
+    f << "add_definitions(-std=c++11 -ffixed-r15 -fnon-call-exceptions)" << endl;
+    f << "endif()" << endl;
 
     //f << "include_directories(./ " << FileUtils::appendFileName(depend, "framework/src") << " " << FileUtils::appendFileName(depend, "coroutine/src") << ")" << endl;
-    f << "include_directories(./)" << endl;
+    f << "include_directories(\"./\")" << endl;
     for (auto& include : includeFolders)
     {
         f << "include_directories(\"" << include << "\")" << endl;
@@ -230,12 +236,28 @@ Result CppGenerator::generateCMakeList(const string& root, const string& exeName
     f << "set(SRC_LIST ${SRC_LIST} main.cpp)" << endl;
 
     f << "add_executable(" << exeName << " ${SRC_LIST})" << endl;
+
+// if(MSVC)
+// target_link_libraries(HttpServer framework.lib coroutine.lib common.lib)
+// else()
+// target_link_libraries(HttpServer -lframework -lcoroutine -lcommon)
+// endif()
+
+    f << "if(MSVC)" << endl;
+    f << "target_link_libraries(" << exeName;
+    for (auto& lib : libs)
+    {
+        f << " " << lib << ".lib";
+    }
+    f << ")" << endl;
+    f << "else()" << endl;
     f << "target_link_libraries(" << exeName;
     for (auto& lib : libs)
     {
         f << " -l" << lib << "";
     }
     f << ")" << endl;
+    f << "endif()" << endl;
     f << "if(WIN32)" << endl;
     f << "  target_link_libraries(" << exeName << " wsock32 ws2_32)" << endl;
     f << "else()" << endl;
@@ -297,12 +319,12 @@ Result CppGenerator::generateObjectSize(const string& root)
         f << KEY_TAB << "sizeof(One::" << cppClass->cppName << ")," << endl;
 
         auto parents = metaClass->getParentClasses();
-        f << KEY_TAB << StringUtils::itoa(parents.size()) << "," << endl;
+        f << KEY_TAB << StringUtils::itoa((int)parents.size()) << "," << endl;
         for (auto& parent : parents)
         {
             auto cppParentClass = CppClass::getCppClass(parent);
             //(intptr_t)(Object*)((String*)0)
-            f << KEY_TAB << "(intptr_t)(One::" << cppParentClass->cppName << "*)((One::" << cppClass->cppName << "*)0)," << endl;
+            f << KEY_TAB << "(unsigned int)(intptr_t)(One::" << cppParentClass->cppName << "*)((One::" << cppClass->cppName << "*)0)," << endl;
         }
     }
     
@@ -443,7 +465,7 @@ void CppGenerator::generateCppClassName(MetaClass* metaClass)
 
 Result CppGenerator::generatePackage(const string& root, MetaPackage* metaPackage)
 {
-    FileUtils::createDir(FileUtils::appendFileName(root, CppPackage::getCppPackage(metaPackage)->cppFolder));
+    FolderUtils::createDir(FileUtils::appendFileName(root, CppPackage::getCppPackage(metaPackage)->cppFolder));
 
     for (auto& sub : metaPackage->packages)
     {
@@ -1367,7 +1389,7 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
                 ostringstream stream;
                 stream << "Array<" << generateType(type) << ">::createArray({";
 
-                int staticParamNum = (metaFunc->isStatic ? 0 : 1) + (metaFunc->params.size() - 1);
+                int staticParamNum = (metaFunc->isStatic ? 0 : 1) + ((int)metaFunc->params.size() - 1);
                 int i = 0;
                 for (auto iter = instruct->params.begin();iter != instruct->params.end();)
                 {
@@ -2111,7 +2133,7 @@ int CppGenerator::getStringIndex(const string& str)
     {
         return iter->second;
     }
-    int index = stringMap.size();
+    int index = (int)stringMap.size();
     stringMap.insert({str, index});
     return index;
 }

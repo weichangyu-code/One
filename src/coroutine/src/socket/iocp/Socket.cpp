@@ -21,7 +21,7 @@ namespace OneCoroutine
     {
         close();
 
-        sockFd = createSocket(true);
+        sockFd = (int)createSocket(true);
         setSocketAsync(sockFd);
         if (reuseaddr)
         {
@@ -67,7 +67,7 @@ namespace OneCoroutine
     {
         close();
     
-        sockFd = createSocket(true);
+        sockFd = (int)createSocket(true);
         setSocketAsync(sockFd);
         
         iocp->registerEvent((HANDLE)(intptr_t)sockFd);
@@ -125,7 +125,7 @@ namespace OneCoroutine
     {
         close();
 
-        sockFd = createSocket(true);
+        sockFd = (int)createSocket(true);
         setSocketAsync(sockFd);
         
         iocp->registerEvent((HANDLE)(intptr_t)sockFd);

@@ -7,8 +7,8 @@
 #include "SystemUtils.h"
 #include "thread/Event.h"
 #include "thread/ThreadPool.h"
-#include <unistd.h>
-#include <semaphore.h>
+// #include <unistd.h>
+// #include <semaphore.h>
 using namespace std;
 using namespace OneCommon;
 using namespace OneCoroutine;
@@ -347,38 +347,43 @@ using namespace OneCoroutine;
 // }
 
 
+// int main()
+// {
+//     sem_t sem1;
+//     sem_t sem2;
+
+//     sem_init(&sem1, 0, 0);
+//     sem_init(&sem2, 0, 0);
+
+//     Event event3;
+//     atomic_int times1(0);
+//     atomic_int times2(0);
+
+//     ThreadPool tp;
+
+//     new thread([&]() {
+//         while (times1.fetch_add(1) < 100000)
+//         {
+//             sem_wait(&sem1);
+
+//             tp.execute([&sem1]() {
+//                 sem_post(&sem1);
+//             });
+//         }
+//         event3.signal();
+//     });
+
+//     SystemUtils::sleep(1000);
+
+//     unsigned int start = SystemUtils::getMSTick();
+//     sem_post(&sem1);
+//     event3.wait();
+//     printf("use time %d. times1=%d times2=%d\n", SystemUtils::getMSTick() - start, times1.load(), times2.load());
+
+//     return 0;
+// }
+
 int main()
 {
-    sem_t sem1;
-    sem_t sem2;
-
-    sem_init(&sem1, 0, 0);
-    sem_init(&sem2, 0, 0);
-
-    Event event3;
-    atomic_int times1(0);
-    atomic_int times2(0);
-
-    ThreadPool tp;
-
-    new thread([&]() {
-        while (times1.fetch_add(1) < 100000)
-        {
-            sem_wait(&sem1);
-
-            tp.execute([&sem1]() {
-                sem_post(&sem1);
-            });
-        }
-        event3.signal();
-    });
-
-    SystemUtils::sleep(1000);
-
-    unsigned int start = SystemUtils::getMSTick();
-    sem_post(&sem1);
-    event3.wait();
-    printf("use time %d. times1=%d times2=%d\n", SystemUtils::getMSTick() - start, times1.load(), times2.load());
-
     return 0;
 }

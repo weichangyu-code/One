@@ -25,8 +25,8 @@ void OByteStream::resizeCapacity(unsigned int capacity)
     
 OByteStream& OByteStream::operator << (const string& str)
 {
-    *this << str.length();
-    put(str.c_str(), str.length());
+    *this << (int)str.length();
+    put(str.c_str(), (unsigned int)str.length());
     return *this;
 }
     

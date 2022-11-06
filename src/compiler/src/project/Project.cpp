@@ -1,5 +1,6 @@
 ﻿#include "Project.h"
 #include "FileUtils.h"
+#include "FolderUtils.h"
 #include "ProjectConfigLoader.h"
 #include "StringUtils.h"
 
@@ -119,7 +120,7 @@ bool Project::searchModule(ProjectConfig::Depend* depend, string& folder, string
 {
     string name = depend->name + "V" + depend->version;
     string path = FileUtils::appendFileName(FileUtils::appendFileName(projectFolder, "depend"), name);
-    if (FileUtils::isDir(path))
+    if (FolderUtils::isDir(path))
     {
         folder = path;
         folderByBuild = FileUtils::appendFileName(FileUtils::appendFileName(projectFolderByBuild, "depend"), name);
@@ -134,7 +135,7 @@ bool Project::searchModule(ProjectConfig::Depend* depend, string& folder, string
             dependFolder = FileUtils::appendFileName(projectFolder, dependFolder);
         }
         path = FileUtils::appendFileName(dependFolder, name);
-        if (FileUtils::isDir(path))
+        if (FolderUtils::isDir(path))
         {
             folder = path;
             folderByBuild = FileUtils::appendFileName(dependFolderByBuild, name);

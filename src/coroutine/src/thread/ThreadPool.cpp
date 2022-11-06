@@ -24,10 +24,10 @@ namespace OneCoroutine
 
         int threadNum = (int)this->threadNum.get();
         int queueNum = (int)this->queueNum.get();
-        if (threadNum < queueNum && threadNum < maxThreads)
+        if (threadNum < queueNum && threadNum < (int)maxThreads)
         {
             //新建线程
-            createThread(threadNum < minThreads);
+            createThread(threadNum < (int)minThreads);
         }
     }
         

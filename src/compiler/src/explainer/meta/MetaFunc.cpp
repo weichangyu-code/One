@@ -40,7 +40,7 @@ MetaVariable* MetaFunc::addParam(const string& name, MetaType& type)
     
 MetaClass* MetaFunc::addAnonyClass(MetaBoxBase* box, SyntaxBase* syntaxObj)
 {
-    string name = "Anony" + StringUtils::itoa(anonyClasses.size());
+    string name = "Anony" + StringUtils::itoa((int)anonyClasses.size());
     SyntaxClass* syntaxClass = (SyntaxClass*)syntaxObj;
     syntaxClass->name = name;
 

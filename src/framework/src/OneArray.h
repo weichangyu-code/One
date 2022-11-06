@@ -20,7 +20,7 @@ namespace One
 
         typename TemplateType<T>::VarType& indexOf(int index)
         {
-            if (index < 0 || index >= _length)
+            if (index < 0 || index >= (int)_length)
             {
                 //抛出异常
                 throw "OutOfArray";
@@ -54,7 +54,7 @@ namespace One
 
         static Reference<Array<T>> createArray(std::initializer_list<typename TemplateType<T>::VarType> init)
         {
-            Reference<Array<T>> arrRef = createArray(init.size());
+            Reference<Array<T>> arrRef = createArray((unsigned int)init.size());
             int i = 0;
             for (auto& v : init)
             {

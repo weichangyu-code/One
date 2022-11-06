@@ -1543,13 +1543,24 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
             //查看是否有匿名类参数
             auto iter1 = instruct->func->params.begin();
             auto iter2 = instruct->params.begin();
-            for (;iter2 != instruct->params.end();++iter1, ++iter2)
+            if (instruct->func->isStatic == false)
             {
-                MetaType type2 = (*iter2).getType();
+                ++iter2;
+            }
+            MetaType type1;
+            MetaType type2;
+            for (;iter2 != instruct->params.end();++iter2)
+            {
+                type2 = (*iter2).getType();
+                if (iter1 != instruct->func->params.end())
+                {
+                    type1 = (*iter1)->type;
+                    ++iter1;
+                }
                 if (type2.isClass() && type2.clazz->isAnonyClass)
                 {
                     //
-                    VR(handleAnonyClass(block, type2, (*iter1)->type));
+                    VR(handleAnonyClass(block, type2, type1));
                 }
             }
 
@@ -1901,7 +1912,7 @@ Result MetaGenerator::generateMetaConst(SyntaxConst* syntaxConst, MetaData* out)
             else if (dvalue == (float)dvalue)
             {
                 //精度没损失，用float
-                out->const_->setFloatValue(dvalue);
+                out->const_->setFloatValue((float)dvalue);
             }
             else
             {
@@ -1951,7 +1962,7 @@ Result MetaGenerator::generateMetaConst(SyntaxConst* syntaxConst, MetaData* out)
         {
             //转换成int
             int value = 0;
-            for (int i = 0;i < syntaxConst->value.length();i++)
+            for (int i = 0;i < (int)syntaxConst->value.length();i++)
             {
                 value |= ((int)(unsigned char)syntaxConst->value[i]) << (i * 8);
             }
@@ -1960,7 +1971,7 @@ Result MetaGenerator::generateMetaConst(SyntaxConst* syntaxConst, MetaData* out)
         else if (syntaxConst->value.length() <= 8)
         {
             long long value = 0;
-            for (int i = 0;i < syntaxConst->value.length();i++)
+            for (int i = 0;i < (int)syntaxConst->value.length();i++)
             {
                 value |= ((long long)(unsigned char)syntaxConst->value[i]) << (i * 8);
             }

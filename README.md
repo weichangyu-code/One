@@ -15,6 +15,10 @@
 . 将One语言解释成C++语言用CMAKE+GCC编译。  
 . 集成协程库、网络库、异步IO库。  
 
+## 编译
+. 开发工具：vscode  
+. 编译工具：linux gcc，windows vs15 x86_amd64, windows mingw32(不支持异常) 
+
 ## 进展
 . 完成大流程，HELLO ONE已经出来。  
 . 完成协程库，可以独立使用。  

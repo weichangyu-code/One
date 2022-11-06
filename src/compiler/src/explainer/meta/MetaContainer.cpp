@@ -138,7 +138,7 @@ bool MetaContainer::isArray(const MetaType& type)
     
 void MetaContainer::addClass(MetaClass* clazz)
 {
-    clazz->id = classes.size() + 1;
+    clazz->id = (int)classes.size() + 1;
     classes.push_back(clazz);
 }
     
@@ -387,7 +387,11 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
                 MetaType type2 = (*iter2).getType();
 
                 //判断是不是匿名
-                if (type1 != type2)
+                if (type1.isClass() && type2.isClass() && type2.clazz->isAnonyClass)
+                {
+                    //匿名类，算匹配
+                } 
+                else if (type1 != type2)
                 {
                     if (getAutoConvertType(type2, type1) != ACT_CANNT)
                     {

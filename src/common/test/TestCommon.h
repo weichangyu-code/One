@@ -12,3 +12,5 @@ else \
     printf(" successed:" __VA_ARGS__); \
 } \
 printf("\n");
+
+using namespace OneCommon;

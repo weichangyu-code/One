@@ -32,7 +32,7 @@ public:
         auto iter = keywordMap.find(keyword);
         if (iter == keywordMap.end())
         {
-            int index = keywords.size();
+            int index = (int)keywords.size();
             keywordMap.insert(make_pair(keyword, index));
             keywords.push_back(keyword);
             return index;
@@ -55,7 +55,7 @@ public:
         auto iter = ruleNameMap.find(ruleName);
         if (iter == ruleNameMap.end())
         {
-            int index = ruleNames.size();
+            int index = (int)ruleNames.size();
             ruleNameMap.insert(make_pair(ruleName, index));
             ruleNames.push_back(ruleName);
             return index;
@@ -85,7 +85,7 @@ public:
 
     void addRule(Rule* rule)
     {
-        rule->index = rules.size();
+        rule->index = (int)rules.size();
         rules.push_back(rule);
     }
 

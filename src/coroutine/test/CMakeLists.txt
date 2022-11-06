@@ -21,6 +21,11 @@ target_link_libraries(CoFileTest coroutine common)
 add_executable(ThreadSwitchTest ThreadSwitchTest.cpp)
 target_link_libraries(ThreadSwitchTest coroutine common)
 
+# include_directories(../../../../Demo/boost_1_80_0)
+# link_directories(../../../../Demo/boost_1_80_0/stage/lib)
+# add_executable(FiberTest FiberTest.cpp)
+# target_link_libraries(FiberTest boostfiber boostcontext boosttestexecmonitor)
+
 if(WIN32)
   target_link_libraries(CoroutineTest wsock32 ws2_32)
   target_link_libraries(CoSleepTest wsock32 ws2_32)

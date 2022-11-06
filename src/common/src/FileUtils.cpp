@@ -1,11 +1,9 @@
 #include "FileUtils.h"
 #include <time.h>
-#include <dirent.h>
 #include <sys/stat.h>
 #include <sstream>
 #include <fstream>
-#include <ftw.h>
-#include <unistd.h>
+
 
 #define PATH_SEPARATE				'/'
 #define PATH_SEPARATE2				'\\'
@@ -14,64 +12,6 @@
 
 namespace OneCommon
 {
-    list<string> FileUtils::listSub(const string& folder)
-    {
-        DIR* dir = opendir(folder.c_str());
-        if (dir == nullptr)
-        {
-            return {};
-        }
-        list<string> subs;
-        dirent* d = readdir(dir);
-        while (d)
-        {
-            if (strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0)
-            {
-                subs.push_back(d->d_name);
-            }
-            d = readdir(dir);
-        }
-        closedir(dir);
-        return subs;
-    }
-
-    bool FileUtils::isDir(const string& path)
-    {
-        struct stat fileStat;
-        if (stat(path.c_str(), &fileStat) == 0)
-        {
-            return S_ISDIR(fileStat.st_mode);
-        }
-        return false;
-    }
-        
-    bool FileUtils::createDir(const string& path)
-    {
-    #ifdef _WIN32
-        mkdir(path.c_str());
-    #else
-        mkdir(path.c_str(), 0777);
-    #endif
-        return true;
-    }
-        
-    //这个太危险了，慎用
-    bool FileUtils::remove(const string& path)
-    {
-        nftw(path.c_str(), [](const char *fpath, const struct stat *sb, int typeflag, struct FTW *FTWbuff) {
-            if (typeflag == FTW_F)
-            {
-                ::remove(fpath);
-            }
-            else if (typeflag == FTW_D || typeflag == FTW_DP)
-            {
-                ::rmdir(fpath);
-            }
-            return 0;
-        }, 50, FTW_DEPTH|FTW_PHYS);
-        return true;
-    }
-		
     bool FileUtils::exist(const string& path)
     {
         struct stat fileStat;

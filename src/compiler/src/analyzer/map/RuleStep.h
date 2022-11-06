@@ -32,7 +32,7 @@ public:
 
 	bool finished() const
 	{
-		return step >= rule->elements.size();
+		return step >= (int)rule->elements.size();
 	}
 
 	const Element& getNextElement() const

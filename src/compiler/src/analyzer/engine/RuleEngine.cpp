@@ -196,7 +196,7 @@ Result RuleEngine::executeRule(Rule* rule, vector<LexElement>& es, LexElement& o
 	
 Result RuleEngine::executeDelayRule(Rule* rule, vector<RuleMapLink*>& links, vector<LexElement>& es)
 {
-	for (int i = 0;i < rule->elements.size();i++)
+	for (int i = 0;i < (int)rule->elements.size();i++)
 	{
 		RuleMapLink* link = links[i];
 

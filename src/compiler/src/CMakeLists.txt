@@ -1,5 +1,6 @@
 ﻿
 include_directories(../../../depend/json/include)
+include_directories(../../common/src ./)
 
 aux_source_directory(./analyzer/common SEARCH_LIST)
 set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
@@ -39,6 +40,11 @@ set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 
 add_library(compiler STATIC ${SRC_LIST})
 
+if(MSVC)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_SOURCE_DIR}/dist/bin>)
+else()
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/dist/bin)
+endif()
+
 add_executable(one ${SRC_LIST} Compiler.cpp)
 target_link_libraries(one common json)

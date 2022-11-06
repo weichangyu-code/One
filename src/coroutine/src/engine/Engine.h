@@ -11,7 +11,11 @@ namespace OneCoroutine
 {
     //使用r15保持curEngine，编译的时候通过-ffixed-r15，禁用r15
     class Engine;
+#ifdef _MSC_VER
+    extern thread_local Engine* curEngine;
+#else
     register Engine* curEngine asm ("r15");
+#endif
 
     class Iocp;
     class Epoll;

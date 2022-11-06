@@ -58,7 +58,7 @@ namespace One
     
     Reference<String> String::createString(const char* str)
     {
-        Reference<String> strRef = createString(strlen(str));
+        Reference<String> strRef = createString((unsigned int)strlen(str));
         strcpy(strRef->_c, str);
         return strRef;
     }
@@ -136,14 +136,14 @@ namespace One
     int String::find(String* str, int start)
     {
         start = min(max(0, start), length());
-        char* f = strstr((char*)this->str() + start, str->str());
+        const char* f = strstr((char*)this->str() + start, str->str());
         if (f == nullptr)
         {
             return 0;
         }
         else
         {
-            return f - this->str();
+            return (int)(f - this->str());
         }
     }
         

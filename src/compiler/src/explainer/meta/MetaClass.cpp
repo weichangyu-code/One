@@ -509,7 +509,7 @@ MetaVariable* MetaClass::addAnonyThis(int index, MetaVarRef* varRef)
 MetaVariable* MetaClass::addAnonyMember(const string name, MetaVarRef* varRef)
 {
     //构造函数增加一个参数
-    string varName = "var" + StringUtils::itoa(anonyConstructFunc->params.size());
+    string varName = "var" + StringUtils::itoa((int)anonyConstructFunc->params.size());
     MetaVariable* param = anonyConstructFunc->addParam(varName, varRef->type);
 
     //增加一个成员变量，放传进来的参数

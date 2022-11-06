@@ -1,10 +1,17 @@
-﻿enable_language(C ASM)
+﻿
+if(MSVC)
+enable_language(ASM_MASM)
+else()
+enable_language(ASM)
+endif()
 
 #
-if(WIN32)
-set(SEARCH_LIST ./coctx/coctx.cpp ./coctx/coctx_swap_win.s)
+if(MSVC)
+set(SEARCH_LIST ./coctx/coctx.cpp ./coctx/coctx_swap_x86_64_win_masm.asm)
+elseif(WIN32)
+set(SEARCH_LIST ./coctx/coctx.cpp ./coctx/coctx_swap_x86_64_win_gas.s)
 else()
-set(SEARCH_LIST ./coctx/coctx.cpp ./coctx/coctx_swap_linux.s)
+set(SEARCH_LIST ./coctx/coctx.cpp ./coctx/coctx_swap_x86_64_linux_gas.s)
 endif()
 set(SRC_LIST ${SRC_LIST} ${SEARCH_LIST})
 
@@ -28,9 +35,12 @@ aux_source_directory(./socket/iocp IOCP_SRC_LIST)
 aux_source_directory(./socket/ SOCKET_SRC_LIST)
 set(SRC_LIST ${SRC_LIST} ${EPOLL_SRC_LIST} ${IOCP_SRC_LIST} ${SOCKET_SRC_LIST})
 
+if(MSVC)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY $<1:${CMAKE_SOURCE_DIR}/dist/depend/frameworkV0.1/lib>)
+else()
 set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/dist/depend/frameworkV0.1/lib)
+endif()
 add_library(coroutine STATIC ${SRC_LIST})
-
 
 add_custom_command(TARGET coroutine POST_BUILD 
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/dist/depend/frameworkV0.1/include/coroutine

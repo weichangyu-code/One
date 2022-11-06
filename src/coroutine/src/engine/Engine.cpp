@@ -11,6 +11,10 @@
 
 namespace OneCoroutine
 {
+#ifdef _MSC_VER
+    thread_local Engine* curEngine;
+#endif
+
     Engine::Engine()
     {
         curEngine = this;

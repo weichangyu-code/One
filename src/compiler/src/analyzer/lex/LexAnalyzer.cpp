@@ -9,9 +9,7 @@ LexAnalyzer::LexAnalyzer()
 list<LexElement> LexAnalyzer::analysis(const string& str)
 {
 	const char* code = str.c_str();
-	size_t size = str.size();
-
-	for (int i = 0;i < size;)
+	for (int i = 0;i < (int)str.size();)
 	{
 		char c = code[i];
 		char nc = code[i + 1];
@@ -143,7 +141,11 @@ list<LexElement> LexAnalyzer::analysis(const string& str)
 		if (use == 0)
 		{
 			//
-			if ((c == '\r') || (c == '\n'))
+			if (c <= 0)
+			{
+				use = 1;
+			}
+			else if ((c == '\r') || (c == '\n'))
 			{
 				if ((elements.empty() == false) && (elements.back().type != Element::LINEEND))
 				{

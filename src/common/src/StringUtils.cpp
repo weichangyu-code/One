@@ -150,7 +150,7 @@ namespace OneCommon
 				start = i + 1;
 			}
 		}
-		if (ignoreBlank == false || start < size)
+		if (ignoreBlank == false || start < (int)size)
 		{
 			lines.push_back(str.substr(start, size - start));
 		}

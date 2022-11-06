@@ -1,23 +1,18 @@
 #include "SystemUtils.h"
 #include <time.h>
-#include <dirent.h>
-#include <unistd.h>
 #include <thread>
 
 namespace OneCommon
 {
     unsigned int SystemUtils::getMSTick()
     {
-        struct timespec time = {0, 0};
-        clock_gettime(CLOCK_MONOTONIC, &time);
-        return time.tv_sec * 1000 + time.tv_nsec / 1000 / 1000;
+        return (unsigned int)(getUSTick() / 1000);
     }
 
     unsigned long long SystemUtils::getUSTick()
     {
-        struct timespec time = {0, 0};
-        clock_gettime(CLOCK_MONOTONIC, &time);
-        return (unsigned long long)time.tv_sec * 1000 * 1000 + time.tv_nsec / 1000;
+        return std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count();
     }
 
     void SystemUtils::sleep(unsigned int msec)
