@@ -3,8 +3,5 @@
 
 namespace One
 {
-    void throwNullPointExeption()
-    {
-        throw g_objectPool.createObjectR<NullPointerException>();
-    }
+    
 } // namespace One

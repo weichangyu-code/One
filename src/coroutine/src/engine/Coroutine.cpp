@@ -1,5 +1,6 @@
 ﻿#include "Coroutine.h"
 #include "Engine.h"
+#include "CoStdOut.h"
 
 //#include <memoryapi.h>
 
@@ -41,16 +42,21 @@ namespace OneCoroutine
 
     void Coroutine::run(void* data)
     {
+        bool catchException = false;
         try
         {
             runner(this);
         }
         catch(...)
         {
-            //发送异常，协程关闭
-            printf("Coroutine: catch exception. exit\n");
+            //不能在异常里面进行协程切换，会发生不可预知的错误
+            catchException = true;
         }
         
+        if (catchException)
+        {
+            CoStdOut::print("Coroutine: catch exception. exit\n");
+        }
 
         //堆栈越界判断
         // if (costackBeginCheck != 0 || costackEndCheck != 0)

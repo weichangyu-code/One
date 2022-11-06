@@ -21,8 +21,6 @@ namespace One
         }
     };
 
-    void throwNullPointExeption();
-
 } // namespace One
 
 

@@ -125,13 +125,14 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
     cpp << "#include \"ObjectSize.inl\"" << endl;
     cpp << "#include \"ClassPArray.inl\"" << endl;
     cpp << "#include \"MetaManager.h\"" << endl;
+    cpp << "#include \"SignalHandle.h\"" << endl;
     cpp << endl;
 
     //生产函数体
     cpp << endl;
     cpp << "int main()" << endl;
     cpp << "{" << endl;
-
+    cpp << "    One::initSignalHandle();" << endl;
     cpp << "    One::g_stringPool.setStringArray(stringArray, sizeof(stringArray)/sizeof(char*));" << endl;
     cpp << endl;
 

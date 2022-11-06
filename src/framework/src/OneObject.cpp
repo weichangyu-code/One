@@ -1,10 +1,12 @@
 ﻿#include "OneObject.h"
 #include "ObjectPool.h"
 #include "engine/Engine.h"
+#include "engine/CoStdOut.h"
 #include "OneClass.h"
 #include "OneString.h"
 #include "PointerUtils.h"
 using namespace OneCommon;
+using namespace OneCoroutine;
 
 namespace One
 {
@@ -61,6 +63,7 @@ namespace One
         {
             __flag__ |= FLAG_DESTRUCT;
 
+            bool catchException = false;
             try
             {
                 __destruct__();
@@ -68,7 +71,12 @@ namespace One
             catch(...)
             {
                 //捕获析构异常，避免其他资源无法释放。C++不允许析构抛出异常。
-                printf("__destruct__: catch exception\n");
+                //不能在异常里面协程切换
+                catchException = true;
+            }
+            if (catchException)
+            {
+                CoStdOut::print("__destruct__: catch exception\n");
             }
             __clearVar__();
         }
@@ -76,12 +84,12 @@ namespace One
         
     void Object::setLastError(int err)
     {
-        OneCoroutine::Engine::getCurCoroutine()->setErrorCode(err);
+        Engine::getCurCoroutine()->setErrorCode(err);
     }
     
     int Object::getLastError()
     {
-        return OneCoroutine::Engine::getCurCoroutine()->getErrorCode();
+        return Engine::getCurCoroutine()->getErrorCode();
     }
         
     Reference<Class> Object::getClass()
