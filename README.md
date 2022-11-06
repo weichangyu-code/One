@@ -17,7 +17,7 @@
 
 ## 编译
 . 开发工具：vscode  
-. 编译工具：linux gcc，windows vs15 x86_amd64, windows mingw32(不支持异常) 
+. 编译工具：linux gcc x86_64，windows vs15 x86_amd64, windows mingw32(不支持异常) 
 
 ## 进展
 . 完成大流程，HELLO ONE已经出来。  

@@ -1,13 +1,20 @@
 #include "FolderUtils.h"
-#include <io.h>
-#include <direct.h>
 #include <sys/stat.h>
 #include "FileUtils.h"
+
+#ifdef _WIN32
+#include <io.h>
+#include <direct.h>
+#else
+#include <dirent.h>
+#include <unistd.h>
+#endif
 
 namespace OneCommon
 {
     void FolderUtils::findEach(const string& path, const function<bool(const string& name, bool isDir)>& func)
     {
+#ifdef _WIN32
         _finddata_t fileInfo;
         intptr_t handle = _findfirst(FileUtils::appendFileName(path, "*").c_str(), &fileInfo);
         if (handle == -1)
@@ -26,7 +33,28 @@ namespace OneCommon
                 }
             }
         } while (_findnext(handle, &fileInfo) != -1);
-        _findclose(handle); 
+        _findclose(handle);
+#else
+        DIR* dir = opendir(path.c_str());
+        if (dir == nullptr)
+        {
+            return;
+        }
+        dirent* d = readdir(dir);
+        while (d)
+        {
+            if (strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0)
+            {
+                if (func(d->d_name, d->d_type == DT_DIR) == false)
+                {
+                    //中断
+                    break;
+                }
+            }
+            d = readdir(dir);
+        }
+        closedir(dir);
+#endif
     }
 
     bool FolderUtils::isDir(const string& path)
