@@ -25,6 +25,7 @@ public:
     MetaClass*   getArrayClass();
     MetaClass*   getIterableClass();
     MetaClass*   getClassClass();
+    MetaClass*   getExceptionClass();
     bool         isArray(const MetaType& type);
 
     void         addClass(MetaClass* clazz);
@@ -41,6 +42,7 @@ protected:
     MetaClass* arrayClass = nullptr;
     MetaClass* iterableClass = nullptr;
     MetaClass* classClass = nullptr;
+    MetaClass* exceptionClass = nullptr;
 
     MetaConst* zeroConst = nullptr;
 
@@ -99,4 +101,10 @@ protected:
 
 protected:
     map<MetaType, map<MetaType, int> > autoConvertData;
+
+//唯一的名字
+protected:
+    int anonySeek = 0;
+public:
+    string getAnonymous();
 };

@@ -7,6 +7,7 @@ class SyntaxClass;
 class SyntaxIfBlock;
 class SyntaxWhileBlock;
 class SyntaxForBlock;
+class SyntaxTryCatch;
 class SyntaxElement : public SyntaxBase
 {
 public:
@@ -24,6 +25,7 @@ public:
         IFBLOCK,
         FORBLOCK,
         WHILEBLOCK,
+        TRYCATCH,
     };
     int type = SENTENCE;
     union
@@ -33,6 +35,7 @@ public:
         SyntaxIfBlock* ifBlock;
         SyntaxWhileBlock* whileBlock;
         SyntaxForBlock* forBlock;
+        SyntaxTryCatch* tryCatch;
     };
     
 };

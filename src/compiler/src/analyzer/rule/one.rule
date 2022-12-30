@@ -36,11 +36,16 @@ NULL="null"
 NEW="new"
 AUTO="auto"
 
+#异常相关关键字
+TRY="try"
+CATCH="catch"
+#FINAL="final"
+THROW="throw"
+
 #前缀定义
 STATIC="static"
 CONST="const"
 VIRTUAL="virtual"
-FINAL="final"
 
 #基础定义
 number=NUMBER
@@ -187,6 +192,19 @@ break=BREAK
 continue(number)=CONTINUE number
 continue=CONTINUE
 
+#异常捕获
+tryblock=TRY codeblock 
+catchblock(var)=CATCH (vardefcatch) codeblock
+catchblock=CATCH codeblock
+#finalblock=FINAL codeblock
+
+trycatchstart=tryblock
+trycatchstart(add)=trycatchstart catchblock
+#trycatch(final)=trycatchstart finalblock
+trycatch=trycatchstart
+
+throw=THROW exp
+
 #类型定义
 type=typepath
 type(arr)=type arr								#数组，可嵌套多层
@@ -331,6 +349,8 @@ vardefclass=vardefitemarray
 vardefclass=vardefitemtype
 vardefclass(prefix)=vardefprefix vardefclass
 
+vardefcatch=vardefitemtype
+
 #逗号相关的规则
 multitype=type
 multitype(add)=multitype, type			#模板和函数返回值要用
@@ -355,6 +375,7 @@ return(null)=RETURN
 
 #语句
 sentenceend=;
+sentence(throw)=throw sentenceend
 sentence(return)=return sentenceend
 sentence(break)=break sentenceend
 sentence(continue)=continue sentenceend
@@ -385,6 +406,7 @@ element(forblock)=forblock
 element(whileblock)=whileblock
 element(dowhileblock)=dowhileblock
 element(classdef)=classdef
+element(trycatch)=trycatch
 elements=element
 elements(add)=elements element
 

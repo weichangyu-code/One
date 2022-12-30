@@ -18,6 +18,7 @@ public:
         registe("multishortsentence", "", (MyRuleExecuteFunction)&ExplainSentence::onExplainMultiShortSentence);
         registe("multishortsentence", "add", (MyRuleExecuteFunction)&ExplainSentence::onExplainMultiShortSentenceAdd);
 
+        registe("sentence", "throw", (MyRuleExecuteFunction)&ExplainSentence::onExplainSentenceThrow);
         registe("sentence", "return", (MyRuleExecuteFunction)&ExplainSentence::onExplainSentenceReturn);
         registe("sentence", "break", (MyRuleExecuteFunction)&ExplainSentence::onExplainSentenceBreak);
         registe("sentence", "continue", (MyRuleExecuteFunction)&ExplainSentence::onExplainSentenceContinue);
@@ -81,6 +82,17 @@ public:
 
 		out.ptr = multiExp;
 		return {};
+    }
+
+    Result onExplainSentenceThrow(Rule* rule, vector<LexElement>& es, LexElement& out)
+    {
+        SyntaxExp* exp = (SyntaxExp*)es[0].ptr;
+
+        SyntaxSentence* sentence = new SyntaxSentence(context);
+        sentence->exp = exp;
+
+        out.ptr = sentence;
+        return {};
     }
 
     Result onExplainSentenceReturn(Rule* rule, vector<LexElement>& es, LexElement& out)

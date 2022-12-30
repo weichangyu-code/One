@@ -21,6 +21,15 @@ namespace One
         }
     };
 
+    class OutOfArrayException : public Exception
+    {
+    public:
+        OutOfArrayException()
+        {
+
+        }
+    };
+
 } // namespace One
 
 

@@ -126,6 +126,15 @@ MetaClass* MetaContainer::getClassClass()
     return classClass;
 }
 
+MetaClass* MetaContainer::getExceptionClass()
+{
+    if (exceptionClass == nullptr)
+    {
+        exceptionClass = getClass(KEY_ONE_EXCEPTION_CLASS);
+    }
+    return exceptionClass;
+}
+
 bool MetaContainer::isArray(const MetaType& type)
 {
     if (type.type != DT_CLASS || type.clazz == nullptr)
@@ -661,5 +670,10 @@ int  MetaContainer::getAutoConvertType(const MetaType& src, const MetaType& dst)
         return ACT_CANNT;
     }
     return iter2->second;
+}
+    
+string MetaContainer::getAnonymous()
+{
+    return StringUtils::format("anony%d", ++anonySeek);
 }
    

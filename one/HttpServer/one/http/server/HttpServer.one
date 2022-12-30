@@ -4,12 +4,24 @@ class HttpServer
 {
     static void main()
     {
-        Socket sockListen();
-        int ret = sockListen.listen("0.0.0.0", 8000);
-        if (ret < 0)
+        Socket sockListen;
+        try
         {
-            Out.println("listen failed");
-            return;
+            int ret = sockListen.listen("0.0.0.0", 8000);
+            if (ret < 0)
+            {
+                Out.println("listen failed");
+                return;
+            }
+        }
+        catch (OutOfArrayException e)
+        {
+            Out.println("NullPointerException");
+            throw e;
+        }
+        catch
+        {
+            Out.println("Exception");
         }
         Out.println("listen {} success", 8000);
         while (1)

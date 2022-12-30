@@ -84,6 +84,21 @@
             "oneClass":"one.std.Class",
             "hPath":"framework/OneClass.h",
             "cppClass":"Class"
+        },
+        {
+            "oneClass":"one.std.Exception",
+            "hPath":"framework/OneException.h",
+            "cppClass":"Exception"
+        },
+        {
+            "oneClass":"one.std.NullPointerException",
+            "hPath":"framework/OneException.h",
+            "cppClass":"NullPointerException"
+        },
+        {
+            "oneClass":"one.std.OutOfArrayException",
+            "hPath":"framework/OneException.h",
+            "cppClass":"OutOfArrayException"
         }
     ]
 }

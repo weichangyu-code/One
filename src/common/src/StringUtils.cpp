@@ -249,11 +249,11 @@ namespace OneCommon
 		}
 
 		string str;
-		str.reserve(size + 1);
+		str.resize(size);
 		
 		va_list ap2;
 		va_start(ap2, fmt);
-		vsprintf((char*)str.data(), fmt, ap);
+		vsprintf((char*)str.data(), fmt, ap2);
 		va_end(ap2);
 
 		return str;

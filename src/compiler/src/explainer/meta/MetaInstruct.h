@@ -26,6 +26,7 @@ public:
         MetaBlock* block = nullptr;             //
         MetaFunc* func;                         //函数调用和NEW的时候
         MetaVariable* var;
+        MetaClass* clazz;                       //isbaseof使用
     };
 
     //转换后的C++代码

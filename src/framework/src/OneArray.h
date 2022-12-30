@@ -3,6 +3,7 @@
 #include "OneIterator.h"
 #include "OneIterable.h"
 #include "ObjectPool.h"
+#include "ExceptionHelper.h"
 
 namespace One
 {
@@ -23,7 +24,7 @@ namespace One
             if (index < 0 || index >= (int)_length)
             {
                 //抛出异常
-                throw "OutOfArray";
+                throwOutOfArrayException();
             }
             else
             {

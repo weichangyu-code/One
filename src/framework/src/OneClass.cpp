@@ -5,7 +5,7 @@ namespace One
 {
     bool Class::isBaseOf(Class* clazz)
     {
-        if (clazz == nullptr)
+        if (this == nullptr || clazz == nullptr)
         {
             return false;
         }
@@ -15,7 +15,7 @@ namespace One
         }
         for (auto& parent : parents)
         {
-            if (parent->isBaseOf(clazz))
+            if (parent->isBaseOf(clazz)) 
             {
                 return true;
             }

@@ -26,6 +26,7 @@
 #include "../syntax/SyntaxIfBlock.h"
 #include "../syntax/SyntaxWhileBlock.h"
 #include "../syntax/SyntaxForBlock.h"
+#include "../syntax/SyntaxTryCatch.h"
 #include "StringUtils.h"
 #include "../common/Keyword.h"
 using namespace OneCommon;
@@ -664,6 +665,158 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
                 instruct->cmd = BLOCK;
                 instruct->block = forBlock;
                 subBlock->instructs.push_back(instruct);
+            }
+            break;
+        case SyntaxElement::TRYCATCH:
+            {
+                SyntaxTryCatch* tryCatch = element->tryCatch;
+                
+                //添加一个BLOCK，代表整个trycatch
+                MetaBlock* subBlock = new MetaBlock(block, metaContainer, nullptr);
+                MetaInstruct* instruct = new MetaInstruct(metaContainer, nullptr);
+                instruct->cmd = BLOCK;
+                instruct->block = subBlock;
+                block->instructs.push_back(instruct);
+
+                //添加异常变量
+                MetaVariable* varE = subBlock->addVeriable("__e" + metaContainer->getAnonymous() + "__", nullptr);
+                varE->type.setClass(metaContainer->getExceptionClass());
+                instruct = new MetaInstruct(metaContainer, nullptr);
+                instruct->cmd = VARDEF;
+                instruct->var = varE;
+                subBlock->instructs.push_back(instruct);
+
+                //添加tryblock
+                MetaBlock* tryBlock = new MetaBlock(subBlock, metaContainer, tryCatch->tryBlock);
+                VR(generateMetaBlockInstruct(tryBlock));
+                instruct = new MetaInstruct(metaContainer, nullptr);
+                instruct->cmd = TRY_BLOCK;
+                instruct->params.push_back(varE);
+                instruct->block = tryBlock;
+                subBlock->instructs.push_back(instruct);
+
+                //添加if
+                instruct = new MetaInstruct(metaContainer, nullptr);
+                instruct->cmd = IF;
+                instruct->params.push_back(varE);
+                subBlock->instructs.push_back(instruct);
+                MetaBlock* ifBlock = new MetaBlock(subBlock, metaContainer, nullptr);
+                instruct = new MetaInstruct(metaContainer, nullptr);
+                instruct->cmd = BLOCK;
+                instruct->block = ifBlock;
+                subBlock->instructs.push_back(instruct);
+
+                //
+                bool haveCatchAll = false;
+                bool haveCatch = false;
+                for (auto catchBlock : tryCatch->catchBlocks)
+                {
+                    if (haveCatchAll)
+                    {
+                        //catch all后面不能有其他catch
+                        return R_FAILED;
+                    }
+
+                    if (catchBlock->varDef)
+                    {
+                        MetaBlock* subCatchBlock = new MetaBlock(ifBlock, metaContainer, nullptr);
+
+                        MetaVariable* varE2 = subCatchBlock->addVeriable(catchBlock->varDef->name, catchBlock->varDef);
+                        VR(generateMetaVarDefStruct(subCatchBlock, varE2, false));
+
+                        //新增IF语句                
+                        MetaInstruct* instruct2 = new MetaInstruct(metaContainer, nullptr);
+                        instruct2->cmd = IS_BASE_OF;
+                        instruct2->params.push_back(varE);
+                        instruct2->clazz = varE2->type.clazz;
+                        ifBlock->instructs.push_back(instruct2);
+
+                        instruct = new MetaInstruct(metaContainer, nullptr);
+                        instruct->cmd = haveCatch ? ELSE_IF : IF;
+                        instruct->params.push_back(instruct2);
+                        ifBlock->instructs.push_back(instruct);
+
+                        //添加变量定义，并赋值      
+                        instruct = new MetaInstruct(metaContainer, nullptr);
+                        instruct->cmd = VARDEF;
+                        instruct->var = varE2;
+                        instruct->retType = varE2->type;
+                        subCatchBlock->instructs.push_back(instruct);
+                        
+                        instruct2 = new MetaInstruct(metaContainer, nullptr);
+                        instruct2->cmd = TYPE_CONVERT;
+                        instruct2->params.push_back(varE);
+                        instruct2->retType = varE2->type;
+                        subCatchBlock->instructs.push_back(instruct2);
+
+                        instruct = new MetaInstruct(metaContainer, nullptr);
+                        instruct->cmd = ASSIGN;
+                        instruct->params.push_back(varE2);
+                        instruct->params.push_back(instruct2);
+                        instruct->retType = varE2->type;
+                        subCatchBlock->instructs.push_back(instruct);
+
+                        //添加block
+                        MetaBlock* catchBlock2 = new MetaBlock(subCatchBlock, metaContainer, catchBlock->block);
+                        VR(generateMetaBlockInstruct(catchBlock2));
+                        
+                        instruct = new MetaInstruct(metaContainer, nullptr);
+                        instruct->cmd = BLOCK;
+                        instruct->block = catchBlock2;
+                        subCatchBlock->instructs.push_back(instruct);
+
+                        //完成
+                        instruct = new MetaInstruct(metaContainer, nullptr);
+                        instruct->cmd = BLOCK;
+                        instruct->block = subCatchBlock;
+                        ifBlock->instructs.push_back(instruct);
+                    }
+                    else
+                    {
+                        if (haveCatch)
+                        {
+                            instruct = new MetaInstruct(metaContainer, nullptr);
+                            instruct->cmd = ELSE;
+                            ifBlock->instructs.push_back(instruct);
+                        }
+
+                        //添加block
+                        MetaBlock* catchBlock2 = new MetaBlock(ifBlock, metaContainer, catchBlock->block);
+                        VR(generateMetaBlockInstruct(catchBlock2));
+                        
+                        instruct = new MetaInstruct(metaContainer, nullptr);
+                        instruct->cmd = BLOCK;
+                        instruct->block = catchBlock2;
+                        ifBlock->instructs.push_back(instruct);
+                    }
+                    
+                    haveCatchAll = catchBlock->varDef == nullptr;
+                    haveCatch = true;
+                }
+
+                if (haveCatchAll == false)
+                {
+                    //重新抛出
+                    if (haveCatch)
+                    {
+                        instruct = new MetaInstruct(metaContainer, nullptr);
+                        instruct->cmd = ELSE;
+                        ifBlock->instructs.push_back(instruct);
+                    }
+
+                    //添加block
+                    MetaBlock* catchBlock2 = new MetaBlock(ifBlock, metaContainer, nullptr);
+                    instruct = new MetaInstruct(metaContainer, nullptr);
+                    instruct->cmd = BLOCK;
+                    instruct->block = catchBlock2;
+                    ifBlock->instructs.push_back(instruct);
+
+                    //添加throw
+                    instruct = new MetaInstruct(metaContainer, nullptr);
+                    instruct->cmd = THROW;
+                    instruct->params.push_back(varE);
+                    catchBlock2->instructs.push_back(instruct);
+                }
             }
             break;
         }
@@ -1362,6 +1515,17 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
                 {
                     return R_FAILED;
                 }
+            }
+            block->instructs.push_back(instruct);
+        }
+        break;
+    case THROW:
+        {
+            MetaType type = instruct->params.front().getType();
+            if (type.isClass() == false || type.clazz->isBaseOf(metaContainer->getExceptionClass()) == false)
+            {
+                //必须是异常类型
+                return R_FAILED;
             }
             block->instructs.push_back(instruct);
         }

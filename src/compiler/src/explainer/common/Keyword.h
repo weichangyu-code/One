@@ -16,6 +16,7 @@
 #define KEY_ONE_ARRAY_CLASS  KEY_ONE_STD ".Array"
 #define KEY_ONE_ITERABLE_CLASS  KEY_ONE_STD ".Iterable"
 #define KEY_ONE_CLASS_CLASS  KEY_ONE_STD ".Class"
+#define KEY_ONE_EXCEPTION_CLASS  KEY_ONE_STD ".Exception"
 
 #define KEY_INIT_VAR_FUNC           "__initVar__"
 #define KEY_INIT_STATIC_VAR_FUNC    "__initStaticVar__"

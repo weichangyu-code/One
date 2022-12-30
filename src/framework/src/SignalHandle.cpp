@@ -1,5 +1,6 @@
 #include "SignalHandle.h"
 #include "OneException.h"
+#include "ExceptionHelper.h"
 #include "ObjectPool.h"
 
 
@@ -10,7 +11,7 @@ namespace One
 {
     extern "C" void se_translator_function(unsigned int u, struct _EXCEPTION_POINTERS* ep)
     {
-        throw g_objectPool.createObjectR<NullPointerException>();
+        throwNullPointerException();
     }
 
     void initSignalHandle()
@@ -27,7 +28,7 @@ namespace One
 {
     void signalHanle(int sig)
     {
-        throw g_objectPool.createObjectR<NullPointerException>();
+        throwNullPointerException();
     }
 
     void initSignalHandle()

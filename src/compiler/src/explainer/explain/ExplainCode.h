@@ -8,6 +8,7 @@
 #include "../syntax/SyntaxIfBlock.h"
 #include "../syntax/SyntaxWhileBlock.h"
 #include "../syntax/SyntaxForBlock.h"
+#include "../syntax/SyntaxTryCatch.h"
 
 class ExplainCode : public ExplainBase
 {
@@ -21,6 +22,7 @@ public:
         registe("element", "whileblock", (MyRuleExecuteFunction)&ExplainCode::onExplainElementWhileBlock);
         registe("element", "dowhileblock", (MyRuleExecuteFunction)&ExplainCode::onExplainElementWhileBlock);
         registe("element", "forblock", (MyRuleExecuteFunction)&ExplainCode::onExplainElementForBlock);
+        registe("element", "trycatch", (MyRuleExecuteFunction)&ExplainCode::onExplainElementTryCatch);
         
         registe("elements", "", (MyRuleExecuteFunction)&ExplainCode::onExplainElements);
         registe("elements", "add", (MyRuleExecuteFunction)&ExplainCode::onExplainElementsAdd);
@@ -80,6 +82,17 @@ public:
         SyntaxElement* element = new SyntaxElement(context);
         element->type = SyntaxElement::FORBLOCK;
         element->forBlock = block;
+        out.ptr = element;
+        return {};
+    }
+
+    Result onExplainElementTryCatch(Rule* rule, vector<LexElement>& es, LexElement& out)
+    {
+        SyntaxTryCatch* block = (SyntaxTryCatch*)es[0].ptr;
+
+        SyntaxElement* element = new SyntaxElement(context);
+        element->type = SyntaxElement::TRYCATCH;
+        element->tryCatch = block;
         out.ptr = element;
         return {};
     }

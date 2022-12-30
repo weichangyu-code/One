@@ -59,6 +59,7 @@ enum INSTRUCT
     RETURN,
     BREAK,
     CONTINUE,
+    THROW,
 
     NEW,                        //新建对象
     NEW_ARRAY,
@@ -77,6 +78,8 @@ enum INSTRUCT
     FOR,
     FOR_RANGE,
     FOR_EACH,
+    TRY_BLOCK,
+    IS_BASE_OF,
 
     // MUL_ASSIGN,
     // DIV_ASSIGN,

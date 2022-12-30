@@ -94,6 +94,11 @@ namespace One
         
     Reference<Class> Object::getClass()
     {
+        if (this == nullptr)
+        {
+            return nullptr;
+        }
+
         return Reference<Class>(__class__, true, true);
     }
     void Object::initClass(Class* clazz)

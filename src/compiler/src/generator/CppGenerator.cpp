@@ -1005,6 +1005,7 @@ Result CppGenerator::generateClass(const string& root, MetaClass* metaClass)
         cpp << "#include \"" << FileUtils::getFileName(cppClass->cppHPath) << "\"" << endl;
         cpp << "#include \"" << "StringPool.h" << "\"" << endl;
         cpp << "#include \"" << "ObjectPool.h" << "\"" << endl;
+        cpp << "#include \"" << "ExceptionHelper.h" << "\"" << endl;
         set<string> includes;
         for (auto& link : metaClass->linkClasses)
         {
@@ -1344,6 +1345,11 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
             instruct->cppCode = "continue";
         }
         break;
+    case THROW:
+        {
+            instruct->cppCode = "throwException(" + generateData(instruct->params.front()) + ")";
+        }
+        break;
     case NEW:
         {
             ostringstream stream;
@@ -1602,6 +1608,13 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
             instruct->cppCode = ss.str();
         }
         break;
+    case IS_BASE_OF:
+        {
+            CppClass* cppClass = CppClass::getCppClass(instruct->clazz);
+            string param0 = generateData(instruct->params.front());
+            instruct->cppCode = param0 + "->getClass()->isBaseOf(ClassP<" + cppClass->cppName + ">::getClass())";
+        }
+        break;
     }
     return {};
 }
@@ -1637,6 +1650,14 @@ Result CppGenerator::generateBlock(ofstream& f, const string& space, MetaBlock* 
         {
             f << space << "{" << endl;
             VR(generateBlock(f, space + KEY_TAB, instruct->block));
+            f << space << "}" << endl;
+        }
+        else if (instruct->cmd == TRY_BLOCK)
+        {
+            f << space << "try {" << endl;
+            VR(generateBlock(f, space + KEY_TAB, instruct->block));
+            f << space << "} catch (ExceptionBox box) {" << endl;
+            f << space + KEY_TAB << instruct->params.front().var->name << " = box.e;" << endl;
             f << space << "}" << endl;
         }
         else if (instruct->cmd == IF || instruct->cmd == ELSE_IF || instruct->cmd == ELSE
