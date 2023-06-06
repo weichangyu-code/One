@@ -22,7 +22,7 @@ namespace One
         String*& string = _pool[index];
         if (string == nullptr)
         {
-            string = String::createString(_stringArray[index]).detach();
+            string = String::createString(OSTR _stringArray[index]).detach();
         }
         return Reference<String>(string, true, true);
     }

@@ -10,8 +10,16 @@ namespace One
         Buffer(int capacity = 4*1024);
         ~Buffer();
 
+    //one
     public:
-        char* getBuf()
+        void clear();
+        void put(String* str);
+        Reference<String> getLine();
+        Reference<String> getString(OneInt len = -1);
+        virtual Reference<String> toString();
+
+    public:
+        OneChar* getBuf()
         {
             return _buf;
         }
@@ -20,46 +28,44 @@ namespace One
             return _capacity;
         }
 
-        char* getLeftBuf()
+        OneChar* getLeftBuf()
         {
             return _buf + _writePos;
         }
-        unsigned int getLeftCapacity()
+        OneInt getLeftCapacity()
         {
             return _capacity - _writePos;
         }
-        void addWritePos(unsigned int len)
+        void addWritePos(OneInt len)
         {
             _writePos += len;
             assert(_writePos <= _capacity);
         }
 
-        char* getData()
+        OneChar* getData()
         {
             return _buf + _readPos;
         }
-        unsigned int getDataLength()
+        OneInt getDataLength()
         {
             return _writePos - _readPos;
         }
-        void addReadPos(unsigned int len)
+        void addReadPos(OneInt len)
         {
             _readPos += len;
             assert(_readPos <= _writePos);
         }
 
-        void clear();
-        void put(String* str);
-
-        void put(const char* data, unsigned int len);
+        void put(const OneChar* data, OneInt len);
 
     protected:
-        void resizeCapacity(unsigned int capacity);
+        void resizeCapacity(OneInt capacity);
+        int  getLineLength();
 
     protected:
-        unsigned int _readPos = 0;
-        unsigned int _writePos = 0;
-        unsigned int _capacity = 0;
-        char* _buf = nullptr;
+        OneInt _readPos = 0;
+        OneInt _writePos = 0;
+        OneInt _capacity = 0;
+        OneChar* _buf = nullptr;
     };
 }

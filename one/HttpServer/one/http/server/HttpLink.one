@@ -8,8 +8,8 @@ class HttpLink
         _sock = sock;
 
         System.co(() {
-            Buffer recvBuffer();
-            Buffer sendBuffer();
+            Buffer recvBuffer = new Buffer();
+            Buffer sendBuffer = new Buffer();
             while (1)
             {
                 int ret = _sock.recv(recvBuffer);
@@ -33,10 +33,10 @@ class HttpLink
 
     void sendResponse(String str)
     {
-        Buffer sendBuffer(4*1024);
+        Buffer sendBuffer = new Buffer();
         sendBuffer.put("HTTP/1.1 200 OK\n");
         sendBuffer.put("Content-Type: text/html; charset=UTF-8\n");
-        sendBuffer.put("Content-Length: 9\n\n");                         //增加可变参数
+        sendBuffer.put("Content-Length: {}\n\n" %% str.length());                         //增加可变参数
         sendBuffer.put(str);
         _sock.send(sendBuffer);
     }

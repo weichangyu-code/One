@@ -10,10 +10,7 @@ namespace One
     class Out : public Object
     {
     public:
-        static void print(String* str, Array<String>* args);
-        static void println(String* str, Array<String>* args);
-
-    protected:
-        static string formatString(String* str, Array<String>* args);
+        static void print(String* str);                     //移除format参数，直接利用字符串本身的%%操作符
+        static void println(String* str);
     };
 }

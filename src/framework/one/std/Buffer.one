@@ -10,14 +10,24 @@ class Buffer
     {
         
     }
+    
+    void clear()
+    {
+        
+    }
 
     void put(String str)
     {
         
     }
-    
-    void clear()
+
+    String getLine()
     {
-        
+        return null;
+    }
+
+    String getString(int size = -1)
+    {
+        return null;
     }
 }

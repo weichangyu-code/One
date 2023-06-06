@@ -12,13 +12,12 @@ public:
     MetaType getType() const;
 
     void addMember(MetaVariable* member);
-    void addIndex(const MetaData& index);
 
     static MetaVarRef* makeVarRef(MetaContainer* metaContainer, MetaVarRef* ref, MetaVariable* var);
 
 public:
     MetaData obj;
     MetaType type;                      //最终类型
-    list<MetaData> indexes;             //表示连环索引，例如var[0].ptr
+    list<MetaVariable*> members;        //表示连环索引，例如var[0].ptr
 };
 

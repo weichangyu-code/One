@@ -1,10 +1,12 @@
 
 class Out
 {
-	static void print(String str, String... args)
+	//删除format参数，利用%%操作符
+	static void print(String str)
 	{
 	}
-	static void println(String str, String... args)
+
+	static void println(String str)
 	{
 	}
 }

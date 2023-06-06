@@ -523,32 +523,45 @@ Result CppGenerator::generateNativeClass(const string& root, MetaClass* metaClas
     }
 
     set<string> includes;
-    includes.insert(cppClass->cppNativeHPath);
-    for (auto& parent : metaClass->parents)
-    {
-        includes.insert(CppClass::getCppClass(parent)->cppHPath);
-    }
     set<string> classNames;
-    for (auto& link : metaClass->linkClasses)
+
+    //模板类参数
+    includes.insert(cppClass->cppNativeHPath);
+    for (auto& param : metaClass->params)
     {
-        CppClass* cppLink = CppClass::getCppClass(link);
-        if (cppLink->cppNative)
+        if (param->type.isClass())
         {
-            //因为cppNative用typedef定义的，不能用class声明
-            if (cppClass->cppNative && metaClass->templateClass == nullptr)
-            {
-                //不需要包含，本身是原生非模板类，该包含的在原生文件里已经包含了
-            }
-            else
-            {
-                includes.insert(cppLink->cppHPath);
-            }
-        }
-        else
-        {
-            classNames.insert(cppLink->cppName);
+            auto paramCppClass = CppClass::getCppClass(param->type.clazz);
+            includes.insert(paramCppClass->cppHPath);
         }
     }
+
+    // 原生不需要包含
+    // for (auto& parent : metaClass->parents)
+    // {
+    //     includes.insert(CppClass::getCppClass(parent)->cppHPath);
+    // }
+
+    // for (auto& link : metaClass->linkClasses)
+    // {
+    //     CppClass* cppLink = CppClass::getCppClass(link);
+    //     if (cppLink->cppNative)
+    //     {
+    //         //因为cppNative用typedef定义的，不能用class声明
+    //         if (cppClass->cppNative && metaClass->templateClass == nullptr)
+    //         {
+    //             //不需要包含，本身是原生非模板类，该包含的在原生文件里已经包含了
+    //         }
+    //         else
+    //         {
+    //             includes.insert(cppLink->cppHPath);
+    //         }
+    //     }
+    //     else
+    //     {
+    //         classNames.insert(cppLink->cppName);
+    //     }
+    // }
 
     //头文件包含
     h << "#pragma once" << endl;
@@ -1602,7 +1615,7 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
 
             ostringstream ss;
             ss << space << "auto __iter__ = " << param0 << "->iterator();" << endl;
-            ss << space << "bool __hasNext__ = __iter__->hasNext();" << endl;
+            ss << space << "auto __hasNext__ = __iter__->hasNext();" << endl;
             ss << space << "if (__hasNext__)" << endl;
             ss << space << "for (auto " << var->name << "=__iter__->next();__hasNext__;__hasNext__=__iter__->hasNext(),__hasNext__?(" << var->name << "=__iter__->next(),true):false)" << endl;
             instruct->cppCode = ss.str();
@@ -1902,9 +1915,22 @@ string CppGenerator::generateData(MetaData& data)
                 break;
             case DT_CHAR:
                 {
-                    char c[] = "\'a\'";
-                    c[1] = const_->cvalue;
-                    return c;
+                    return StringUtils::itoa(const_->cvalue);
+                    // char c[] = "\'a\'";
+                    // c[1] = const_->cvalue;
+                    // return c;
+                }
+                break;
+            case DT_SHORT:
+                {
+                    if (const_->remark.empty() == false)
+                    {
+                        return const_->remark;
+                    }
+                    else
+                    {
+                        return StringUtils::itoa(const_->svalue);
+                    }
                 }
                 break;
             case DT_INT:
@@ -1962,7 +1988,7 @@ string CppGenerator::generateData(MetaData& data)
                 break;
             case DT_NULL:
                 {
-                    return "nullptr";
+                    return "nullptr";     //对象和基础类型都能用
                 }
                 break;
             default:
@@ -1975,46 +2001,37 @@ string CppGenerator::generateData(MetaData& data)
             MetaVarRef* varRef = data.varRef;
             string cppData = generateData(varRef->obj);
             MetaType type = varRef->obj.getType();
-            for (auto& index : varRef->indexes)
+            for (auto& member : varRef->members)
             {
-                if (index.type == MetaData::MEMBER)
+                if (member->varType == VAR_THIS)
                 {
-                    if (index.var->varType == VAR_THIS)
-                    {
-                        //指的是自己，不需要任何变化
-                        //cppData = "Pointer<" + generateType(index.var->type) + ">(" + cppData + ", true)";
-                    }
-                    else if (index.var->varType == VAR_SUPER)
-                    {
-                        //转换成父类型
-                        //cppData = "Pointer<" + generateType(index.var->type) + ">(" + cppData + ", true)";
-                        cppData = "convertPointerForce<" + generateType(type) + ", " + generateType(index.var->type) + ">(" + cppData + ")";
-                    }
-                    else if (index.var->varType == VAR_CLASS)
-                    {
-                        cppData = "Pointer<Class>(ClassP<" + index.var->box->convertClass()->name + ">::getClass(), true)";
-                    }
-                    else
-                    {
-                        //成员变量
-                        MetaClass* varInClass = (MetaClass*)index.var->box;
-                        if (type.clazz == varInClass)
-                        {
-                            cppData = cppData + "->" + index.var->name;
-                        }
-                        else
-                        {
-                            cppData = cppData + "->" + CppClass::getCppClass(varInClass)->cppName + "::" + index.var->name;
-                        }
-                    }
-                    type = index.var->type;
+                    //指的是自己，不需要任何变化
+                    //cppData = "Pointer<" + generateType(index.var->type) + ">(" + cppData + ", true)";
+                }
+                else if (member->varType == VAR_SUPER)
+                {
+                    //转换成父类型
+                    //cppData = "Pointer<" + generateType(index.var->type) + ">(" + cppData + ", true)";
+                    cppData = "convertPointerForce<" + generateType(type) + ", " + generateType(member->type) + ">(" + cppData + ")";
+                }
+                else if (member->varType == VAR_CLASS)
+                {
+                    cppData = "Pointer<Class>(ClassP<" + member->box->convertClass()->name + ">::getClass(), true)";
                 }
                 else
                 {
-                    assert(metaContainer->isArray(type));
-                    cppData = cppData + "->indexOf(" + generateData(index) + ")";
-                    type = type.clazz->params.front()->type;
+                    //成员变量
+                    MetaClass* varInClass = (MetaClass*)member->box;
+                    if (type.clazz == varInClass)
+                    {
+                        cppData = cppData + "->" + member->name;
+                    }
+                    else
+                    {
+                        cppData = cppData + "->" + CppClass::getCppClass(varInClass)->cppName + "::" + member->name;
+                    }
                 }
+                type = member->type;
             }
             return cppData;
         }
@@ -2094,6 +2111,11 @@ string CppGenerator::generateTypeData(MetaData& data, const MetaType& type, bool
         break;
     case MetaContainer::ACT_NULL:
         {
+            if (type.isBaseType())
+            {
+                //如果是基础类型，转换成0
+                return "0";
+            }
             return str;
         }
         break;
@@ -2140,6 +2162,11 @@ string CppGenerator::generateTypeData(MetaData& data, const MetaType& type, bool
         {
             CppClass* cppClass = CppClass::getCppClass(type.clazz);
             return cppClass->cppName + "::" KEY_VALUEOF_FUNC "(" + str + ")";
+        }
+        break;
+    case MetaContainer::ACT_VALUE:
+        {
+            return str + "->" KEY_VALUE_FUNC "()";
         }
         break;
     default:

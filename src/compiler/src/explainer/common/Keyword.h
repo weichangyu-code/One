@@ -14,6 +14,7 @@
 #define KEY_ONE_INTERFACE_CLASS KEY_ONE_STD ".Interface"
 #define KEY_ONE_STRING_CLASS KEY_ONE_STD ".String"
 #define KEY_ONE_ARRAY_CLASS  KEY_ONE_STD ".Array"
+#define KEY_ONE_FIXED_ARRAY_CLASS  KEY_ONE_STD ".FixedArray"
 #define KEY_ONE_ITERABLE_CLASS  KEY_ONE_STD ".Iterable"
 #define KEY_ONE_CLASS_CLASS  KEY_ONE_STD ".Class"
 #define KEY_ONE_EXCEPTION_CLASS  KEY_ONE_STD ".Exception"
@@ -27,9 +28,14 @@
 #define KEY_DESTROY_FUNC            "__destroy__"
 
 #define KEY_VALUEOF_FUNC            "valueOf"
+#define KEY_VALUE_FUNC              "value"
 #define KEY_CLONE_FUNC              "clone"
 #define KEY_EQUAL_FUNC              "equal"
 #define KEY_COMPARE_FUNC            "compare"
 #define KEY_COMBINE_FUNC            "combine"
+#define KEY_FORMAT_FUNC             "format"
+#define KEY_ARRAY_GET_FUNC          "get"
+#define KEY_ARRAY_SET_FUNC          "set"
+#define KEY_TOSTRING_FUNC           "toString"
 
 #define KEY_TAB         "    "

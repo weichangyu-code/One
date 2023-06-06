@@ -20,6 +20,16 @@ class String : Iterable<char>
 		return null;
 	}
 
+	
+	char get(int index)
+	{
+		return 0;
+	}
+	char set(int index, char value)
+	{
+		return 0;
+	}
+
 	String clone()
 	{
 		return this;
@@ -32,7 +42,11 @@ class String : Iterable<char>
 	{
 		return 0;
 	}
-	String combine(String... strs)
+	String combine(String... args)
+	{
+		return "";
+	}
+	String format(String... args)
 	{
 		return "";
 	}

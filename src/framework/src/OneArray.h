@@ -9,6 +9,39 @@ namespace One
 {
     template<class T> class ArrayIterator;
 
+    ///////////////////////////////////////////////////////////////////////////////////
+    // 支持C++11 RANGEFOR
+    template<class T>
+    class CppArrayIterator
+    {
+    public:
+        CppArrayIterator(typename TemplateType<T>::VarType* data)
+        {
+            _data = data;
+        }
+
+        bool operator != (const CppArrayIterator& other) const
+        {
+            return _data != other._data;
+        }
+
+        typename TemplateType<T>::VarType& operator * () const
+        {
+            return *_data;
+        }
+
+        const CppArrayIterator& operator ++ ()
+        {
+            ++_data;
+            return *this;
+        }
+
+    protected:
+        typename TemplateType<T>::VarType* _data;
+    };
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
     template<class T>
     class Array : public Object, public Iterable<T>
     {
@@ -19,26 +52,36 @@ namespace One
 
         }
 
-        typename TemplateType<T>::VarType& indexOf(int index)
-        {
-            if (index < 0 || index >= (int)_length)
-            {
-                //抛出异常
-                throwOutOfArrayException();
-            }
-            else
-            {
-                return _data[index];
-            }
-        }
-
-
-        int length()
+        OneInt length()
         {
             return _length;
         }
 
+    //其他操作符重载
+    public:
+        Reference<Array<T>> clone();
+        Reference<Array<T>> combine(Array<Array<T>>* args);
+
+    //[]括号操作符
+    public:
+        typename TemplateType<T>::VarType get(OneInt index);
+        typename TemplateType<T>::VarType set(OneInt index, typename TemplateType<T>::FuncParamType value);
+
+    //支持One的foreach
+    public:
         virtual Reference<Iterator<T>> iterator();
+
+    //C++ rangefor支持
+    public:
+        CppArrayIterator<T> begin() const
+        {
+            return CppArrayIterator<T>((typename TemplateType<T>::VarType*)_data);
+        }
+
+        CppArrayIterator<T> end() const
+        {
+            return CppArrayIterator<T>((typename TemplateType<T>::VarType*)_data + _length);
+        }
 
     public:
         virtual void __destruct__()
@@ -46,30 +89,16 @@ namespace One
             _length = 0;
         }
 
-        static Reference<Array<T>> createArray(unsigned int length)
-        {
-            Array<T>* arr = g_objectPool.createObjectT<Array<T>>(sizeof(Array<T>) + length * sizeof(Array<T>::_data));
-            arr->_length = length;
-            return Reference<Array<T>>(arr, true, false);
-        }
-
-        static Reference<Array<T>> createArray(std::initializer_list<typename TemplateType<T>::VarType> init)
-        {
-            Reference<Array<T>> arrRef = createArray((unsigned int)init.size());
-            int i = 0;
-            for (auto& v : init)
-            {
-                arrRef->_data[i] = v;
-                i++;
-            }
-            return arrRef;
-        }
+        static Reference<Array<T>> createArray(OneInt length);
+        static Reference<Array<T>> createArray(std::initializer_list<typename TemplateType<T>::VarType> init);
 
     protected:
-        unsigned int _length = 0;
+        OneInt _length = 0;
         typename TemplateType<T>::VarType _data[1];
     };
 
+    ////////////////////////////////////////////////////////////////////////////////////////
+    //支持ONE FOREACH
     template<class T>
     class ArrayIterator : public Object, public Iterator<T>
     {
@@ -84,7 +113,7 @@ namespace One
             _data = arr->_data;
         }
 
-        virtual bool hasNext()
+        virtual OneBool hasNext()
         {
             return _data < (_arrRef->_data + _arrRef->_length);
         }
@@ -98,13 +127,6 @@ namespace One
         Reference<Array<T>> _arrRef;
         typename TemplateType<T>::VarType* _data = nullptr;
     };
-
-    template<class T>
-    Reference<Iterator<T>> Array<T>::iterator()
-    {
-        Reference<ArrayIterator<T>> iterRef = g_objectPool.createObjectR<ArrayIterator<T>>();
-        iterRef->setData(this);
-        return convertInterfaceReference<ArrayIterator<T>, Iterator<T>>(iterRef);
-    }
 }
 
+#include "OneArray.inl"

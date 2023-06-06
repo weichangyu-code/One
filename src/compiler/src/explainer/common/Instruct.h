@@ -34,6 +34,7 @@ enum INSTRUCT
     BITOR,
     AND,						//右操作符可能为null
     OR,							//右操作符可能为null
+    FMT,                        //格式化
     COND,                       // ? :
     ASSIGN,						//按照语法书写顺序，第二个操作符赋值给第一个
     DEEP_ASSIGN,

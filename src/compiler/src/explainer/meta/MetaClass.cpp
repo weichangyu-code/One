@@ -237,6 +237,20 @@ bool MetaClass::isTemplateClass()
     return params.empty() == false && templateClass == nullptr;
 }
     
+int MetaClass::getTemplateNestNum()
+{
+    int maxNum = 1;
+    for (auto& param : params)
+    {
+        if (param->type.isClass())
+        {
+            int num = param->type.clazz->getTemplateNestNum() + 1;
+            maxNum = std::max(maxNum, num);
+        }
+    }
+    return maxNum;
+}
+    
 MetaClass* MetaClass::createRealClass(const list<MetaType>& types)
 {
     if (isRealClass())
@@ -292,7 +306,7 @@ MetaClass* MetaClass::createRealClass(const list<MetaType>& types)
             realClazz->addLinkClass(param->type.clazz);
         }
     }
-
+    
     realClasses.push_back(realClazz);
     return realClazz;
 }
@@ -521,7 +535,7 @@ MetaVariable* MetaClass::addAnonyMember(const string name, MetaVarRef* varRef)
     assign->params.push_back(member);
     assign->params.push_back(param);
     assign->retType = member->type;
-    anonyConstructFunc->block->instructs.push_back(assign);
+    anonyConstructFunc->block->addInstruct(assign);
 
     //new语句增加各参数，把变量传给参数
     newAnonyInstruct->params.push_back(varRef);

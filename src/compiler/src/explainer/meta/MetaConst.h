@@ -24,6 +24,12 @@ public:
         this->type = DT_BOOL;
     }
 
+    void setShortValue(signed short svalue)
+    {
+        this->svalue = svalue;
+        this->type = DT_SHORT;
+    }
+
     void setIntValue(signed int ivalue)
     {
         this->ivalue = ivalue;
@@ -72,6 +78,7 @@ public:
     {
         bool bvalue;
         signed char cvalue;
+        signed short svalue;
         signed int ivalue;
         signed long long lvalue;
         float fvalue;

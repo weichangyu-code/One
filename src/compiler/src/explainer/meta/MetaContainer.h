@@ -23,10 +23,10 @@ public:
     MetaClass*   getObjectClass();
     MetaClass*   getInterfaceClass();
     MetaClass*   getArrayClass();
+    MetaClass*   getFixedArrayClass();
     MetaClass*   getIterableClass();
     MetaClass*   getClassClass();
     MetaClass*   getExceptionClass();
-    bool         isArray(const MetaType& type);
 
     void         addClass(MetaClass* clazz);
     const list<MetaClass*>& getClasses();
@@ -40,6 +40,7 @@ protected:
     MetaClass* objectClass = nullptr;
     MetaClass* interfaceClass = nullptr;
     MetaClass* arrayClass = nullptr;
+    MetaClass* fixedArrayClass = nullptr;
     MetaClass* iterableClass = nullptr;
     MetaClass* classClass = nullptr;
     MetaClass* exceptionClass = nullptr;
@@ -65,6 +66,7 @@ public:
 
     //查找本来和父类最匹配的方法
     MetaFunc* searchClassFunction(MetaClass* clazz, const string& name, const list<MetaData>& params, int filterType);
+    MetaFunc* searchClassFunction2(MetaClass* clazz, const string& name, const list<MetaType>& paramTypes, int filterType);
 
     //从Box开始查找Function
     MetaFunc* searchFunction(MetaBoxBase* box, const string& name, const list<MetaData>& params, int filterType, MetaVarRef** varRef);
@@ -73,7 +75,8 @@ public:
     MetaVarRef* searchVariable(MetaBoxBase* box, const string& name, int filterType);
 
 protected:
-    MetaFunc* searchMatchClassFunction(MetaClass* clazz, const string& name, const list<MetaData>& params, int& matchValue, int filterType);
+    MetaFunc* searchMatchClassFunction(MetaClass* clazz, const string& name, const list<MetaData>& params, int filterType);
+    MetaFunc* searchMatchClassFunction(MetaClass* clazz, const string& name, const list<MetaType>& paramTypes, int& matchValue, int filterType);
 
 //类型转换
 //自动转换类型：
@@ -92,6 +95,7 @@ public:
         ACT_TEMPLATE,           //模板参数继承
         ACT_CONSTRUCT,          //通过构造函数转换
         ACT_VALUEOF,            //通过valueOf函数转换
+        ACT_VALUE,              //通过value函数转换来
     };
     void addAutoConvertType(const MetaType& src, const MetaType& dst, int type);
     int  getAutoConvertType(const MetaType& src, const MetaType& dst);

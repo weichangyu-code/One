@@ -13,9 +13,9 @@ public:
     {
         registe("vardefitemautoassign", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemAutoAssign);
         registe("vardefitemauto", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemAuto);
-        registe("vardefitemnew", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemNew);
+        //registe("vardefitemnew", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemNew);
         registe("vardefitemassign", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemAssign);
-        registe("vardefitemarray", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemArray);
+        //registe("vardefitemarray", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemArray);
         registe("vardefitemtype", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemType);
         registe("vardefitemdot", "", (MyRuleExecuteFunction)&ExplainVarDef::onExplainVarDefItemDot);
 
@@ -36,36 +36,36 @@ public:
         return {};
     }
 
-    Result onExplainVarDefItemNew(Rule* rule, vector<LexElement>& es, LexElement& out)
-    {
-        SyntaxType* type = (SyntaxType*)es[0].ptr;
-        SyntaxMulti<SyntaxExp*>* multiExp = (SyntaxMulti<SyntaxExp*>*)es[2].ptr;
+    // Result onExplainVarDefItemNew(Rule* rule, vector<LexElement>& es, LexElement& out)
+    // {
+    //     SyntaxType* type = (SyntaxType*)es[0].ptr;
+    //     SyntaxMulti<SyntaxExp*>* multiExp = (SyntaxMulti<SyntaxExp*>*)es[2].ptr;
 
-        SyntaxExp* exp = new SyntaxExp(context);
-        for (auto& expTmp : multiExp->items)
-        {
-            exp->append(expTmp);
-        }
+    //     SyntaxExp* exp = new SyntaxExp(context);
+    //     for (auto& expTmp : multiExp->items)
+    //     {
+    //         exp->append(expTmp);
+    //     }
 
-        SyntaxVarDef* varDef = new SyntaxVarDef(context);
-        varDef->name = es[1].remark;
-        varDef->type = type;
-        varDef->exp = exp;
+    //     SyntaxVarDef* varDef = new SyntaxVarDef(context);
+    //     varDef->name = es[1].remark;
+    //     varDef->type = type;
+    //     varDef->exp = exp;
 
-        SyntaxInstruct* instructRight = new SyntaxInstruct(context);
-        instructRight->cmd = NEW;
-        instructRight->type = varDef->type;
-        for (auto& expTmp : multiExp->items)
-        {
-            instructRight->params.push_back(expTmp->ret);
-        }
-        exp->instructs.push_back(instructRight);
+    //     SyntaxInstruct* instructRight = new SyntaxInstruct(context);
+    //     instructRight->cmd = NEW;
+    //     instructRight->type = varDef->type;
+    //     for (auto& expTmp : multiExp->items)
+    //     {
+    //         instructRight->params.push_back(expTmp->ret);
+    //     }
+    //     exp->instructs.push_back(instructRight);
 
-        exp->ret.setInstruct(instructRight);
+    //     exp->ret.setInstruct(instructRight);
         
-        out.ptr = varDef;
-        return {};
-    }
+    //     out.ptr = varDef;
+    //     return {};
+    // }
 
     Result onExplainVarDefItemAssign(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
@@ -81,31 +81,31 @@ public:
         return {};
     }
 
-    Result onExplainVarDefItemArray(Rule* rule, vector<LexElement>& es, LexElement& out)
-    {
-        SyntaxExp* exp = (SyntaxExp*)es[3].ptr;
-        SyntaxType* type = (SyntaxType*)es[0].ptr;
+    // Result onExplainVarDefItemArray(Rule* rule, vector<LexElement>& es, LexElement& out)
+    // {
+    //     SyntaxExp* exp = (SyntaxExp*)es[3].ptr;
+    //     SyntaxType* type = (SyntaxType*)es[0].ptr;
 
-        SyntaxType* arrType = new SyntaxType(context);
-        arrType->items = type->items;
-        arrType->arrNum = type->arrNum + 1;
+    //     SyntaxType* arrType = new SyntaxType(context);
+    //     arrType->items = type->items;
+    //     arrType->arrNum = type->arrNum + 1;
 
-        SyntaxVarDef* varDef = new SyntaxVarDef(context);
-        varDef->name = es[1].remark;
-        varDef->type = arrType;
-        varDef->exp = exp;
+    //     SyntaxVarDef* varDef = new SyntaxVarDef(context);
+    //     varDef->name = es[1].remark;
+    //     varDef->type = arrType;
+    //     varDef->exp = exp;
         
-        SyntaxInstruct* instructRight = new SyntaxInstruct(context);
-        instructRight->cmd = NEW_ARRAY;
-        instructRight->type = type;          //类型已经数组加1了
-        instructRight->params.push_back(exp->ret);
-        exp->instructs.push_back(instructRight);
+    //     SyntaxInstruct* instructRight = new SyntaxInstruct(context);
+    //     instructRight->cmd = NEW_ARRAY;
+    //     instructRight->type = type;          //类型已经数组加1了
+    //     instructRight->params.push_back(exp->ret);
+    //     exp->instructs.push_back(instructRight);
 
-        exp->ret.setInstruct(instructRight);
+    //     exp->ret.setInstruct(instructRight);
         
-        out.ptr = varDef;
-        return {};
-    }
+    //     out.ptr = varDef;
+    //     return {};
+    // }
 
     Result onExplainVarDefItemType(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
@@ -122,7 +122,7 @@ public:
         SyntaxVarDef* varDef = new SyntaxVarDef(context);
         varDef->name = es[2].remark;
         varDef->type = (SyntaxType*)es[0].ptr;
-        varDef->type->arrNum++;                             //变成一个数组
+        varDef->type->ellipsis = true;                             //变成一个数组
         varDef->isDynamic = true;
 
         out.ptr = varDef;

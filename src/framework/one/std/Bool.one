@@ -1,0 +1,26 @@
+
+class Bool : BaseType
+{
+    Bool()
+    {
+
+    }
+
+    Bool(bool value)
+    {
+
+    }
+
+    static Bool valueOf(bool value)
+    {
+        return null;
+    }
+    bool value()
+    {
+        return false;
+    }
+    virtual String toString()
+    {
+        return "";
+    }
+}

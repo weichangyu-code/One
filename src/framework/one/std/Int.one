@@ -1,0 +1,26 @@
+
+class Int : BaseType
+{
+    Int()
+    {
+
+    }
+
+    Int(int value)
+    {
+
+    }
+
+    static Int valueOf(int value)
+    {
+        return null;
+    }
+    int value()
+    {
+        return 0;
+    }
+    virtual String toString()
+    {
+        return "";
+    }
+}

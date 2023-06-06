@@ -4,32 +4,34 @@ class HttpServer
 {
     static void main()
     {
-        Socket sockListen;
-        try
+        //测试
+        Out.println("aaaaaaaa" + "bbbbbbbbb\n" + "ccccccccccc");
+        Out.println("aaaaaaaaa{} bbbb {}" %% (10, "ttt"));
+        int[] a = new int[3];
+        a[0] = 1 * 2;
+        a[1] = 2;
+        a[2] = a[0];
+        a[5] = 5;
+        int[] b := a;
+        int[] c = a + b;
+        a = null;
+        String str1 = "aaaaa {}" %% 10;
+        String str2 := str1;
+
+        auto sockListen = new Socket();
+        int ret = sockListen.listen("0.0.0.0", 8000);
+        if (ret < 0)
         {
-            int ret = sockListen.listen("0.0.0.0", 8000);
-            if (ret < 0)
-            {
-                Out.println("listen failed");
-                return;
-            }
+            Out.println("listen failed");
+            return;
         }
-        catch (OutOfArrayException e)
-        {
-            Out.println("NullPointerException");
-            throw e;
-        }
-        catch
-        {
-            Out.println("Exception");
-        }
-        Out.println("listen {} success", 8000);
+        Out.println("listen {} success" %% 8000);
         while (1)
         {
-            Socket newClient();
+            auto newClient = new Socket();
             if (newClient.accept(sockListen) == 0)
             {
-                HttpLink link(newClient);
+                new HttpLink(newClient);
             }
         }
     }

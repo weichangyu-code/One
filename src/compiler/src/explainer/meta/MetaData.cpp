@@ -4,6 +4,7 @@
 #include "MetaVarRef.h"
 #include "MetaInstruct.h"
 #include "MetaVariable.h"
+#include "MetaFunc.h"
 
 MetaData::MetaData()
 {
@@ -107,14 +108,22 @@ MetaType MetaData::getType() const
     {
         return var->type;
     }
-    else if (this->type == MEMBER)
-    {
-        return var->type;
-    }
     return {};
 }
     
 bool MetaData::operator == (const MetaData& r)
 {
     return this->type == r.type && this->const_ == r.const_;
+}
+    
+MetaInstruct* MetaData::checkFuncReturn(const char* name)
+{
+    if (this->type == MetaData::INSTRUCT 
+        && (this->instructTmp->cmd == CALL || this->instructTmp->cmd == CALL_FIXED)
+        && this->instructTmp->func->name == name
+        && this->instructTmp->func->isStatic == false)
+    {
+        return this->instructTmp;
+    }
+    return nullptr;
 }

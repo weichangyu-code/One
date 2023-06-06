@@ -41,6 +41,7 @@ public:
     bool            isTemplateRealClass();                      //模板实例化的类
     bool            isNormalRealClass();                        //普通实体类
     bool            isTemplateClass();                          //纯模板类，不能实例化
+    int             getTemplateNestNum();                       //获取模板嵌套数量
     MetaClass*      createRealClass(const list<MetaType>& types);
 
     MetaVariable* getVariable(const string& name, int filterType);

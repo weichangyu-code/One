@@ -19,7 +19,7 @@ public:
 public:
     bool isConst = false;
     bool isStatic = false;
-    bool isDynamic = false;        //可变参数
+    bool isDynamic = false;        //可变参数，代表多个参数
 
     //类型，null代表auto
     SyntaxType* type = nullptr;

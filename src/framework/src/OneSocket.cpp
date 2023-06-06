@@ -13,15 +13,15 @@ namespace One
         delete _sock;
     }
 
-    int Socket::listen(String* localAddr, int port, bool reuseaddr, int backlog)
+    OneInt Socket::listen(String* localAddr, OneInt port, OneBool reuseaddr, OneInt backlog)
     {
-        return _sock->listen(localAddr->str(), port, reuseaddr, backlog);
+        return _sock->listen((const char*)localAddr->str(), port, reuseaddr, backlog);
     }
-    int Socket::connect(String* addr, int port, int timeout)
+    OneInt Socket::connect(String* addr, OneInt port, OneInt timeout)
     {
-        return _sock->connect(addr->str(), port, timeout);
+        return _sock->connect((const char*)addr->str(), port, timeout);
     }
-    int Socket::accept(Socket* listenSocket, int timeout)
+    OneInt Socket::accept(Socket* listenSocket, OneInt timeout)
     {
         return _sock->accept(listenSocket->_sock, timeout);
     }
@@ -30,18 +30,18 @@ namespace One
         _sock->close();
     }
 
-    int Socket::send(Buffer* buffer, int timeout)
+    OneInt Socket::send(Buffer* buffer, OneInt timeout)
     {
-        int ret = _sock->send(buffer->getData(), buffer->getDataLength(), timeout);
+        int ret = _sock->send((const char*)buffer->getData(), buffer->getDataLength(), timeout);
         if (ret > 0)
         {
             buffer->addReadPos(ret);
         }
         return ret;
     }
-    int Socket::recv(Buffer* buffer, int timeout)
+    OneInt Socket::recv(Buffer* buffer, OneInt timeout)
     {
-        int ret = _sock->recv(buffer->getLeftBuf(), buffer->getLeftCapacity(), timeout);
+        int ret = _sock->recv((char*)buffer->getLeftBuf(), buffer->getLeftCapacity(), timeout);
         if (ret > 0)
         {
             buffer->addWritePos(ret);

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Common.h"
 #include "Reference.h"
+#include "Type.h"
 
 /**
  * 对象回收方式，通过引用索引和遍历算法
@@ -27,16 +28,16 @@ namespace One
         void __destroy__();              //强制析构
 
         //错误码
-        static void setLastError(int err);
-        static int  getLastError();
+        static void setLastError(OneInt err);
+        static OneInt getLastError();
 
         //类
         Reference<Class> getClass();
         void initClass(Class* clazz);
 
         virtual Reference<String> toString();
-        bool equal(Object* obj);
-        int  compare(Object* obj);
+        OneBool equal(Object* obj);
+        OneInt  compare(Object* obj);
 
     protected:
         Class* __class__;           //在构造前被填充，不需要初始化

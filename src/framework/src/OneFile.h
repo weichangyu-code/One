@@ -14,19 +14,19 @@ namespace One
     {
     public:
         File();
-        File(String* path, int openFlag, int mode = 0777);
+        File(String* path, OneInt openFlag, OneInt mode = 0777);
         ~File();
 
-        int  open(String* path, int openFlag, int mode = 0777);
+        OneInt open(String* path, OneInt openFlag, OneInt mode = 0777);
         void close();
-        bool isOpen();
+        OneBool isOpen();
 
         //缓冲读写
-        int  write(Buffer* buffer);
-        int  read(Buffer* buffer);
+        OneInt write(Buffer* buffer);
+        OneInt read(Buffer* buffer);
 
         //字符串处理
-        int  write(String* str);
+        OneInt write(String* str);
 
     protected:
         OneCoroutine::CoFile* _file;

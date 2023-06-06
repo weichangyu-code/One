@@ -1,0 +1,26 @@
+
+class Double : BaseType
+{
+    Double()
+    {
+
+    }
+
+    Double(double value)
+    {
+
+    }
+
+    static Double valueOf(double value)
+    {
+        return null;
+    }
+    double value()
+    {
+        return 0;
+    }
+    virtual String toString()
+    {
+        return "";
+    }
+}

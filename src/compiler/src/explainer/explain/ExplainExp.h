@@ -70,6 +70,7 @@ public:
 		registe("exp", "and", (MyRuleExecuteFunction)&ExplainExp::onExeExpAnd);
 		registe("exp", "or", (MyRuleExecuteFunction)&ExplainExp::onExeExpOr);
 
+		registe("exp", "fmt", (MyRuleExecuteFunction)&ExplainExp::onExeExpFmt);
 		registe("exp", "cond", (MyRuleExecuteFunction)&ExplainExp::onExeExpCond);
 
 		registe("exp", "assign", (MyRuleExecuteFunction)&ExplainExp::onExeExpAssign);
@@ -729,6 +730,38 @@ public:
 		// exp->ret.setVarDef(tmp);
 		// out.ptr = exp;
 		// return {};
+	}
+
+	Result onExeExpFmt(Rule* rule, vector<LexElement>& es, LexElement& out)
+	{
+		SyntaxExp* exp = (SyntaxExp*)es[0].ptr;
+		SyntaxExp* exp2 = (SyntaxExp*)es[2].ptr;
+
+		SyntaxInstruct* instruct = new SyntaxInstruct(context);
+		instruct->cmd = FMT;
+		instruct->params.push_back(exp->ret);
+		//判断是否是括号
+		if (exp2->ret.type == SyntaxData::INSTRUCT && exp2->ret.instruct->cmd == COMMA)
+		{
+			SyntaxInstruct* comma = exp2->ret.instruct;
+			exp2->removeInstruct(comma);
+
+			//将逗号里面的参数作为fmt的参数
+			for (auto param : comma->params)
+			{
+				instruct->params.push_back(param);
+			}
+		}
+		else
+		{
+			instruct->params.push_back(exp2->ret);
+		}
+		
+		exp->append(exp2);
+		exp->instructs.push_back(instruct);
+		exp->ret.setInstruct(instruct);
+        out.ptr = exp;
+		return {};
 	}
 
 	Result onExeExpCond(Rule* rule, vector<LexElement>& es, LexElement& out)

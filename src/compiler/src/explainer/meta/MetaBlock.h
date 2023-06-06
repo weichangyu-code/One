@@ -10,6 +10,9 @@ public:
     MetaVariable* getVariable(const string& name, int filterType);
     MetaVariable* addVeriable(const string& name, SyntaxBase* syntaxObj);
 
+    void addInstruct(MetaInstruct* instruct);
+    void removeInstruct(MetaInstruct* instruct);
+
 public:
     list<MetaInstruct*> instructs;
     list<MetaVariable*> vars;       //局部变量，临时变量

@@ -12,6 +12,13 @@ void SyntaxExp::append(SyntaxExp* exp, bool start)
         this->instructs.splice(this->instructs.end(), exp->instructs);
     }
 }
+    
+void SyntaxExp::removeInstruct(SyntaxInstruct* instruct)
+{
+    auto iter = std::find(instructs.begin(), instructs.end(), instruct);
+    assert(iter != instructs.end());
+    instructs.erase(iter);
+}
 
 SyntaxExp* SyntaxExp::combine(SyntaxMulti<SyntaxExp*>* multiExp, bool addCommaInstruct, ExplainContext* context)
 {

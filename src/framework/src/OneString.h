@@ -5,50 +5,67 @@
 
 namespace One
 {
+    #define OC                  (OneChar)
+    #define OSTR                (const OneChar*)
+    const static OneChar* EMPTY_STRING = OSTR "";
+
     class StringIterator;
     template<class T> class Array;
     class String : public Object, public Iterable<signed char>
     {
         friend class StringIterator;
+        friend class StringBuilder;
     public:
         String();
 
-        int length();
-        char* data();
-        const char* str();
-        const char* end();
+        //类型转换
+        static Reference<String> valueOf(OneInt v);
+        static Reference<String> valueOf(OneLong v);
+        static Reference<String> valueOf(OneFloat v);
+        static Reference<String> valueOf(OneDouble v);
 
-        Reference<String> substr(int start = 0, int size = -1);
-        int find(String* str, int start = 0);
+        //打印字符串
+        virtual Reference<String> toString();
+
+        //操作符重载
+        Reference<String> clone();
+        OneBool equal(String* str);
+        int  compare(String* str);
+        Reference<String> combine(Array<String>* args);
+        Reference<String> format(Array<String>* args);
+        OneChar get(OneInt index);
+        OneChar set(OneInt index, OneChar value);
+        virtual Reference<Iterator<OneChar>> iterator();        //也可以认为是For重载
+
+        OneInt length();
+        OneChar* data();
+        const OneChar* str();
+        const OneChar* end();
+
+        Reference<String> substr(OneInt start = 0, OneInt size = -1);
+        int find(String* str, OneInt start = 0);
         Reference<String> replace(String* src, String* dst);
-        Reference<String> replace(signed char src, signed char dst);
+        Reference<String> replace(OneChar src, OneChar dst);
         Reference<String> toUpper();
         Reference<String> toLower();
 
-        static Reference<String> valueOf(int v);
-        static Reference<String> valueOf(signed char c);
-        
-        virtual Reference<String> toString();
-        Reference<String> clone();
-        bool equal(String* str);
-        int  compare(String* str);
-        Reference<String> combine(Array<String>* strs);
-        
-        virtual Reference<Iterator<signed char>> iterator();
-
     protected:
-        void findEach(String* src, const function<void(const char* start, const char* find)>& func);
+        void findEach(const OneChar* src, const function<void(const OneChar* start, const OneChar* find)>& func);
+        OneInt _strlen(const OneChar* str);
+        const OneChar* _strstr(const OneChar* str, const OneChar* find);
         
     //内部接口
     public:
         virtual void __destruct__();
         
-        static Reference<String> createString(unsigned int length);
-        static Reference<String> createString(const char* str);
+        static Reference<String> createString(OneInt length);
+        static Reference<String> createString(const OneChar* str);
+        static Reference<String> createString(const OneChar* str, OneInt length);
+        static Reference<String> createString(const string& str);
 
     protected:
-        unsigned int _length = 0;
-        char _c[1] = {0};
+        OneInt _length = 0;
+        OneChar _c[1] = {0};
     };
 
     class StringIterator : public Object, public Iterator<signed char>
@@ -64,18 +81,18 @@ namespace One
             _data = str->str();
         }
 
-        virtual bool hasNext()
+        virtual OneBool hasNext()
         {
             return _data < _strRef->end();
         }
 
-        virtual signed char next()
+        virtual OneChar next()
         {
-            return (signed char)*(_data++);
+            return *(_data++);
         }
 
     protected:
         Reference<String> _strRef;
-        const char* _data = nullptr;
+        const OneChar* _data = nullptr;
     };
 }

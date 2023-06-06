@@ -3,7 +3,7 @@
 
 namespace One
 {
-    bool Class::isBaseOf(Class* clazz)
+    OneBool Class::isBaseOf(Class* clazz)
     {
         if (this == nullptr || clazz == nullptr)
         {
@@ -25,7 +25,7 @@ namespace One
         
     Reference<String> Class::toString()
     {
-        return String::createString(name.c_str());
+        return String::createString(OSTR name.c_str());
     }
     
 } // namespace One

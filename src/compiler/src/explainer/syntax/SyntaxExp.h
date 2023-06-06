@@ -14,6 +14,7 @@ public:
     }
 
     void append(SyntaxExp* exp, bool start = false);
+    void removeInstruct(SyntaxInstruct* instruct);
 
     static SyntaxExp* combine(SyntaxMulti<SyntaxExp*>* multiExp, bool addCommaInstruct, ExplainContext* context);
 

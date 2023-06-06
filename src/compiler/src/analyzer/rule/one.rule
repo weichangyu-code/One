@@ -93,6 +93,11 @@ lambda=(multiidentifier) codeblock
 lambda(null)=() codeblock
 newanony=NEW type classbody
 
+#新建对象
+newarray=NEW type [ exp ]
+newobject(param)=NEW type callfuncparam
+#newobject=NEW type                            #优先级不能比callfuncparam高
+
 #操作符定义（不支持）
 operator=arr
 operator=inc
@@ -239,6 +244,7 @@ exp(bitxor)=exp^exp
 exp(bitor)=exp|exp
 exp(and)=exp and exp								#左exp如果为false，不需要计算右边
 exp(or)=exp or exp									#类同and，左exp为true，不计算右边
+exp(fmt)= exp fmt exp
 exp(cond)=exp?exp:exp								#根据条件，计算左边还是右边
 
 inc= ++
@@ -256,17 +262,13 @@ and= &&
 or= ||
 arr= []
 dot3= ...
+fmt= %%
 
 exp(forcetype)=(type) exp						#强转类型
 
 exp(newobject)=newobject
 exp(newarray)=newarray
 exp(newanony)=newanony
-
-#新建对象
-newarray=NEW type [ exp ]
-newobject(param)=NEW type callfuncparam
-newobject=NEW type
 
 #赋值语句，这样的编排为了赋值操作从右到左
 assign(deepassign)=exp deepassign assign
@@ -322,17 +324,17 @@ exp(assign)=assign
 vardefitemautoassign=AUTO identifier = exp
 vardefitemautoassign=AUTO identifier deepassign exp
 vardefitemauto=AUTO identifier
-vardefitemnew=type identifier callfuncparam
+#vardefitemnew=type identifier callfuncparam            #删除对象构造的多种选择
 vardefitemassign=type identifier = exp
 vardefitemassign=type identifier deepassign exp
-vardefitemarray=type identifier[exp]
+#vardefitemarray=type identifier[exp]
 vardefitemtype=type identifier
 vardefitemdot=type... identifier
 
 vardefsentence=vardefitemautoassign
-vardefsentence=vardefitemnew
+#vardefsentence=vardefitemnew
 vardefsentence=vardefitemassign
-vardefsentence=vardefitemarray
+#vardefsentence=vardefitemarray
 vardefsentence=vardefitemtype
 vardefsentence(prefix)=vardefprefix vardefsentence
 
@@ -343,9 +345,9 @@ vardeffuncparam=vardefitemassign
 vardeffuncparam=vardefitemtype
 vardeffuncparam=vardefitemdot
 
-vardefclass=vardefitemnew
+#vardefclass=vardefitemnew
 vardefclass=vardefitemassign
-vardefclass=vardefitemarray
+#vardefclass=vardefitemarray
 vardefclass=vardefitemtype
 vardefclass(prefix)=vardefprefix vardefclass
 

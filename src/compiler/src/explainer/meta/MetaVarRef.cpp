@@ -22,14 +22,8 @@ MetaType MetaVarRef::getType() const
     
 void MetaVarRef::addMember(MetaVariable* member)
 {
-    this->indexes.push_back(MetaData(MetaData::MEMBER, member));
+    this->members.push_back(member);
     this->type = member->type;
-}
-    
-void MetaVarRef::addIndex(const MetaData& index)
-{
-    this->indexes.push_back(index);
-    this->type = this->type.clazz->params.front()->type;
 }
     
 MetaVarRef* MetaVarRef::makeVarRef(MetaContainer* metaContainer, MetaVarRef* ref, MetaVariable* var)

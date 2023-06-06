@@ -80,7 +80,7 @@ string CppClass::getTemplateParamImpl()
 {
     if (metaClass->params.empty() == false)
     {
-        ostringstream stream; 
+        ostringstream stream;
         stream << "<";
         for (auto& param : metaClass->params)
         {

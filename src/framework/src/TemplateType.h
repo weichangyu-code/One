@@ -1,8 +1,10 @@
 ﻿#pragma once
+#include "Type.h"
 
 namespace One
 {
     ///////////////////////////////////////////////////////////////////////////////////
+    //判断是否是基础类型
     template<typename T>
     class IsBaseType
     {
@@ -11,54 +13,53 @@ namespace One
     };
 
     template<>
-    class IsBaseType<bool>
+    class IsBaseType<OneBool>
     {
     public:
         const static bool value = true;
     };
 
     template<>
-    class IsBaseType<signed char>
+    class IsBaseType<OneChar>
     {
     public:
         const static bool value = true;
     };
 
     template<>
-    class IsBaseType<signed short>
+    class IsBaseType<OneShort>
     {
     public:
         const static bool value = true;
     };
 
     template<>
-    class IsBaseType<signed int>
+    class IsBaseType<OneInt>
     {
     public:
         const static bool value = true;
     };
 
     template<>
-    class IsBaseType<signed long long>
+    class IsBaseType<OneLong>
     {
     public:
         const static bool value = true;
     };
 
     template<>
-    class IsBaseType<float>
+    class IsBaseType<OneFloat>
     {
     public:
         const static bool value = true;
     };
 
     template<>
-    class IsBaseType<double>
+    class IsBaseType<OneDouble>
     {
     public:
         const static bool value = true;
     };
-
 
     ///////////////////////////////////////////////////////////////////////////////////
 
@@ -80,5 +81,24 @@ namespace One
         typedef Reference<T> VarType;
     };
 
+    ///////////////////////////////////////////////////////////////////////////////////
+    template<typename T, bool isBaseType = IsBaseType<T>::value>
+    class DefaultValue
+    {
+    public:
+        static typename TemplateType<T>::VarType value()
+        {
+            return nullptr;
+        }
+    };
 
+    template<typename T>
+    class DefaultValue<T, true>
+    {
+    public:
+        static typename TemplateType<T>::VarType value()
+        {
+            return 0;
+        }
+    };
 }

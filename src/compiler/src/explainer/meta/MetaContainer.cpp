@@ -108,6 +108,15 @@ MetaClass* MetaContainer::getArrayClass()
     return arrayClass;
 }
 
+MetaClass* MetaContainer::getFixedArrayClass()
+{
+    if (fixedArrayClass == nullptr)
+    {
+        fixedArrayClass = getClass(KEY_ONE_FIXED_ARRAY_CLASS);
+    }
+    return fixedArrayClass;
+}
+
 MetaClass* MetaContainer::getIterableClass()
 {
     if (iterableClass == nullptr)
@@ -133,16 +142,6 @@ MetaClass* MetaContainer::getExceptionClass()
         exceptionClass = getClass(KEY_ONE_EXCEPTION_CLASS);
     }
     return exceptionClass;
-}
-
-bool MetaContainer::isArray(const MetaType& type)
-{
-    if (type.type != DT_CLASS || type.clazz == nullptr)
-    {
-        return false;
-    }
-    MetaClass* clazz = getArrayClass();
-    return (clazz == type.clazz || clazz == type.clazz->templateClass);
 }
     
 void MetaContainer::addClass(MetaClass* clazz)
@@ -183,7 +182,7 @@ MetaClass* MetaContainer::searchClass(MetaBoxBase* box, const string& name)
             MetaClass* clazz = iter->convertClass();
             if (clazz->name == name)
             {
-                return clazz;
+                return clazz->templateClass ? clazz->templateClass : clazz;
             }
             MetaClass* innerClass = clazz->getInnerClass(name);
             if (innerClass)
@@ -325,11 +324,27 @@ MetaFunc* MetaContainer::searchFunction(MetaBoxBase* box, const string& name, co
     
 MetaFunc* MetaContainer::searchClassFunction(MetaClass* clazz, const string& name, const list<MetaData>& params, int filterType)
 {
-    int matchValue;
-    return searchMatchClassFunction(clazz, name, params, matchValue, filterType);
+    return searchMatchClassFunction(clazz, name, params, filterType);
 }
     
-MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string& name, const list<MetaData>& params, int& matchValue, int filterType)
+MetaFunc* MetaContainer::searchClassFunction2(MetaClass* clazz, const string& name, const list<MetaType>& paramTypes, int filterType)
+{
+    int matchValue = 0;
+    return searchMatchClassFunction(clazz, name, paramTypes, matchValue, filterType);
+}
+    
+MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string& name, const list<MetaData>& params, int filterType)
+{
+    list<MetaType> paramTypes;
+    for (auto& param : params)
+    {
+        paramTypes.push_back(param.getType());
+    }
+    int matchValue;
+    return searchMatchClassFunction(clazz, name, paramTypes, matchValue, filterType);
+}
+    
+MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string& name, const list<MetaType>& paramTypes, int& matchValue, int filterType)
 {
     //先查找类型一样的
     MetaFunc* match = nullptr;
@@ -350,7 +365,7 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
         //判断是否有可变参数
         if (func->isDynamicParamFunc())
         {
-            if (func->params.size() - 1 > params.size())
+            if (func->params.size() - 1 > paramTypes.size())
             {
                 //除了可变参数，其他参数必填
                 continue;
@@ -358,7 +373,7 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
 
             //比对参数
             auto iter1 = func->params.begin();
-            auto iter2 = params.begin();
+            auto iter2 = paramTypes.begin();
             for (;iter1 != func->params.end();++iter1, ++iter2)
             {
                 if ((*iter1)->isDynamic)
@@ -367,7 +382,7 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
                 }
 
                 MetaType type1 = (*iter1)->type;
-                MetaType type2 = (*iter2).getType();
+                MetaType type2 = (*iter2);
 
                 //判断是不是匿名
                 if (type1.isClass() && type2.isClass() && type2.clazz->isAnonyClass)
@@ -391,9 +406,9 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
 
             //判断多余的参数有没有默认参数
             MetaType type1 = func->getDynamicParamType();    //数组里面的第一个模板参数
-            for (;iter2 != params.end();++iter2)
+            for (;iter2 != paramTypes.end();++iter2)
             {
-                MetaType type2 = (*iter2).getType();
+                MetaType type2 = (*iter2);
 
                 //判断是不是匿名
                 if (type1.isClass() && type2.isClass() && type2.clazz->isAnonyClass)
@@ -417,7 +432,7 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
         }
         else
         {
-            if (func->params.size() < params.size())
+            if (func->params.size() < paramTypes.size())
             {
                 //会有默认参数，所以函数参数数量大于等于实际数量
                 continue;
@@ -425,11 +440,11 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
 
             //比对参数
             auto iter1 = func->params.begin();
-            auto iter2 = params.begin();
-            for (;iter2 != params.end();++iter1, ++iter2)
+            auto iter2 = paramTypes.begin();
+            for (;iter2 != paramTypes.end();++iter1, ++iter2)
             {
                 MetaType type1 = (*iter1)->type;
-                MetaType type2 = (*iter2).getType();
+                MetaType type2 = (*iter2);
 
                 //判断是不是匿名
                 if (type1.isClass() && type2.isClass() && type2.clazz->isAnonyClass)
@@ -478,7 +493,7 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
     for (auto& parent : clazz->parents)
     {
         int value;
-        MetaFunc* func = searchMatchClassFunction(parent, name, params, value, filterType);
+        MetaFunc* func = searchMatchClassFunction(parent, name, paramTypes, value, filterType);
         if (value < matchValue)
         {
             matchValue = value;
@@ -598,9 +613,16 @@ void MetaContainer::addDefaultAutoConvert()
     addAutoConvertType(DT_CHAR, DT_SHORT, ACT_BASE_TYPE);
     addAutoConvertType(DT_CHAR, DT_INT, ACT_BASE_TYPE);
     addAutoConvertType(DT_CHAR, DT_LONG, ACT_BASE_TYPE);
+    addAutoConvertType(DT_CHAR, DT_FLOAT, ACT_BASE_TYPE);
+    addAutoConvertType(DT_CHAR, DT_DOUBLE, ACT_BASE_TYPE);
     addAutoConvertType(DT_SHORT, DT_INT, ACT_BASE_TYPE);
     addAutoConvertType(DT_SHORT, DT_LONG, ACT_BASE_TYPE);
+    addAutoConvertType(DT_SHORT, DT_FLOAT, ACT_BASE_TYPE);
+    addAutoConvertType(DT_SHORT, DT_DOUBLE, ACT_BASE_TYPE);
     addAutoConvertType(DT_INT, DT_LONG, ACT_BASE_TYPE);
+    addAutoConvertType(DT_INT, DT_FLOAT, ACT_BASE_TYPE);
+    addAutoConvertType(DT_INT, DT_DOUBLE, ACT_BASE_TYPE);
+    addAutoConvertType(DT_LONG, DT_DOUBLE, ACT_BASE_TYPE);
     addAutoConvertType(DT_FLOAT, DT_DOUBLE, ACT_BASE_TYPE);
 }
     
@@ -653,10 +675,28 @@ int  MetaContainer::getAutoConvertType(const MetaType& src, const MetaType& dst)
             }
         }
     }
-    else if (src.isNull() && dst.isClass())
+    else if (src.isNull())
     {
         //null可以转换任意类
         return ACT_NULL;
+    }
+
+    //查找valueof
+    if (dst.isClass())
+    {
+        MetaFunc* func = searchClassFunction2(dst.clazz, KEY_VALUEOF_FUNC, {src}, MFT_ONLY_STATIC);
+        if (func && func->returnType == dst)
+        {
+            return ACT_VALUEOF;
+        }
+    }
+    if (src.isClass())
+    {
+        MetaFunc* func = searchClassFunction2(src.clazz, KEY_VALUE_FUNC, {}, MFT_ONLY_NORMAL);
+        if (func && func->returnType == dst)
+        {
+            return ACT_VALUE;
+        }
     }
 
     auto iter1 = autoConvertData.find(src);
@@ -670,6 +710,7 @@ int  MetaContainer::getAutoConvertType(const MetaType& src, const MetaType& dst)
         return ACT_CANNT;
     }
     return iter2->second;
+
 }
     
 string MetaContainer::getAnonymous()

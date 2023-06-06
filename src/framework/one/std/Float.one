@@ -1,0 +1,26 @@
+
+class Float : BaseType
+{
+    Float()
+    {
+
+    }
+
+    Float(float value)
+    {
+
+    }
+
+    static Float valueOf(float value)
+    {
+        return null;
+    }
+    float value()
+    {
+        return 0;
+    }
+    virtual String toString()
+    {
+        return "";
+    }
+}

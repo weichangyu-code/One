@@ -2,6 +2,7 @@
 #include "ObjectPool.h"
 #include "StringUtils.h"
 #include "OneArray.h"
+#include "OneBuffer.h"
 using namespace OneCommon;
 
 namespace One
@@ -11,7 +12,7 @@ namespace One
 
     }
 
-    int String::length()
+    OneInt String::length()
     {
         if (this == nullptr)
         {
@@ -20,25 +21,25 @@ namespace One
         return _length;
     }
         
-    const char* String::str()
+    const OneChar* String::str()
     {
         if (this == nullptr)
         {
-            return "";
+            return EMPTY_STRING;
         }
         return _c;
     }
         
-    const char* String::end()
+    const OneChar* String::end()
     {
         if (this == nullptr)
         {
-            return "";
+            return EMPTY_STRING;
         }
         return _c + _length;
     }
 
-    char* String::data()
+    OneChar* String::data()
     {
         return _c;
     }
@@ -49,33 +50,51 @@ namespace One
         _c[0] = 0;
     }
 
-    Reference<String> String::createString(unsigned int length)
+    Reference<String> String::createString(OneInt length)
     {
         String* str = g_objectPool.createObjectT<String>(sizeof(String) + length);
         str->_length = length;
         return Reference<String>(str, true, false);
     }
     
-    Reference<String> String::createString(const char* str)
+    Reference<String> String::createString(const OneChar* str)
     {
-        Reference<String> strRef = createString((unsigned int)strlen(str));
-        strcpy(strRef->_c, str);
+        Reference<String> strRef = createString((OneInt)strlen((const char*)str));
+        memcpy(strRef->_c, str, strRef->_length);
         return strRef;
     }
-
-    Reference<String> String::valueOf(int v)
+    
+    Reference<String> String::createString(const OneChar* str, OneInt length)
     {
-        char buf[32];
-        StringUtils::itoa(v, buf);
-        return createString(buf);
+        Reference<String> strRef = createString(length);
+        memcpy(strRef->_c, str, length);
+        strRef->_c[length] = 0;
+        return strRef; 
     }
     
-    Reference<String> String::valueOf(signed char c)
+    Reference<String> String::createString(const string& str)
     {
-        char buf[2];
-        buf[0] = c;
-        buf[1] = 0;
-        return createString(buf);
+        return createString((const OneChar*)str.c_str());
+    }
+
+    Reference<String> String::valueOf(OneInt v)
+    {
+        return createString(StringUtils::itoa(v));
+    }
+    
+    Reference<String> String::valueOf(OneLong v)
+    {
+        return createString(StringUtils::ltoa(v));
+    }
+    
+    Reference<String> String::valueOf(OneFloat v)
+    {
+        return createString(StringUtils::ftoa(v));
+    }
+    
+    Reference<String> String::valueOf(OneDouble v)
+    {
+        return createString(StringUtils::dtoa(v));
     }
 
     Reference<String> String::toString()
@@ -88,40 +107,95 @@ namespace One
         return this;
     }
     
-    bool String::equal(String* str)
+    OneBool String::equal(String* str)
     {
         return compare(str) == 0;
     }
         
     int String::compare(String* str)
     {
-        return strcmp(this->str(), str->str());
+        return strcmp((const char*)this->str(), (const char*)str->str());
     }
         
-    Reference<String> String::combine(Array<String>* strs)
+    Reference<String> String::combine(Array<String>* args)
     {
         //计算长度
-        unsigned int len = length();
-        for (int i = 0;i < strs->length();i++)
+        OneInt len = this->length();
+        for (String* arg : *args)
         {
-            len += strs->indexOf(i)->length();
+            len += arg->length();
         }
 
         //字符串叠加
-        Reference<String> strRef = createString(len);
-        char* buf = strRef->data();
-        strcpy(buf, str());
-        buf += this->length();
-        for (int i = 0;i < strs->length();i++)
+        Buffer buf(len);
+        buf.put(this);
+        for (String* arg : *args)
         {
-            strcpy(buf, strs->indexOf(i)->str());
-            buf += strs->indexOf(i)->length();
+            buf.put(arg);
         }
 
-        return strRef;
+        return buf.toString();
     }
         
-    Reference<String> String::substr(int start, int size)
+    Reference<String> String::format(Array<String>* args)
+    {
+        OneInt len = this->length();
+        for (auto arg : *args)
+        {
+            len += arg->length();
+        }
+
+        //搜索{}，然后替换
+        Buffer buf(len);
+        int i = 0;
+        findEach(OSTR"{}", [&i, &buf, args] (const OneChar* start, const OneChar* find) 
+        {
+            buf.put(start, (OneInt)(find - start));
+            if (*find == 0)
+            {
+                return;
+            }
+
+            if (i < args->length())
+            {
+                buf.put(args->get(i));
+            }
+            else
+            {
+                //如果没参数，变成空
+                //buf.put(OSTR"{}", 2);
+            }
+            i++;
+        });
+        return buf.toString();
+    }
+        
+    OneChar String::get(OneInt index)
+    {
+        if (index < 0 || index >= _length)
+        {
+            return 0;
+        }
+        else
+        {
+            return _c[index];
+        }
+    }
+        
+    OneChar String::set(OneInt index, OneChar value)
+    {
+        if (index < 0 || index >= _length)
+        {
+            return 0;
+        }
+        else
+        {
+            _c[index] = value;
+            return value;
+        }
+    }
+        
+    Reference<String> String::substr(OneInt start, OneInt size)
     {
         start = min(max(0, start), length());
         if (size < 0 && (size + start) > length())
@@ -133,10 +207,10 @@ namespace One
         return strRef;
     }
         
-    int String::find(String* str, int start)
+    int String::find(String* str, OneInt start)
     {
-        start = min(max(0, start), length());
-        const char* f = strstr((char*)this->str() + start, str->str());
+        start = min(max(0, start), this->length());
+        const OneChar* f = _strstr(this->str() + start, str->str());
         if (f == nullptr)
         {
             return 0;
@@ -147,55 +221,55 @@ namespace One
         }
     }
         
-    void String::findEach(String* src, const function<void(const char* start, const char* find)>& func)
+    void String::findEach(const OneChar* src, const function<void(const OneChar* start, const OneChar* find)>& func)
     {
-        const char* start = this->str();
+        OneInt srcLen = _strlen(src);
+        const OneChar* start = this->str();
         while (1)
         {
-            char* find = strstr((char*)start, src->str());
+            const OneChar* find = _strstr(start, src);
             if (find == nullptr)
             {
                 break;
             }
             func(start, find);
-            start = find + src->length();
+            start = find + srcLen;
         }
         func(start, this->end());
     }
         
-    Reference<String> String::replace(String* src, String* dst)
+    OneInt String::_strlen(const OneChar* str)
     {
-        //
-        int findNum = -1;
-        findEach(src, [&findNum](const char* start, const char* find) {
-            findNum++;
-        });
-        if (findNum == 0)
+        if (str == nullptr)
         {
-            return this;
+            return 0;
         }
-
-        int newLen = this->length() + (dst->length() - src->length()) * findNum;
-        Reference<String> strRef = createString(newLen);
-        char* writePos = strRef->data();
-
-        findEach(src, [&writePos, dst](const char* start, const char* find) {
-            memcpy(writePos, start, find - start);
-            writePos += find - start;
-            
-            if (*find != 0)
-            {
-                memcpy(writePos, dst->str(), dst->length());
-                writePos += dst->length();
-            }
-        });
-        return strRef;
+        return (OneInt)strlen((const char*)str);
     }
         
-    Reference<String> String::replace(signed char src, signed char dst)
+    const OneChar* String::_strstr(const OneChar* str, const OneChar* find)
+    {
+        return (const OneChar*)strstr((const char*)str, (const char*)find);
+    }
+        
+    Reference<String> String::replace(String* src, String* dst)
+    {
+        Buffer buf(this->length() + 16);
+        findEach(src->str(), [&buf, dst](const OneChar* start, const OneChar* find) 
+        {
+            buf.put(start, (OneInt)(find - start));
+            if (*find != 0)
+            {
+                buf.put(dst);
+            }
+        });
+        return buf.toString();
+    }
+        
+    Reference<String> String::replace(OneChar src, OneChar dst)
     {
         Reference<String> strRef = createString(this->str());
-        signed char* data = (signed char*)strRef->data();
+        OneChar* data = (signed char*)strRef->data();
         for (int i = 0;i < length();i++)
         {
             if (data[i] == src)
@@ -209,12 +283,12 @@ namespace One
     Reference<String> String::toUpper()
     {
         Reference<String> strRef = createString(this->str());
-        char* data = strRef->data();
+        OneChar* data = strRef->data();
         for (int i = 0;i < length();i++)
         {
-            if (data[i] >= 'a' && data[i] <= 'z')
+            if (data[i] >= OC 'a' && data[i] <= OC 'z')
             {
-                data[i] = data[i] - 'a' + 'A';
+                data[i] = data[i] - OC 'a' + OC 'A';
             }
         }
         return strRef;
@@ -223,21 +297,21 @@ namespace One
     Reference<String> String::toLower()
     {
         Reference<String> strRef = createString(this->str());
-        char* data = strRef->data();
+        OneChar* data = strRef->data();
         for (int i = 0;i < length();i++)
         {
-            if (data[i] >= 'A' && data[i] <= 'Z')
+            if (data[i] >= OC 'A' && data[i] <= OC 'Z')
             {
-                data[i] = data[i] - 'A' + 'a';
+                data[i] = data[i] - OC 'A' + OC 'a';
             }
         }
         return strRef;
     }
     
-    Reference<Iterator<signed char>> String::iterator()
+    Reference<Iterator<OneChar>> String::iterator()
     {
         Reference<StringIterator> iterRef = g_objectPool.createObjectR<StringIterator>();
         iterRef->setData(this);
-        return convertInterfaceReference<StringIterator, Iterator<signed char>>(iterRef);
+        return convertInterfaceReference<StringIterator, Iterator<OneChar>>(iterRef);
     }
 }

@@ -1,0 +1,26 @@
+
+class Long : BaseType
+{
+    Long()
+    {
+
+    }
+
+    Long(long value)
+    {
+
+    }
+
+    static Long valueOf(long value)
+    {
+        return null;
+    }
+    long value()
+    {
+        return 0;
+    }
+    virtual String toString()
+    {
+        return "";
+    }
+}

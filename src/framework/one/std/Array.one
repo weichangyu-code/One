@@ -11,7 +11,28 @@ class Array<T> : Iterable<T>
 		return 0;
 	}
 
+	//foreach
 	virtual Iterator<T> iterator()
+	{
+		return null;
+	}
+
+	//[]操作符
+	T get(int index)
+	{
+		return null;
+	}
+	T set(int index, T value)
+	{
+		return null;
+	}
+
+	//
+	Array<T> clone()
+	{
+		return null;
+	}
+	Array<T> combine(Array<T>... args)
 	{
 		return null;
 	}

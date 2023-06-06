@@ -17,7 +17,7 @@ namespace One
         {
         }
 
-        bool isBaseOf(Class* clazz);
+        OneBool isBaseOf(Class* clazz);
 
         virtual Reference<String> toString();
     

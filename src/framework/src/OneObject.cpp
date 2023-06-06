@@ -82,12 +82,12 @@ namespace One
         }
     }
         
-    void Object::setLastError(int err)
+    void Object::setLastError(OneInt err)
     {
         Engine::getCurCoroutine()->setErrorCode(err);
     }
-    
-    int Object::getLastError()
+
+    OneInt Object::getLastError()
     {
         return Engine::getCurCoroutine()->getErrorCode();
     }
@@ -108,15 +108,15 @@ namespace One
     
     Reference<String> Object::toString()
     {
-        return String::createString("");
+        return String::createString(OSTR "");
     }
         
-    bool Object::equal(Object* obj)
+    OneBool Object::equal(Object* obj)
     {
         return this == obj;
     }
         
-    int Object::compare(Object* obj)
+    OneInt Object::compare(Object* obj)
     {
         return PointerUtils::compare(this, obj);
     }

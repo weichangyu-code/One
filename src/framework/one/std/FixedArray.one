@@ -1,0 +1,26 @@
+
+//固定数组，不可修改
+class FixedArray<T> : Iterable<T>
+{
+	FixedArray()
+	{
+		
+	}
+    
+	int length()
+	{
+		return 0;
+	}
+
+	//foreach
+	virtual Iterator<T> iterator()
+	{
+		return null;
+	}
+
+	//[]操作符，只读
+	T get(int index)
+	{
+		return null;
+	}
+}

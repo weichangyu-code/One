@@ -9,69 +9,22 @@ using namespace std;
 
 namespace One
 {
-    string Out::formatString(String* str, Array<String>* args)
-    {
-        string dst;
-        dst.reserve(str->length() * 2);
-
-        const char* str2 = str->str();
-        int i = 0;
-        while (1)
-        {
-            const char* find = strstr(str2, "{}");
-            if (find == nullptr)
-            {
-                break;
-            }
-            dst += string(str2, find - str2);
-            str2 = find + 2;
-            
-            if (i < args->length())
-            {
-                dst += args->indexOf(i)->str();
-            }
-            else
-            {
-                dst += "{}";    //如果没有替换，还是保留
-            }
-            i++;
-        }
-        dst += str2;
-        return dst;
-    }
-
-    void Out::print(String* str, Array<String>* args)
+    void Out::print(String* str)
     {
         if (str == nullptr)
         {
             return;
         }
-        if (args->length() == 0)
-        {
-            CoStdOut::print("%s", str->str());
-        }
-        else
-        {
-            string dst = formatString(str, args);
-            CoStdOut::print("%s", dst.c_str());
-        }
+        CoStdOut::print("%s", str->str());
     }
         
-    void Out::println(String* str, Array<String>* args)
+    void Out::println(String* str)
     {
         if (str == nullptr)
         {
             return;
         }
-        if (args->length() == 0)
-        {
-            CoStdOut::print("%s\n", str->str());
-        }
-        else
-        {
-            string dst = formatString(str, args);
-            CoStdOut::print("%s\n", dst.c_str());
-        }
+        CoStdOut::print("%s\n", str->str());
     }
 
 } // namespace One

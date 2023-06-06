@@ -47,4 +47,5 @@ public:
     list<SyntaxTypePathItem*> items;
     SyntaxClass* anony = nullptr;
     int arrNum = 0;
+    bool ellipsis = false;              //...省略号，代表可变参数
 };

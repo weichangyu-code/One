@@ -28,3 +28,15 @@ MetaVariable* MetaBlock::addVeriable(const string& name, SyntaxBase* syntaxObj)
     vars.push_back(var);
     return var;
 }
+    
+void MetaBlock::addInstruct(MetaInstruct* instruct)
+{
+    instructs.push_back(instruct);
+}
+    
+void MetaBlock::removeInstruct(MetaInstruct* instruct)
+{
+    auto iter = std::find(instructs.begin(), instructs.end(), instruct);
+    assert(iter != instructs.end());
+    instructs.erase(iter);
+}

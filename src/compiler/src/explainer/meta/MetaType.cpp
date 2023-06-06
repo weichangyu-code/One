@@ -41,14 +41,14 @@ struct ONE_BASE_TYPE
     const char* cppType;
 };
 ONE_BASE_TYPE ONE_BASE_TYPES[] = {
-    {DT_VOID , "void", "void"},
-    {DT_BOOL , "bool", "bool"},
-    {DT_CHAR , "char", "signed char"},
-    {DT_SHORT , "short", "signed short"},
-    {DT_INT , "int", "signed int"},
-    {DT_LONG , "long", "signed long long"},
-    {DT_FLOAT , "float", "float"},
-    {DT_DOUBLE , "double", "double"}
+    {DT_VOID , "void", "OneVoid"},
+    {DT_BOOL , "bool", "OneBool"},
+    {DT_CHAR , "char", "OneChar"},
+    {DT_SHORT , "short", "OneShort"},
+    {DT_INT , "int", "OneInt"},
+    {DT_LONG , "long", "OneLong"},
+    {DT_FLOAT , "float", "OneFloat"},
+    {DT_DOUBLE , "double", "OneDouble"}
 };
     
 int MetaType::stringToType(const string& type)

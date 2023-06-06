@@ -10,7 +10,7 @@ namespace One
         Iterator(Object* obj) : Interface(obj)
         {}
     public:
-        virtual bool hasNext() = 0;
+        virtual OneBool hasNext() = 0;
         virtual typename TemplateType<T>::VarType next() = 0;
     };
 }

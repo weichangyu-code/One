@@ -32,6 +32,9 @@ public:
 
     bool operator == (const MetaData& r);
 
+    //获取当前数据是不是调用某个函数返回值
+    MetaInstruct* checkFuncReturn(const char* name);
+
 public:
     enum
     {
@@ -40,7 +43,6 @@ public:
         VARREF,
         INSTRUCT,
         VAR,
-        MEMBER,             //作为对象成员，var有效
     };
     int type = NONE;
     union
