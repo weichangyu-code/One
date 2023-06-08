@@ -15,7 +15,15 @@ class String : Iterable<char>
 	{
 		return null;
 	}
-	static String valueOf(char c)
+	static String valueOf(long v)
+	{
+		return null;
+	}
+	static String valueOf(float v)
+	{
+		return null;
+	}
+	static String valueOf(double v)
 	{
 		return null;
 	}

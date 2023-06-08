@@ -99,6 +99,7 @@ public:
     };
     void addAutoConvertType(const MetaType& src, const MetaType& dst, int type);
     int  getAutoConvertType(const MetaType& src, const MetaType& dst);
+    MetaType getMaxType(const MetaType& type1, const MetaType& type2);
 
 protected:
     void addDefaultAutoConvert();

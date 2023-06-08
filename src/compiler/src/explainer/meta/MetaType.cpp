@@ -186,10 +186,3 @@ bool MetaType::operator != (const MetaType& r) const
 {
     return equal(r) == false;
 }
-    
-MetaType MetaType::max(const MetaType& r1, const MetaType& r2)
-{
-    MetaType ret;
-    ret.type = std::max(r1.type, r2.type);
-    return ret;
-}

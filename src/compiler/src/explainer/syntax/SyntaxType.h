@@ -48,4 +48,7 @@ public:
     SyntaxClass* anony = nullptr;
     int arrNum = 0;
     bool ellipsis = false;              //...省略号，代表可变参数
+
+    bool funcType = false;              //函数类型
+    list<SyntaxType*> funcParamTypes;   //函数参数类型
 };

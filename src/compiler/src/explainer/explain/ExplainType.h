@@ -18,6 +18,8 @@ public:
         registe("typepath", "", (MyRuleExecuteFunction)&ExplainType::onExplainTypePath);
         registe("typepath", "add", (MyRuleExecuteFunction)&ExplainType::onExplainTypePathAdd);
         registe("type", "arr", (MyRuleExecuteFunction)&ExplainType::onExplainTypeArr);
+        registe("type", "func", (MyRuleExecuteFunction)&ExplainType::onExplainTypeFunc);
+        registe("type", "funcparam", (MyRuleExecuteFunction)&ExplainType::onExplainTypeFuncParam);
         registe("multitype", "", (MyRuleExecuteFunction)&ExplainType::onExplainMultiType);
         registe("multitype", "add", (MyRuleExecuteFunction)&ExplainType::onExplainMultiTypeAdd);
     }
@@ -76,6 +78,25 @@ public:
     {
         SyntaxType* syntax = (SyntaxType*)es[0].ptr;
         syntax->arrNum++;
+        out.ptr = syntax;
+        return {};
+    }
+
+    Result onExplainTypeFunc(Rule* rule, vector<LexElement>& es, LexElement& out)
+    {
+        SyntaxType* syntax = (SyntaxType*)es[0].ptr;
+        syntax->funcType = true;
+        out.ptr = syntax;
+        return {};
+    }
+
+    Result onExplainTypeFuncParam(Rule* rule, vector<LexElement>& es, LexElement& out)
+    {
+        SyntaxType* syntax = (SyntaxType*)es[0].ptr;
+        SyntaxMulti<SyntaxType*>* multiType = (SyntaxMulti<SyntaxType*>*)es[2].ptr;
+
+        syntax->funcType = true;
+        syntax->funcParamTypes = std::move(multiType->items);
         out.ptr = syntax;
         return {};
     }

@@ -1115,7 +1115,7 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             MetaType type2 = instruct->params.back().getType();
             if (type1.isRealNumber() && type2.isRealNumber())
             {
-                instruct->retType = MetaType::max(type1, type2);
+                instruct->retType = metaContainer->getMaxType(type1, type2);
                 block->addInstruct(instruct);
                 break;
             }
@@ -1172,7 +1172,7 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             {
                 return R_FAILED;
             }
-            instruct->retType = MetaType::max(type1, type2);
+            instruct->retType = metaContainer->getMaxType(type1, type2);
             block->addInstruct(instruct);
         }
         break;
@@ -1305,7 +1305,7 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             {
                 return R_FAILED;
             }
-            instruct->retType = MetaType::max(type1, type2);
+            instruct->retType = metaContainer->getMaxType(type1, type2);
             block->addInstruct(instruct);
         }
         break;
@@ -1469,6 +1469,25 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             instruct->func = func;
             //参数顺序不变
             instruct->retType = func->returnType;
+            block->addInstruct(instruct);
+        }
+        break;
+    case COND:
+        {
+            MetaType& type1 = instruct->params.front().getType();
+            MetaType& type2 = (*(++instruct->params.begin())).getType();
+            MetaType& type3 = instruct->params.back().getType();
+            if (type1.isBool() == false)
+            {
+                //第一个必须是bool型
+                return R_FAILED;
+            }
+            instruct->retType = metaContainer->getMaxType(type2, type3);
+            if (instruct->retType.isNone())
+            {
+                //类型不兼容
+                return R_FAILED;
+            }
             block->addInstruct(instruct);
         }
         break;

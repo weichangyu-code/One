@@ -1,6 +1,8 @@
 
 class Double : BaseType
 {
+    double _value;
+
     Double()
     {
 
@@ -8,19 +10,19 @@ class Double : BaseType
 
     Double(double value)
     {
-
+        _value = value;
     }
 
     static Double valueOf(double value)
     {
-        return null;
+        return new Double(value);
     }
     double value()
     {
-        return 0;
+        return _value;
     }
     virtual String toString()
     {
-        return "";
+        return String.valueOf(_value);
     }
 }

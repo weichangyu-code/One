@@ -213,6 +213,8 @@ throw=THROW exp
 #类型定义
 type=typepath
 type(arr)=type arr								#数组，可嵌套多层
+#type(func)=type ()                              #函数定义
+#type(funcparam)=type (multitype)                #带参数的函数定义
 
 #表达式规则
 exp(number)=number

@@ -1,6 +1,8 @@
 
 class Short : BaseType
 {
+    short _value = 0;
+
     Short()
     {
 
@@ -8,19 +10,19 @@ class Short : BaseType
 
     Short(short value)
     {
-
+        _value = value;
     }
 
     static Short valueOf(short value)
     {
-        return null;
+        return new Short(value);
     }
     short value()
     {
-        return 0;
+        return _value;
     }
     virtual String toString()
     {
-        return "";
+        return String.valueOf(_value);
     }
 }

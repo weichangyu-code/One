@@ -79,6 +79,7 @@ protected:
     string generateFuncParamType(const MetaType& type);
 
     string generateData(MetaData& data);
+    string generateTypeData(const string& str, const MetaType& dataType, const MetaType& type, bool pointer);
     string generateTypeData(MetaData& data, const MetaType& type, bool pointer);
 
     void   addNativeClassImpl(const string& oneClassPath, const string& hPath, const string& cppClass);

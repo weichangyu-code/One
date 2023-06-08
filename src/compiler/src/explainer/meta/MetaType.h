@@ -37,8 +37,6 @@ public:
     bool operator == (const MetaType& r) const;
     bool operator != (const MetaType& r) const;
 
-    static MetaType max(const MetaType& r1, const MetaType& r2);
-
 public:
     int type = DT_NONE;             //string会转成class
     MetaClass* clazz = nullptr;

@@ -31,46 +31,6 @@
             "cppClass":"ReferenceT"
         },
         {
-            "oneClass":"one.std.BaseType",
-            "hPath":"framework/OneBaseType.h",
-            "cppClass":"BaseType"
-        },
-        {
-            "oneClass":"one.std.Bool",
-            "hPath":"framework/OneBool.h",
-            "cppClass":"Bool"
-        },
-        {
-            "oneClass":"one.std.Char",
-            "hPath":"framework/OneChar.h",
-            "cppClass":"Char"
-        },
-        {
-            "oneClass":"one.std.Short",
-            "hPath":"framework/OneShort.h",
-            "cppClass":"Short"
-        },
-        {
-            "oneClass":"one.std.Int",
-            "hPath":"framework/OneInt.h",
-            "cppClass":"Int"
-        },
-        {
-            "oneClass":"one.std.Long",
-            "hPath":"framework/OneLong.h",
-            "cppClass":"Long"
-        },
-        {
-            "oneClass":"one.std.Float",
-            "hPath":"framework/OneFloat.h",
-            "cppClass":"Float"
-        },
-        {
-            "oneClass":"one.std.Double",
-            "hPath":"framework/OneDouble.h",
-            "cppClass":"Double"
-        },
-        {
             "oneClass":"one.std.String",
             "hPath":"framework/OneString.h",
             "cppClass":"String"

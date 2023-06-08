@@ -1,6 +1,8 @@
 
 class Bool : BaseType
 {
+    bool _value = false;
+
     Bool()
     {
 
@@ -8,19 +10,19 @@ class Bool : BaseType
 
     Bool(bool value)
     {
-
+        _value = value;
     }
 
     static Bool valueOf(bool value)
     {
-        return null;
+        return new Bool(value);
     }
     bool value()
     {
-        return false;
+        return _value;
     }
     virtual String toString()
     {
-        return "";
+        return _value ? "true" : "false";
     }
 }

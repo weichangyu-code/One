@@ -1,0 +1,9 @@
+
+class HttpParser
+{
+    void input(Buffer buffer, ParserCB cb)
+    {
+        
+    }
+
+}

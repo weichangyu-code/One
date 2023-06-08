@@ -1227,8 +1227,8 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
     case COND:
         {
             string param0 = generateData(instruct->params.front());
-            string param1 = generateData((*(++instruct->params.begin())));
-            string param2 = generateData(instruct->params.back());
+            string param1 = generateTypeData((*(++instruct->params.begin())), instruct->retType, false);
+            string param2 = generateTypeData(instruct->params.back(), instruct->retType, false);
             instruct->cppCode = "(" + param0 + " ? " + param1 + " : " + param2 + ")";
         }
         break;
@@ -2085,11 +2085,8 @@ string CppGenerator::generateData(MetaData& data)
     return "";
 }
     
-string CppGenerator::generateTypeData(MetaData& data, const MetaType& type, bool pointer)
+string CppGenerator::generateTypeData(const string& str, const MetaType& dataType, const MetaType& type, bool pointer)
 {
-    string str = generateData(data);
-
-    MetaType dataType = data.getType();
     if (dataType == type)
     {
         return str;
@@ -2160,8 +2157,11 @@ string CppGenerator::generateTypeData(MetaData& data, const MetaType& type, bool
         break;
     case MetaContainer::ACT_VALUEOF:
         {
+            //支持嵌套多级转换
+            MetaFunc* func = metaContainer->searchClassFunction2(type.clazz, KEY_VALUEOF_FUNC, {dataType}, MFT_ONLY_STATIC);
+            assert(func != nullptr);
             CppClass* cppClass = CppClass::getCppClass(type.clazz);
-            return cppClass->cppName + "::" KEY_VALUEOF_FUNC "(" + str + ")";
+            return cppClass->cppName + "::" KEY_VALUEOF_FUNC "(" + generateTypeData(str, dataType, func->params.front()->type, false) + ")";
         }
         break;
     case MetaContainer::ACT_VALUE:
@@ -2173,6 +2173,13 @@ string CppGenerator::generateTypeData(MetaData& data, const MetaType& type, bool
         break;
     }
     return str;
+}
+    
+string CppGenerator::generateTypeData(MetaData& data, const MetaType& type, bool pointer)
+{
+    string str = generateData(data);
+    MetaType dataType = data.getType();
+    return generateTypeData(str, dataType, type, pointer);
 }
 
 int CppGenerator::getStringIndex(const string& str)

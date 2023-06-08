@@ -713,6 +713,19 @@ int  MetaContainer::getAutoConvertType(const MetaType& src, const MetaType& dst)
 
 }
     
+MetaType MetaContainer::getMaxType(const MetaType& type1, const MetaType& type2)
+{
+    if (getAutoConvertType(type1, type2) != ACT_CANNT)
+    {
+        return type2;
+    }
+    else if (getAutoConvertType(type2, type1) != ACT_CANNT)
+    {
+        return type1;
+    }
+    return {};
+}
+    
 string MetaContainer::getAnonymous()
 {
     return StringUtils::format("anony%d", ++anonySeek);

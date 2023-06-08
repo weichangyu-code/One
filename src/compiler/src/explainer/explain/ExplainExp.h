@@ -777,6 +777,7 @@ public:
 		instruct->params.push_back(exp3->ret);
 
 		exp->append(exp2);
+		exp->append(exp3);
 		exp->instructs.push_back(instruct);
 		exp->ret.setInstruct(instruct);
         out.ptr = exp;
