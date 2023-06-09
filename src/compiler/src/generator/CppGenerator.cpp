@@ -390,7 +390,7 @@ void CppGenerator::generateCppInfoClass(const string& path, const string& namePr
 
     for (auto& inner : metaClass->innerClasses)
     {
-        generateCppInfoClass(path, namePrefix + StringUtils::toFirstUpper(metaClass->name), inner);
+        generateCppInfoClass(path, namePrefix + StringUtils::toFirstUpper(inner->name), inner);
     }
 
     generateCppInfoFunc(path, namePrefix + StringUtils::toFirstUpper(metaClass->varInitFunc->name), metaClass->varInitFunc);
@@ -1716,7 +1716,14 @@ Result CppGenerator::generateFuncDeclare(ofstream& h, MetaFunc* metaFunc)
         h << generateFuncParamType(var->type) << " " << var->name;
     }
 
-    h << ");" << endl;
+    if (metaFunc->block == nullptr)
+    {
+        h << ") = 0;" << endl;
+    }
+    else
+    {
+        h << ");" << endl;
+    }
 
     if (metaFunc->funcType == FUNC_DESTRUCT)
     {

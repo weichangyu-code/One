@@ -542,4 +542,18 @@ MetaVariable* MetaClass::addAnonyMember(const string name, MetaVarRef* varRef)
 
     return member;
 }
+    
+bool MetaClass::isFunctionClass()
+{
+    return isInterface && funcs.size() == 1 && funcs.front()->isVirtual;
+}
+    
+MetaFunc* MetaClass::getFunctionClassBody()
+{
+    if (isFunctionClass() == false)
+    {
+        return nullptr;
+    }
+    return funcs.front();
+}
 

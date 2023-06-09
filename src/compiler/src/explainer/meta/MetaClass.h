@@ -59,6 +59,10 @@ public:
     MetaVariable* addAnonyThis(int index, MetaVarRef* varRef);
     MetaVariable* addAnonyMember(const string name, MetaVarRef* varRef);
 
+    //函数类型
+    bool isFunctionClass();
+    MetaFunc* getFunctionClassBody();
+
 public:
     int id = 0;                         //所以Class的索引，从1开始
     string name;

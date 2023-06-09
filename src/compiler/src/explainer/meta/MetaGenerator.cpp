@@ -1643,15 +1643,31 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                 MetaFunc* func = metaContainer->searchClassFunction(iterClass, item->typeName, instruct->params, iterVarRef ? MFT_ALL : MFT_ONLY_STATIC);
                 if (func == nullptr)
                 {
-                    return R_FAILED;
-                }
-                if (func->isStatic == false)
-                {
-                    //存入this
+                    //尝试查找变量
+                    MetaVariable* var = iterClass->getVariable(item->typeName, iterVarRef ? MFT_ALL : MFT_ONLY_STATIC);
+                    if (var == nullptr || var->type.isFunction() == false)
+                    {
+                        return R_FAILED;
+                    }
+                    func = var->type.clazz->getFunctionClassBody();
+                    if (metaContainer->matchFunction(func, instruct->params) == false)
+                    {
+                        return R_FAILED;
+                    }
+                    iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, var);
+                    instruct->func = func;
                     instruct->params.push_front(iterVarRef);
                 }
-                instruct->func = func;
-                instruct->cmd = CALL_FIXED;
+                else
+                {
+                    if (func->isStatic == false)
+                    {
+                        //存入this
+                        instruct->params.push_front(iterVarRef);
+                    }
+                    instruct->func = func;
+                    instruct->cmd = CALL_FIXED;
+                }
             }
             else if (iterVarRef)
             {
@@ -1664,15 +1680,30 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                 MetaFunc* func = metaContainer->searchClassFunction(clazz, item->typeName, instruct->params, MFT_ALL);
                 if (func == nullptr)
                 {
-                    //找不到
-                    return R_FAILED;
-                }
-                if (func->isStatic == false)
-                {
-                    //存入this
+                    //尝试查找变量
+                    MetaVariable* var = clazz->getVariable(item->typeName, MFT_ALL);
+                    if (var == nullptr || var->type.isFunction() == false)
+                    {
+                        return R_FAILED;
+                    }
+                    func = var->type.clazz->getFunctionClassBody();
+                    if (metaContainer->matchFunction(func, instruct->params) == false)
+                    {
+                        return R_FAILED;
+                    }
+                    iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, var);
+                    instruct->func = func;
                     instruct->params.push_front(iterVarRef);
                 }
-                instruct->func = func;
+                else
+                {
+                    if (func->isStatic == false)
+                    {
+                        //存入this
+                        instruct->params.push_front(iterVarRef);
+                    }
+                    instruct->func = func;
+                }
             }
             else if (iterPackage)
             {
@@ -1684,22 +1715,36 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                 MetaFunc* func = metaContainer->searchFunction(block, item->typeName, instruct->params, inFunc->isStatic ? MFT_ONLY_STATIC : MFT_ALL, &iterVarRef);
                 if (func == nullptr)
                 {
-                    //找不到
-                    return R_FAILED;
+                    //尝试查找变量
+                    MetaVarRef* varRef = metaContainer->searchVariable(block, item->typeName, inFunc->isStatic ? MFT_ONLY_STATIC : MFT_ALL);
+                    if (varRef == nullptr || varRef->type.isFunction() == false)
+                    {
+                        return R_FAILED;
+                    }
+                    func = varRef->type.clazz->getFunctionClassBody();
+                    if (metaContainer->matchFunction(func, instruct->params) == false)
+                    {
+                        return R_FAILED;
+                    }
+                    instruct->func = func;
+                    instruct->params.push_front(varRef);
                 }
-                if (func->isStatic == false)
+                else
                 {
-                    //存入this
-                    if (iterVarRef)
+                    if (func->isStatic == false)
                     {
-                        instruct->params.push_front(iterVarRef);
+                        //存入this
+                        if (iterVarRef)
+                        {
+                            instruct->params.push_front(iterVarRef);
+                        }
+                        else
+                        {
+                            instruct->params.push_front(block->getOuterClass()->getThisVariable());
+                        }
                     }
-                    else
-                    {
-                        instruct->params.push_front(block->getOuterClass()->getThisVariable());
-                    }
+                    instruct->func = func;
                 }
-                instruct->func = func;
             }
             if (instruct->func->funcType == FUNC_CONSTRUCT)
             {

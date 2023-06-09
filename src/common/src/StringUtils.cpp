@@ -6,6 +6,20 @@
 
 namespace OneCommon
 {
+	bool StringUtils::isspace(char c)
+	{
+		return ::isspace((unsigned char)c) != 0;
+	}
+		
+	size_t StringUtils::strlen(const char* str)
+	{
+		if (str == nullptr)
+		{
+			return 0;
+		}
+		return ::strlen(str);
+	}
+	
 	string StringUtils::trim(const string& str)
 	{
 		const char* str2 = str.c_str();
@@ -181,7 +195,7 @@ namespace OneCommon
 		char* end = str2 + ret.size();
 		while (str2 < end)
 		{
-			*str2 = ::tolower(*str2);
+			*str2 = toLower(*str2);
 			str2++;
 		}
 		return ret;
@@ -194,7 +208,7 @@ namespace OneCommon
 		char* end = str2 + ret.size();
 		while (str2 < end)
 		{
-			*str2 = ::toupper(*str2);
+			*str2 = toUpper(*str2);
 			str2++;
 		}
 		return ret;
@@ -205,14 +219,19 @@ namespace OneCommon
 		string ret = str;
 		if (ret.empty() == false)
 		{
-			ret[0] = ::toupper(ret[0]);
+			ret[0] = toUpper(ret[0]);
 		}
 		return ret;
 	}
 		
 	char StringUtils::toUpper(char c)
 	{
-		return ::toupper(c);
+		return ::toupper((unsigned char)c);
+	}
+	
+	char StringUtils::toLower(char c)
+	{
+		return ::tolower((unsigned char)c);
 	}
 
 	void StringUtils::strncpy_z(char* dest, const char* src, unsigned int dest_buf_len)

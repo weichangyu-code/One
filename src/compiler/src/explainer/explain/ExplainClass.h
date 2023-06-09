@@ -27,6 +27,7 @@ public:
         registe("classheader", "parents", (MyRuleExecuteFunction)&ExplainClass::onExplainClassHeaderParents);
         registe("classheader", "", (MyRuleExecuteFunction)&ExplainClass::onExplainClassHeader);
         registe("classdef", "", (MyRuleExecuteFunction)&ExplainClass::onExplainClassDef);
+        registe("classdef", "func", (MyRuleExecuteFunction)&ExplainClass::onExplainClassDefFunc);
         
         registe("classelement", "vardef", (MyRuleExecuteFunction)&ExplainClass::onExplainClassElementVarDef);
         registe("classelement", "funcdef", (MyRuleExecuteFunction)&ExplainClass::onExplainClassElementFuncDef);
@@ -120,6 +121,23 @@ public:
         SyntaxMulti<SyntaxClassElement*>* multi = (SyntaxMulti<SyntaxClassElement*>*)es[1].ptr;
 
         clazz->addElements(context, multi);
+
+        out.ptr = clazz;
+        return {};
+    }
+
+    Result onExplainClassDefFunc(Rule* rule, vector<LexElement>& es, LexElement& out)
+    {
+        SyntaxClass* clazz = new SyntaxClass(context);
+        SyntaxFunc* func = (SyntaxFunc*)es[1].ptr;
+
+        clazz->name = func->name;
+        clazz->isInterface = true;
+
+        func->name = "do" + func->name;
+        func->isVirtual = true;
+
+        clazz->funcs.push_back(func);
 
         out.ptr = clazz;
         return {};

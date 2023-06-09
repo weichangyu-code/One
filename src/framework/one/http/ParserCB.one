@@ -1,4 +1,0 @@
-class ParserCB
-{
-    virtual void onPacket(HttpPacket packet);
-}

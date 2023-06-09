@@ -1,9 +1,10 @@
 
 class HttpParser
 {
-    void input(Buffer buffer, ParserCB cb)
-    {
-        
-    }
+    function void CB(HttpPacket packet);
 
+    void input(Buffer buffer, CB cb)
+    {
+        cb(null);
+    }
 }

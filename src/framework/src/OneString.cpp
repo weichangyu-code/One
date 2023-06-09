@@ -59,7 +59,7 @@ namespace One
     
     Reference<String> String::createString(const OneChar* str)
     {
-        Reference<String> strRef = createString((OneInt)strlen((const char*)str));
+        Reference<String> strRef = createString((OneInt)StringUtils::strlen((const char*)str));
         memcpy(strRef->_c, str, strRef->_length);
         return strRef;
     }
@@ -240,15 +240,15 @@ namespace One
         
     OneInt String::_strlen(const OneChar* str)
     {
-        if (str == nullptr)
-        {
-            return 0;
-        }
-        return (OneInt)strlen((const char*)str);
+        return (OneInt)StringUtils::strlen((const char*)str);
     }
         
     const OneChar* String::_strstr(const OneChar* str, const OneChar* find)
     {
+        if (str == nullptr || find == nullptr)
+        {
+            return nullptr;
+        }
         return (const OneChar*)strstr((const char*)str, (const char*)find);
     }
         

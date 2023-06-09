@@ -17,7 +17,6 @@ class HttpServer
         a = null;
         String str1 = "aaaaa {}" %% 10;
         String str2 := str1;
-        //void(int) func1;
         Long l = 11;
         Out.println(l);
 

@@ -1,4 +1,5 @@
 #include "MetaType.h"
+#include "MetaClass.h"
 
 
 MetaType::MetaType(int type)
@@ -100,6 +101,11 @@ bool MetaType::isNone() const
 bool MetaType::isClass() const
 {
     return this->type == DT_CLASS;
+}
+    
+bool MetaType::isFunction() const
+{
+    return this->type == DT_CLASS && this->clazz->isFunctionClass();
 }
     
 bool MetaType::isBaseType() const

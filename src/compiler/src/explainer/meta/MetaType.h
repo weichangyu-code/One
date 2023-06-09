@@ -30,6 +30,7 @@ public:
     bool isBool() const;
     bool isVoid() const;
     bool isNull() const;                            //null类型
+    bool isFunction() const;
     
     bool equal(const MetaType& r) const;
     int  compare(const MetaType& r) const;

@@ -67,6 +67,7 @@ public:
     //查找本来和父类最匹配的方法
     MetaFunc* searchClassFunction(MetaClass* clazz, const string& name, const list<MetaData>& params, int filterType);
     MetaFunc* searchClassFunction2(MetaClass* clazz, const string& name, const list<MetaType>& paramTypes, int filterType);
+    bool matchFunction(MetaFunc* func, const list<MetaData>& params);
 
     //从Box开始查找Function
     MetaFunc* searchFunction(MetaBoxBase* box, const string& name, const list<MetaData>& params, int filterType, MetaVarRef** varRef);
@@ -77,6 +78,7 @@ public:
 protected:
     MetaFunc* searchMatchClassFunction(MetaClass* clazz, const string& name, const list<MetaData>& params, int filterType);
     MetaFunc* searchMatchClassFunction(MetaClass* clazz, const string& name, const list<MetaType>& paramTypes, int& matchValue, int filterType);
+    int calcFunctionMatchValue(MetaFunc* func, const list<MetaType>& paramTypes);
 
 //类型转换
 //自动转换类型：

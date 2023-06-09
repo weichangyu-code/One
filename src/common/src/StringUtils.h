@@ -6,6 +6,10 @@ namespace OneCommon
 	class StringUtils
 	{
 	public:
+		// c函数封装，避免崩溃
+		static bool isspace(char c);
+		static size_t strlen(const char* str);
+
 		static string trim(const string& str);
 
 		// 注意：只支持10进制转换
@@ -25,6 +29,7 @@ namespace OneCommon
 		static string toUpper(const string& str);
 		static string toFirstUpper(const string& str);
 		static char toUpper(char c);
+		static char toLower(char c);
 
 		static void strncpy_z(char* dest, const char* src, unsigned int dest_buf_len);
 		static void strncat_z(char* dest, const char* src, unsigned int dest_buf_len);
