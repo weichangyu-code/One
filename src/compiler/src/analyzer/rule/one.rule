@@ -140,8 +140,8 @@ operatordef(vnormal)=VIRTUAL operatordefheader codeblock
 #函数调用
 callfuncparam(null)=()
 callfuncparam=( multiexp )
-callfunc(destruct)=var.~()
-callfunc=var callfuncparam
+callfunc(destruct)=exp.~()
+callfunc=exp callfuncparam
 
 #符号路径，可以作为变量、函数、类型用
 identifierpath=identifier
@@ -154,7 +154,6 @@ typepath=typepathitem
 typepath(add)=typepath.typepathitem
 
 #变量
-var(identifier)=identifier
 var(typepath)=typepath
 var(exp)=exp . identifier
 var(expthis)=exp . this

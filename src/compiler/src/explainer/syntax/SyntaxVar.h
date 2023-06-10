@@ -12,6 +12,15 @@ public:
     {
         
     }
+    
+    SyntaxVar(SyntaxExp* exp, const string& name, ExplainContext* context)
+        :SyntaxBase(context)
+    {
+        this->exp = exp;
+        this->addItem(name, context);
+    }
+
+    void addItem(const string& name, ExplainContext* context);
 
 public:
     SyntaxExp* exp = nullptr;

@@ -14,6 +14,7 @@ public:
     void addMember(MetaVariable* member);
 
     static MetaVarRef* makeVarRef(MetaContainer* metaContainer, MetaVarRef* ref, MetaVariable* var);
+    static MetaVarRef* makeVarRef(MetaContainer* metaContainer, MetaData obj);
 
 public:
     MetaData obj;

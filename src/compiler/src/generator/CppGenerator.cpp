@@ -116,8 +116,11 @@ Result CppGenerator::generateMainFile(const string& root, const string& mainClas
     cpp << "#include \"StringPool.h\"" << endl;
     for (auto& iterMetaClass : metaContainer->getClasses())
     {
-        auto iterCppClass = CppClass::getCppClass(iterMetaClass);
-        cpp << "#include \"" << iterCppClass->cppHPath << "\"" << endl;
+        if (iterMetaClass->isTemplateClass() == false)
+        {
+            auto iterCppClass = CppClass::getCppClass(iterMetaClass);
+            cpp << "#include \"" << iterCppClass->cppHPath << "\"" << endl;
+        }
     }
     cpp << "#include \"" << "engine/Engine.h" << "\"" << endl;
     cpp << "#include \"OneMeta.inl\"" << endl;

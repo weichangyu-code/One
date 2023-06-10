@@ -1,0 +1,144 @@
+
+class List<T>
+{
+    class Item
+    {
+        T obj;
+        Item prev;
+        Item next;
+
+        Item(T obj)
+        {
+            this.obj = obj;
+        }
+    }
+
+    Item _head;
+    Item _tail;
+    int _length;
+
+    List()
+    {
+
+    }
+
+    bool isEmpty()
+    {
+        return _length == 0;
+    }
+    int length()
+    {
+        return _length;
+    }
+    T front()
+    {
+        if (_head != null)
+        {
+            return _head.obj;
+        }
+        else
+        {
+            return null;
+        }
+    }
+    T back()
+    {
+        if (_tail != null)
+        {
+            return _tail.obj;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    void pushBack(T obj)
+    {
+        Item item = new Item(obj);
+
+        if (_tail != null)
+        {
+            _tail.next = item;
+            item.prev = _tail;
+            _tail = item;
+            _length++;
+        }
+        else
+        {
+            _head = _tail = item;
+            _length = 1;
+        }
+    }
+    void pushFront(T obj)
+    {
+        Item item = new Item(obj);
+
+        if (_head != null)
+        {
+            _head.prev = item;
+            item.next = _head;
+            _head = item;
+            _length++;
+        }
+        else
+        {
+            _head = _tail = item;
+            _length = 1;
+        }
+    }
+    T popFront()
+    {
+        if (_head != null)
+        {
+            Item head = _head;
+            _head = _head.next;
+            if (_head != null)
+            {
+                _head.prev = null;
+            }
+            else
+            {
+                _tail = null;
+            }
+            _length--;
+            return head.obj;
+        }
+        else
+        {
+            return null;
+        }
+    }
+    T popBack()
+    {
+        if (_tail != null)
+        {
+            Item tail = _tail;
+            _tail = _tail.prev;
+            if (_tail != null)
+            {
+                _tail.next = null;
+            }
+            else
+            {
+                _head = null;
+            }
+            _length--;
+            return tail.obj;
+        }
+        else
+        {
+            return null;
+        }
+    }
+    void clear()
+    {
+        Item head = _head;
+        _head = _tail = null;
+
+        while (head != null)
+        {
+            head.obj = 0;
+        }
+    }
+}

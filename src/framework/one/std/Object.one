@@ -24,7 +24,7 @@ class Object
 	{
 		return false;
 	}
-    int  compare(Object obj)
+    int compare(Object obj)
     {
         return 0;
     }

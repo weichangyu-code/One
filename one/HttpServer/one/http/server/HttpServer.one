@@ -19,6 +19,7 @@ class HttpServer
         String str2 := str1;
         Long l = 11;
         Out.println(l);
+        Class ccc = Out.class;
 
         auto sockListen = new Socket();
         int ret = sockListen.listen("0.0.0.0", 8000);

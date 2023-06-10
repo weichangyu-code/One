@@ -204,6 +204,11 @@ Result MetaGenerator::generateMetaClassStruct(MetaClass* clazz)
             //成员变量不允许auto
             return R_FAILED;
         }
+        if (clazz->getVariable(syntaxVarDef->name, MFT_ALL))
+        {
+            //不能出现重复变量
+            return R_FAILED;
+        }
         MetaVariable* var = clazz->addVeriable(syntaxVarDef->name, syntaxVarDef);
         VR(generateMetaVarDefStruct(clazz, var, var->isConst));
     }
@@ -1591,6 +1596,11 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
         break;
     case VARDEF:
         {
+            if (block->getVariable(syntaxInstruct->varDef->name, MFT_ALL))
+            {
+                //同一个BLOCK不允许重复定义
+                return R_FAILED;
+            }
             MetaVariable* var = block->addVeriable(syntaxInstruct->varDef->name, syntaxInstruct->varDef);
             VR(generateMetaVarDefStruct(block, var, false));
             instruct->var = var;
@@ -1613,7 +1623,8 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
 {
     MetaFunc* inFunc = block->getOuterFunc();
     SyntaxInstruct* syntaxInstruct = (SyntaxInstruct*)instruct->syntaxObj;
-    SyntaxVar* syntaxFunc = syntaxInstruct->func;
+    SyntaxExp* syntaxExp = syntaxInstruct->func;
+
 
     //.的后面可以是什么？函数、变量、子类、包名
     //指向什么都是未知数
@@ -1622,226 +1633,205 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
     MetaVarRef* iterVarRef = nullptr;
     MetaClass* iterClass = nullptr;
 
-    if (syntaxFunc->exp)
+    if (syntaxExp->isVar())
     {
-        MetaData obj;
-        VR(generateMetaExpInstruct(block, syntaxFunc->exp, &obj));
-        iterVarRef = new MetaVarRef(obj, metaContainer);
-    }
+        SyntaxVar* syntaxFunc = syntaxExp->getVar();
 
-    for (auto& item : syntaxFunc->items)
-    {
-        bool first = syntaxFunc->items.front() == item || syntaxFunc->exp == nullptr;
-        bool end = syntaxFunc->items.back() == item;
-
-        if (end)
+        if (syntaxFunc->exp)
         {
-            //最后一个必须是函数，所以前一个必须是对象或者类
-            if (iterClass)
+            MetaData obj;
+            VR(generateMetaExpInstruct(block, syntaxFunc->exp, &obj));
+            iterVarRef = new MetaVarRef(obj, metaContainer);
+        }
+
+        for (auto& item : syntaxFunc->items)
+        {
+            bool first = syntaxFunc->items.front() == item || syntaxFunc->exp == nullptr;
+            bool end = syntaxFunc->items.back() == item;
+
+            if (end)
             {
-                //只能调用静态函数
-                MetaFunc* func = metaContainer->searchClassFunction(iterClass, item->typeName, instruct->params, iterVarRef ? MFT_ALL : MFT_ONLY_STATIC);
-                if (func == nullptr)
+                //最后一个必须是函数，所以前一个必须是对象或者类
+                if (iterClass)
                 {
-                    //尝试查找变量
-                    MetaVariable* var = iterClass->getVariable(item->typeName, iterVarRef ? MFT_ALL : MFT_ONLY_STATIC);
-                    if (var == nullptr || var->type.isFunction() == false)
+                    //只能调用静态函数
+                    MetaFunc* func = metaContainer->searchClassFunction(iterClass, item->typeName, instruct->params, iterVarRef ? MFT_ALL : MFT_ONLY_STATIC);
+                    if (func == nullptr)
                     {
-                        return R_FAILED;
-                    }
-                    func = var->type.clazz->getFunctionClassBody();
-                    if (metaContainer->matchFunction(func, instruct->params) == false)
-                    {
-                        return R_FAILED;
-                    }
-                    iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, var);
-                    instruct->func = func;
-                    instruct->params.push_front(iterVarRef);
-                }
-                else
-                {
-                    if (func->isStatic == false)
-                    {
-                        //存入this
+                        //尝试查找变量
+                        MetaVariable* var = iterClass->getVariable(item->typeName, iterVarRef ? MFT_ALL : MFT_ONLY_STATIC);
+                        if (var == nullptr || var->type.isFunction() == false)
+                        {
+                            return R_FAILED;
+                        }
+                        func = var->type.clazz->getFunctionClassBody();
+                        if (metaContainer->matchFunction(func, instruct->params) == false)
+                        {
+                            return R_FAILED;
+                        }
+                        iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, var);
+                        instruct->func = func;
                         instruct->params.push_front(iterVarRef);
                     }
-                    instruct->func = func;
-                    instruct->cmd = CALL_FIXED;
+                    else
+                    {
+                        if (func->isStatic == false)
+                        {
+                            //存入this
+                            instruct->params.push_front(iterVarRef);
+                        }
+                        instruct->func = func;
+                        instruct->cmd = CALL_FIXED;
+                    }
                 }
-            }
-            else if (iterVarRef)
-            {
-                if (iterVarRef->getType().isClass() == false)
+                else if (iterVarRef)
+                {
+                    if (iterVarRef->getType().isClass() == false)
+                    {
+                        return R_FAILED;
+                    }
+                    //对象
+                    MetaClass* clazz = iterVarRef->getType().clazz;
+                    MetaFunc* func = metaContainer->searchClassFunction(clazz, item->typeName, instruct->params, MFT_ALL);
+                    if (func == nullptr)
+                    {
+                        //尝试查找变量
+                        MetaVariable* var = clazz->getVariable(item->typeName, MFT_ALL);
+                        if (var == nullptr || var->type.isFunction() == false)
+                        {
+                            return R_FAILED;
+                        }
+                        func = var->type.clazz->getFunctionClassBody();
+                        if (metaContainer->matchFunction(func, instruct->params) == false)
+                        {
+                            return R_FAILED;
+                        }
+                        iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, var);
+                        instruct->func = func;
+                        instruct->params.push_front(iterVarRef);
+                    }
+                    else
+                    {
+                        if (func->isStatic == false)
+                        {
+                            //存入this
+                            instruct->params.push_front(iterVarRef);
+                        }
+                        instruct->func = func;
+                    }
+                }
+                else if (iterPackage)
                 {
                     return R_FAILED;
                 }
-                //对象
-                MetaClass* clazz = iterVarRef->getType().clazz;
-                MetaFunc* func = metaContainer->searchClassFunction(clazz, item->typeName, instruct->params, MFT_ALL);
-                if (func == nullptr)
-                {
-                    //尝试查找变量
-                    MetaVariable* var = clazz->getVariable(item->typeName, MFT_ALL);
-                    if (var == nullptr || var->type.isFunction() == false)
-                    {
-                        return R_FAILED;
-                    }
-                    func = var->type.clazz->getFunctionClassBody();
-                    if (metaContainer->matchFunction(func, instruct->params) == false)
-                    {
-                        return R_FAILED;
-                    }
-                    iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, var);
-                    instruct->func = func;
-                    instruct->params.push_front(iterVarRef);
-                }
                 else
                 {
-                    if (func->isStatic == false)
+                    //代表当前对象
+                    MetaFunc* func = metaContainer->searchFunction(block, item->typeName, instruct->params, inFunc->isStatic ? MFT_ONLY_STATIC : MFT_ALL, &iterVarRef);
+                    if (func == nullptr)
                     {
-                        //存入this
-                        instruct->params.push_front(iterVarRef);
-                    }
-                    instruct->func = func;
-                }
-            }
-            else if (iterPackage)
-            {
-                return R_FAILED;
-            }
-            else
-            {
-                //代表当前对象
-                MetaFunc* func = metaContainer->searchFunction(block, item->typeName, instruct->params, inFunc->isStatic ? MFT_ONLY_STATIC : MFT_ALL, &iterVarRef);
-                if (func == nullptr)
-                {
-                    //尝试查找变量
-                    MetaVarRef* varRef = metaContainer->searchVariable(block, item->typeName, inFunc->isStatic ? MFT_ONLY_STATIC : MFT_ALL);
-                    if (varRef == nullptr || varRef->type.isFunction() == false)
-                    {
-                        return R_FAILED;
-                    }
-                    func = varRef->type.clazz->getFunctionClassBody();
-                    if (metaContainer->matchFunction(func, instruct->params) == false)
-                    {
-                        return R_FAILED;
-                    }
-                    instruct->func = func;
-                    instruct->params.push_front(varRef);
-                }
-                else
-                {
-                    if (func->isStatic == false)
-                    {
-                        //存入this
-                        if (iterVarRef)
+                        //尝试查找变量
+                        MetaVarRef* varRef = metaContainer->searchVariable(block, item->typeName, inFunc->isStatic ? MFT_ONLY_STATIC : MFT_ALL);
+                        if (varRef == nullptr || varRef->type.isFunction() == false)
                         {
-                            instruct->params.push_front(iterVarRef);
+                            return R_FAILED;
                         }
-                        else
+                        func = varRef->type.clazz->getFunctionClassBody();
+                        if (metaContainer->matchFunction(func, instruct->params) == false)
                         {
-                            instruct->params.push_front(block->getOuterClass()->getThisVariable());
+                            return R_FAILED;
                         }
+                        instruct->func = func;
+                        instruct->params.push_front(varRef);
                     }
-                    instruct->func = func;
+                    else
+                    {
+                        if (func->isStatic == false)
+                        {
+                            //存入this
+                            if (iterVarRef)
+                            {
+                                instruct->params.push_front(iterVarRef);
+                            }
+                            else
+                            {
+                                instruct->params.push_front(block->getOuterClass()->getThisVariable());
+                            }
+                        }
+                        instruct->func = func;
+                    }
                 }
-            }
-            if (instruct->func->funcType == FUNC_CONSTRUCT)
-            {
-                //构造函数都是指定类调用
-                instruct->cmd = CALL_FIXED;
-            }
-
-            //查看是否有匿名类参数
-            auto iter1 = instruct->func->params.begin();
-            auto iter2 = instruct->params.begin();
-            if (instruct->func->isStatic == false)
-            {
-                ++iter2;
-            }
-            MetaType type1;
-            MetaType type2;
-            for (;iter2 != instruct->params.end();++iter2)
-            {
-                type2 = (*iter2).getType();
-                if (iter1 != instruct->func->params.end())
+                if (instruct->func->funcType == FUNC_CONSTRUCT)
                 {
-                    type1 = (*iter1)->type;
-                    ++iter1;
+                    //构造函数都是指定类调用
+                    instruct->cmd = CALL_FIXED;
                 }
-                if (type2.isClass() && type2.clazz->isAnonyClass)
+
+                //查看是否有匿名类参数
+                auto iter1 = instruct->func->params.begin();
+                auto iter2 = instruct->params.begin();
+                if (instruct->func->isStatic == false)
                 {
-                    //
-                    VR(handleAnonyClass(block, type2, type1));
+                    ++iter2;
                 }
-            }
-
-            //是否有可变参数，需要把可变参数类型加到link里面
-            if (instruct->func->isDynamicParamFunc())
-            {
-                MetaType type = instruct->func->getDynamicParamType();
-                if (type.isClass())
+                MetaType type1;
+                MetaType type2;
+                for (;iter2 != instruct->params.end();++iter2)
                 {
-                    block->getOuterClass()->addLinkClass(type.clazz);
+                    type2 = (*iter2).getType();
+                    if (iter1 != instruct->func->params.end())
+                    {
+                        type1 = (*iter1)->type;
+                        ++iter1;
+                    }
+                    if (type2.isClass() && type2.clazz->isAnonyClass)
+                    {
+                        //
+                        VR(handleAnonyClass(block, type2, type1));
+                    }
                 }
-            }
 
-            instruct->retType = instruct->func->returnType;
-            return {};
-        }
-        else if (first)
-        {
-            //搜索变量名
-            iterVarRef = metaContainer->searchVariable(block, item->typeName, inFunc->isStatic ? MFT_ONLY_STATIC : MFT_ALL);
-            if (iterVarRef)
-            {
-                continue;
-            }
-
-            //搜索类
-            MetaClass* clazz = metaContainer->searchClass(block, item->typeName);
-            if (clazz)
-            {
-                VR(generateRealClass(block, clazz, item, &clazz));
-
-                MetaClass* inClass = inFunc->getOuterClass();
-                if (inClass->isBaseOf(clazz))
+                //是否有可变参数，需要把可变参数类型加到link里面
+                if (instruct->func->isDynamicParamFunc())
                 {
-                    //代表本对象
-                    iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, inClass->getThisVariable());
+                    MetaType type = instruct->func->getDynamicParamType();
+                    if (type.isClass())
+                    {
+                        block->getOuterClass()->addLinkClass(type.clazz);
+                    }
                 }
-                block->getOuterClass()->addLinkClass(clazz);
-                iterClass = clazz;
-                continue;
-            }
 
-            //搜索包
-            MetaPackage* package = metaContainer->searchPackage(block, item->typeName);
-            if (package)
-            {
-                iterPackage = package;
-                continue;
+                instruct->retType = instruct->func->returnType;
+                return {};
             }
-
-            return R_FAILED;
-        }
-        else
-        {
-            if (iterPackage)
+            else if (first)
             {
-                //搜索子类
-                MetaClass* clazz = iterPackage->getClass(item->typeName);
+                //搜索变量名
+                iterVarRef = metaContainer->searchVariable(block, item->typeName, inFunc->isStatic ? MFT_ONLY_STATIC : MFT_ALL);
+                if (iterVarRef)
+                {
+                    continue;
+                }
+
+                //搜索类
+                MetaClass* clazz = metaContainer->searchClass(block, item->typeName);
                 if (clazz)
                 {
                     VR(generateRealClass(block, clazz, item, &clazz));
 
+                    MetaClass* inClass = inFunc->getOuterClass();
+                    if (inClass->isBaseOf(clazz))
+                    {
+                        //代表本对象
+                        iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, inClass->getThisVariable());
+                    }
+                    block->getOuterClass()->addLinkClass(clazz);
                     iterClass = clazz;
-                    iterPackage = nullptr;
                     continue;
                 }
 
-                //搜索子包
-                MetaPackage* package = iterPackage->getPackage(item->typeName);
+                //搜索包
+                MetaPackage* package = metaContainer->searchPackage(block, item->typeName);
                 if (package)
                 {
                     iterPackage = package;
@@ -1850,77 +1840,126 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
 
                 return R_FAILED;
             }
-            else if (iterClass)
+            else
             {
-                //搜索变量
-                MetaVariable* var = iterClass->getVariable(item->typeName, iterVarRef ? MFT_ALL : MFT_ONLY_STATIC);
-                if (var)
+                if (iterPackage)
                 {
-                    //只能访问静态成员变量
-                    iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, var);
-                    iterClass = nullptr;
-                    continue;
-                }
+                    //搜索子类
+                    MetaClass* clazz = iterPackage->getClass(item->typeName);
+                    if (clazz)
+                    {
+                        VR(generateRealClass(block, clazz, item, &clazz));
 
-                //搜索子类
-                MetaClass* clazz = iterClass->getInnerClass(item->typeName);
-                if (clazz)
+                        iterClass = clazz;
+                        iterPackage = nullptr;
+                        continue;
+                    }
+
+                    //搜索子包
+                    MetaPackage* package = iterPackage->getPackage(item->typeName);
+                    if (package)
+                    {
+                        iterPackage = package;
+                        continue;
+                    }
+
+                    return R_FAILED;
+                }
+                else if (iterClass)
                 {
-                    VR(generateRealClass(block, clazz, item, &clazz));
+                    //搜索变量
+                    MetaVariable* var = iterClass->getVariable(item->typeName, iterVarRef ? MFT_ALL : MFT_ONLY_STATIC);
+                    if (var)
+                    {
+                        //只能访问静态成员变量
+                        iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, var);
+                        iterClass = nullptr;
+                        continue;
+                    }
 
-                    iterVarRef = nullptr;
-                    iterClass = clazz;
-                    continue;
+                    //搜索子类
+                    MetaClass* clazz = iterClass->getInnerClass(item->typeName);
+                    if (clazz)
+                    {
+                        VR(generateRealClass(block, clazz, item, &clazz));
+
+                        iterVarRef = nullptr;
+                        iterClass = clazz;
+                        continue;
+                    }
+
+                    return R_FAILED;
                 }
+                else if (iterVarRef)
+                {
+                    if (iterVarRef->getType().isClass() == false)
+                    {
+                        return R_FAILED;
+                    }
+                    //对象
+                    MetaClass* clazz = iterVarRef->getType().clazz;
+                    MetaVariable* var = clazz->getVariable(item->typeName, MFT_ALL);
+                    if (var)
+                    {
+                        iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, var);
+                        continue;
+                    }
 
-                return R_FAILED;
-            }
-            else if (iterVarRef)
-            {
-                if (iterVarRef->getType().isClass() == false)
+                    //搜索子类
+                    MetaClass* innerClass = clazz->getInnerClass(item->typeName);
+                    if (innerClass)
+                    {
+                        VR(generateRealClass(block, clazz, item, &innerClass));
+
+                        iterVarRef = nullptr;
+                        iterClass = innerClass;
+                        continue;
+                    }
+
+                    //搜索父类
+                    if (clazz->name == item->typeName)
+                    {
+                        iterClass = clazz;
+                        continue;
+                    }
+                    MetaClass* parent = clazz->getParentClass(item->typeName);
+                    if (parent)
+                    {
+                        iterClass = parent;
+                        continue;
+                    }
+
+                    return R_FAILED;
+                }
+                else
                 {
                     return R_FAILED;
                 }
-                //对象
-                MetaClass* clazz = iterVarRef->getType().clazz;
-                MetaVariable* var = clazz->getVariable(item->typeName, MFT_ALL);
-                if (var)
-                {
-                    iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, var);
-                    continue;
-                }
-
-                //搜索子类
-                MetaClass* innerClass = clazz->getInnerClass(item->typeName);
-                if (innerClass)
-                {
-                    VR(generateRealClass(block, clazz, item, &innerClass));
-
-                    iterVarRef = nullptr;
-                    iterClass = innerClass;
-                    continue;
-                }
-
-                //搜索父类
-                if (clazz->name == item->typeName)
-                {
-                    iterClass = clazz;
-                    continue;
-                }
-                MetaClass* parent = clazz->getParentClass(item->typeName);
-                if (parent)
-                {
-                    iterClass = parent;
-                    continue;
-                }
-
-                return R_FAILED;
-            }
-            else
-            {
-                return R_FAILED;
             }
         }
+    }
+    else
+    {
+        //判断
+        MetaData obj;
+        VR(generateMetaExpInstruct(block, syntaxExp, &obj));
+
+        //判断是否可以函数调用
+        MetaType type = obj.getType();
+        if (type.isFunction() == false)
+        {
+            return R_FAILED;
+        }
+
+        //
+        MetaFunc* func = type.clazz->getFunctionClassBody();
+        if (metaContainer->matchFunction(func, instruct->params) == false)
+        {
+            return R_FAILED;
+        }
+        iterVarRef = MetaVarRef::makeVarRef(metaContainer, obj);
+        instruct->func = func;
+        instruct->params.push_front(iterVarRef);
     }
 
     return {};

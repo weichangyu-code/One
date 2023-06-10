@@ -59,3 +59,8 @@ MetaVarRef* MetaVarRef::makeVarRef(MetaContainer* metaContainer, MetaVarRef* ref
     }
     return ref;
 }
+
+MetaVarRef* MetaVarRef::makeVarRef(MetaContainer* metaContainer, MetaData obj)
+{
+    return new MetaVarRef(obj, metaContainer);
+}

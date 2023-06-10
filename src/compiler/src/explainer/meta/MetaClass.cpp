@@ -234,7 +234,16 @@ bool MetaClass::isNormalRealClass()
     
 bool MetaClass::isTemplateClass()
 {
-    return params.empty() == false && templateClass == nullptr;
+    if (params.empty() == false && templateClass == nullptr)
+    {
+        //是模板类
+        return true;
+    }
+    else
+    {
+        //外部类也不能是模板类
+        return outer && outer->getOuterClass() && outer->getOuterClass()->isTemplateClass();
+    }
 }
     
 int MetaClass::getTemplateNestNum()

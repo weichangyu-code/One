@@ -196,18 +196,16 @@ public:
 
     Result onExplainCallFuncDestruct(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
-        SyntaxVar* var = (SyntaxVar*)es[0].ptr;
-        
-        SyntaxTypePathItem* item = new SyntaxTypePathItem(context);
-        item->typeName = "~";
-        var->items.push_back(item);
-        
-        SyntaxExp* exp = new SyntaxExp(context);
+        SyntaxExp* exp = (SyntaxExp*)es[0].ptr;
+        exp = SyntaxExp::convertExp2Exp(exp, "~", context);
 
         SyntaxInstruct* instruct = new SyntaxInstruct(context);
         instruct->cmd = CALL;
-        instruct->func = var;
+        instruct->func = exp;
+
+        exp = new SyntaxExp(context);
         exp->instructs.push_back(instruct);
+        exp->ret.setInstruct(instruct);
 
         out.ptr = exp;
         return {};
@@ -215,22 +213,19 @@ public:
 
     Result onExplainCallFunc(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
-        SyntaxVar* var = (SyntaxVar*)es[0].ptr;
+        SyntaxExp* exp = (SyntaxExp*)es[0].ptr;
         SyntaxMulti<SyntaxExp*>* multiExp = (SyntaxMulti<SyntaxExp*>*)es[1].ptr;
-        
-        SyntaxExp* exp = new SyntaxExp(context);
-        for (auto& expTmp : multiExp->items)
-        {
-            exp->append(expTmp);
-        }
 
         SyntaxInstruct* instruct = new SyntaxInstruct(context);
         instruct->cmd = CALL;
-        instruct->func = var;
+        instruct->func = exp;
         for (auto& expTmp : multiExp->items)
         {
             instruct->params.push_back(expTmp->ret);
         }
+
+        exp = new SyntaxExp(context);
+        exp->append(SyntaxExp::combine(multiExp, false, context));
         exp->instructs.push_back(instruct);
         exp->ret.setInstruct(instruct);
 

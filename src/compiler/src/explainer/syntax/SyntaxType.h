@@ -35,11 +35,8 @@ public:
 
     static SyntaxType* createBoolType(ExplainContext* context)
     {
-        SyntaxTypePathItem* item = new SyntaxTypePathItem(context);
-        item->typeName = "bool";
-
         SyntaxType* type = new SyntaxType(context);
-        type->items.push_back(item);
+        type->items.push_back(new SyntaxTypePathItem("bool", context));
         return type;
     }
 

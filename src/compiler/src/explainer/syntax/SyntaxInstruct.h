@@ -5,6 +5,7 @@
 
 class SyntaxFunc;
 class SyntaxType;
+class SyntaxExp;
 class SyntaxInstruct : public SyntaxBase
 {
 public:
@@ -19,9 +20,11 @@ public:
 
     union 
     {
-        SyntaxVar* func = nullptr;          //cmd为CALL有效
+        void* p = nullptr;
         SyntaxType* type;                   //cmd为TYPE、NEW有效
         SyntaxVarDef* varDef;               //cmd为VARDEF有效
+        //SyntaxVar* func;                  //
+        SyntaxExp* func;                    //cmd为CALL有效
     };
     
     std::list<SyntaxData> params;
