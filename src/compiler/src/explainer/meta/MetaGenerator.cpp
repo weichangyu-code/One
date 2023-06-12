@@ -895,7 +895,6 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
             }
 
             out->setData(iterVarRef);
-            return {};
         }
         else if (first)
         {
@@ -1807,7 +1806,6 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                 }
 
                 instruct->retType = instruct->func->returnType;
-                return {};
             }
             else if (first)
             {
