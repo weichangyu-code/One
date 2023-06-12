@@ -1,5 +1,5 @@
 
-class List<T>
+class List<T> : Iterable<T>
 {
     class Item
     {
@@ -21,6 +21,36 @@ class List<T>
     {
 
     }
+    
+	//foreach
+    class ListIterator : Iterator<T>
+    {
+        ListIterator(Item item)
+        {
+            _item = item;
+        }
+
+        virtual bool hasNext()
+        {
+            return _item != null;
+        }
+        virtual T next()
+        {
+            if (_item != null)
+            {
+                T obj = _item.obj;
+                _item = _item.next;
+                return obj;
+            }
+            return null;
+        }
+
+        Item _item;
+    }
+	virtual Iterator<T> iterator()
+	{
+		return new ListIterator(_head);
+	}
 
     bool isEmpty()
     {
@@ -102,6 +132,8 @@ class List<T>
                 _tail = null;
             }
             _length--;
+
+            head.next = null;
             return head.obj;
         }
         else
@@ -124,6 +156,8 @@ class List<T>
                 _head = null;
             }
             _length--;
+
+            tail.prev = null;
             return tail.obj;
         }
         else

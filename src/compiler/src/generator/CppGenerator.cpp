@@ -230,9 +230,7 @@ Result CppGenerator::generateCMakeList(const string& root, const string& exeName
     for (auto& metaClass : metaContainer->getClasses())
     {
         auto cppClass = CppClass::getCppClass(metaClass);
-        if (metaClass->isInterface == false 
-            && cppClass->cppNative == false 
-            && metaClass->isTemplateClass() == false)
+        if (metaClass->isTemplateClass() == false)
         {
             f << "set(SRC_LIST ${SRC_LIST} " << cppClass->cppPath << ")" << endl;
         }
@@ -512,77 +510,34 @@ Result CppGenerator::generateNativeClass(const string& root, MetaClass* metaClas
     {
         return {};
     }
-
-    //只创建对象工厂
     auto cppClass = CppClass::getCppClass(metaClass);
     if (cppClass->cppNative == false)
     {
         return {};
     }
+
     ofstream h(FileUtils::appendFileName(root, cppClass->cppHPath));
     if (h.is_open() == false)
     {
         return R_FAILED;
     }
 
-    set<string> includes;
-    set<string> classNames;
-
-    //模板类参数
-    includes.insert(cppClass->cppNativeHPath);
-    for (auto& param : metaClass->params)
-    {
-        if (param->type.isClass())
-        {
-            auto paramCppClass = CppClass::getCppClass(param->type.clazz);
-            includes.insert(paramCppClass->cppHPath);
-        }
-    }
-
-    // 原生不需要包含
-    // for (auto& parent : metaClass->parents)
-    // {
-    //     includes.insert(CppClass::getCppClass(parent)->cppHPath);
-    // }
-
-    // for (auto& link : metaClass->linkClasses)
-    // {
-    //     CppClass* cppLink = CppClass::getCppClass(link);
-    //     if (cppLink->cppNative)
-    //     {
-    //         //因为cppNative用typedef定义的，不能用class声明
-    //         if (cppClass->cppNative && metaClass->templateClass == nullptr)
-    //         {
-    //             //不需要包含，本身是原生非模板类，该包含的在原生文件里已经包含了
-    //         }
-    //         else
-    //         {
-    //             includes.insert(cppLink->cppHPath);
-    //         }
-    //     }
-    //     else
-    //     {
-    //         classNames.insert(cppLink->cppName);
-    //     }
-    // }
-
     //头文件包含
     h << "#pragma once" << endl;
     h << "#include \"ObjectPool.h\"" << endl;
     h << "#include \"MetaManager.h\"" << endl;
-    for (auto& name : includes)
-    {
-        h << "#include \"" << name << "\"" << endl;
-    }
+    h << "#include \"" << cppClass->cppNativeHPath << "\"" << endl;
     h << endl;
 
     h << "namespace One {" << endl << endl;
     
     //声明类
-    for (auto& name : classNames)
+    set<MetaClass*> declared;
+    for (auto& linkClass : metaClass->linkClasses)
     {
-        h << "class " << name << ";" << endl;
+        VR(generateClassDeclare(h, linkClass, declared));
     }
+    h << endl;
 
     //类型转换
     if (metaClass->isTemplateClass())
@@ -595,14 +550,44 @@ Result CppGenerator::generateNativeClass(const string& root, MetaClass* metaClas
         h << "typedef " << cppClass->cppNativeName << cppClass->getTemplateParamImpl() << " " << cppClass->cppName << ";" << endl;
     }
 
-    VR(generateFactoryClass(h, metaClass));
+    VR(generateFactoryClassH(h, metaClass));
 
-    h << "}" << endl;
+    h << endl << "}" << endl;
+
+    //////////////////////////////////////////////////////////////////////////////////
+    //源文件
+    ofstream cpp(FileUtils::appendFileName(root, cppClass->cppPath));
+    if (cpp.is_open() == false)
+    {
+        return R_FAILED;
+    }
+
+    cpp << "#include \"" << FileUtils::getFileName(cppClass->cppHPath) << "\"" << endl;
+    cpp << "#include \"" << "StringPool.h" << "\"" << endl;
+    cpp << "#include \"" << "ObjectPool.h" << "\"" << endl;
+    cpp << "#include \"" << "ExceptionHelper.h" << "\"" << endl;
+
+    set<string> includes;
+    for (auto& link : metaClass->linkClasses)
+    {
+        includes.insert(CppClass::getCppClass(link)->cppHPath);
+    }
+    for (auto& name : includes)
+    {
+        cpp << "#include \"" << name << "\"" << endl;
+    }
+    cpp << endl;
+
+    cpp << "namespace One {" << endl << endl;
+
+    VR(generateFactoryClassCpp(cpp, metaClass));
+
+    cpp << endl << "}" << endl;
 
     return {};
 }
-
-Result CppGenerator::generateFactoryClass(ofstream& f, MetaClass* metaClass)
+    
+Result CppGenerator::generateFactoryClassH(ofstream& f, MetaClass* metaClass)
 {
     if (metaClass->isInterface || metaClass->isTemplateClass())
     {
@@ -631,15 +616,48 @@ Result CppGenerator::generateFactoryClass(ofstream& f, MetaClass* metaClass)
             }
             f << generateFuncParamType(var->type) << " " << var->name;
         }
+        f << ");" << endl;
+    }
+
+    f << "};" << endl << endl;
+
+    return {};
+}
+    
+Result CppGenerator::generateFactoryClassCpp(ofstream& f, MetaClass* metaClass)
+{
+    if (metaClass->isInterface || metaClass->isTemplateClass())
+    {
+        return {};
+    }
+    CppClass* cppClass = CppClass::getCppClass(metaClass);
+
+    for (auto& metaFunc : metaClass->funcs)
+    {
+        if (metaFunc->funcType != FUNC_CONSTRUCT)
+        {
+            continue;
+        }
+
+        //创建对应的createObject函数
+        f << "Reference<" << cppClass->cppName << "> " << cppClass->getFactoryName() << "::" << KEY_CREATE_OBJECT_FUNC << "(";
+        for (auto& var : metaFunc->params)
+        {
+            if (var != metaFunc->params.front())
+            {
+                f << ", ";
+            }
+            f << generateFuncParamType(var->type) << " " << var->name;
+        }
         f << ")" << endl;
         
-        f << KEY_TAB << "{" << endl;
+        f << "{" << endl;
         
-        f << KEY_TAB << KEY_TAB << "auto __var__ = (" << cppClass->cppName << "*)g_objectPool.createObject(sizeof(" << cppClass->cppName << "));" << endl;
-        f << KEY_TAB << KEY_TAB << "__var__->initClass(One::ClassP<" << cppClass->cppName << ">::getClass());" << endl;
+        f << KEY_TAB << "auto __var__ = (" << cppClass->cppName << "*)g_objectPool.createObject(sizeof(" << cppClass->cppName << "));" << endl;
+        f << KEY_TAB << "__var__->initClass(One::ClassP<" << cppClass->cppName << ">::getClass());" << endl;
         if (cppClass->cppNative)
         {
-            f << KEY_TAB << KEY_TAB << "CALL_CONSTRUCT(__var__, " << cppClass->cppName;
+            f << KEY_TAB << "CALL_CONSTRUCT(__var__, " << cppClass->cppName;
             for (auto& var : metaFunc->params)
             {
                 f << ", ";
@@ -649,9 +667,9 @@ Result CppGenerator::generateFactoryClass(ofstream& f, MetaClass* metaClass)
         }
         else
         {
-            f << KEY_TAB << KEY_TAB << "CALL_CONSTRUCT(__var__, " << cppClass->cppName << ");" << endl;
-            f << KEY_TAB << KEY_TAB << "__var__->" << KEY_INIT_VAR_FUNC << "();" << endl;
-            f << KEY_TAB << KEY_TAB << "__var__->" << KEY_CONSTRUCT_FUNC << "(";
+            f << KEY_TAB << "CALL_CONSTRUCT(__var__, " << cppClass->cppName << ");" << endl;
+            f << KEY_TAB << "__var__->" << KEY_INIT_VAR_FUNC << "();" << endl;
+            f << KEY_TAB << "__var__->" << KEY_CONSTRUCT_FUNC << "(";
             for (auto& var : metaFunc->params)
             {
                 if (var != metaFunc->params.front())
@@ -662,16 +680,14 @@ Result CppGenerator::generateFactoryClass(ofstream& f, MetaClass* metaClass)
             }
             f << ");" << endl;
         }
-        f << KEY_TAB << KEY_TAB << "return Reference<" << cppClass->cppName << ">(__var__, true, false);" << endl;
+        f << KEY_TAB << "return Reference<" << cppClass->cppName << ">(__var__, true, false);" << endl;
 
-        f << KEY_TAB << "}" << endl << endl;
+        f << "}" << endl << endl;
     }
-
-    f << "};" << endl << endl;
 
     return {};
 }
-    
+
 Result CppGenerator::generateInterface(const string& root, MetaClass* metaClass)
 {
     if (metaClass->isInterface == false || metaClass->isTemplateClass())
@@ -696,20 +712,6 @@ Result CppGenerator::generateInterface(const string& root, MetaClass* metaClass)
     {
         includes.insert(CppClass::getCppClass(parent)->cppHPath);
     }
-    set<string> classNames;
-    for (auto& link : metaClass->linkClasses)
-    {
-        CppClass* cppLink = CppClass::getCppClass(link);
-        if (cppLink->cppNative)
-        {
-            //TODO:这个为什么
-            includes.insert(cppLink->cppHPath);
-        }
-        else
-        {
-            classNames.insert(cppLink->cppName);
-        }
-    }
 
     //头文件包含
     h << "#pragma once" << endl;
@@ -720,12 +722,14 @@ Result CppGenerator::generateInterface(const string& root, MetaClass* metaClass)
     h << endl;
 
     h << "namespace One {" << endl << endl;
-
+    
     //声明类
-    for (auto& name : classNames)
+    set<MetaClass*> declared;
+    for (auto& linkClass : metaClass->linkClasses)
     {
-        h << "class " << name << ";" << endl;
+        VR(generateClassDeclare(h, linkClass, declared));
     }
+    h << endl;
 
     //类的定义
     h << "class " << cppClass->cppName;
@@ -749,19 +753,8 @@ Result CppGenerator::generateInterface(const string& root, MetaClass* metaClass)
     h << "public:" << endl;
 
     //构造函数
-    h << KEY_TAB << cppClass->cppName << "(Object* obj) : ";
-    if (metaClass->parents.empty() == false)
-    {
-        for (auto& parent : metaClass->parents)
-        {
-            if (parent != metaClass->parents.front())
-            {
-                h << ", ";
-            }
-            h << CppClass::getCppClass(parent)->cppName << "(obj)";
-        }
-    }
-    h << " {}" << endl;
+    h << KEY_TAB << cppClass->cppName << "(Object* obj);" << endl;
+    h << KEY_TAB << "~" << cppClass->cppName << "();" << endl;
 
     //方法
     for (auto& metaFunc : metaClass->funcs)
@@ -776,6 +769,55 @@ Result CppGenerator::generateInterface(const string& root, MetaClass* metaClass)
     h << "};" << endl << endl;
     h << "}" << endl << endl;
 
+    //////////////////////////////////////////////////////////////////////////////
+    //源文件
+    ofstream cpp(FileUtils::appendFileName(root, cppClass->cppPath));
+    if (cpp.is_open() == false)
+    {
+        return R_FAILED;
+    }
+
+    cpp << "#include \"" << FileUtils::getFileName(cppClass->cppHPath) << "\"" << endl;
+    cpp << "#include \"" << "StringPool.h" << "\"" << endl;
+    cpp << "#include \"" << "ObjectPool.h" << "\"" << endl;
+    cpp << "#include \"" << "ExceptionHelper.h" << "\"" << endl;
+    includes.clear();
+    for (auto& link : metaClass->linkClasses)
+    {
+        includes.insert(CppClass::getCppClass(link)->cppHPath);
+    }
+    for (auto& name : includes)
+    {
+        cpp << "#include \"" << name << "\"" << endl;
+    }
+    cpp << endl;
+
+    cpp << "namespace One {" << endl << endl;
+
+    //构造析构
+    cpp << cppClass->cppName << "::" << cppClass->cppName << "(Object* obj)" << endl;
+    if (metaClass->parents.empty() == false)
+    {
+        for (auto& parent : metaClass->parents)
+        {
+            if (parent == metaClass->parents.front())
+            {
+                cpp << KEY_TAB << ": ";
+            }
+            else
+            {
+                cpp << ", ";
+            }
+            cpp << CppClass::getCppClass(parent)->cppName << "(obj)";
+        }
+        cpp << endl;
+    }
+    cpp << "{}" << endl;
+    cpp << cppClass->cppName << "::~" << cppClass->cppName << "()" << endl;
+    cpp << "{}" << endl;
+
+    cpp << endl << "}" << endl;
+
     return {};
 }
     
@@ -785,63 +827,33 @@ Result CppGenerator::generateNativeInterface(const string& root, MetaClass* meta
     {
         return {};
     }
-
-    //只创建对象工厂
     auto cppClass = CppClass::getCppClass(metaClass);
     if (cppClass->cppNative == false)
     {
         return {};
     }
+
     ofstream h(FileUtils::appendFileName(root, cppClass->cppHPath));
     if (h.is_open() == false)
     {
         return R_FAILED;
     }
 
-    set<string> includes;
-    includes.insert(cppClass->cppNativeHPath);
-    for (auto& parent : metaClass->parents)
-    {
-        includes.insert(CppClass::getCppClass(parent)->cppHPath);
-    }
-    set<string> classNames;
-    for (auto& link : metaClass->linkClasses)
-    {
-        CppClass* cppLink = CppClass::getCppClass(link);
-        if (cppLink->cppNative)
-        {
-            //因为cppNative用typedef定义的，不能用class声明
-            if (cppClass->cppNative && metaClass->templateClass == nullptr)
-            {
-                //不需要包含，本身是原生非模板类，该包含的在原生文件里已经包含了
-            }
-            else
-            {
-                includes.insert(cppLink->cppHPath);
-            }
-        }
-        else
-        {
-            classNames.insert(cppLink->cppName);
-        }
-    }
-
     //头文件包含
     h << "#pragma once" << endl;
     h << "#include \"ObjectPool.h\"" << endl;
-    for (auto& name : includes)
-    {
-        h << "#include \"" << name << "\"" << endl;
-    }
+    h << "#include \"" << cppClass->cppNativeHPath << "\"" << endl;
     h << endl;
 
     h << "namespace One {" << endl << endl;
     
     //声明类
-    for (auto& name : classNames)
+    set<MetaClass*> declared;
+    for (auto& linkClass : metaClass->linkClasses)
     {
-        h << "class " << name << ";" << endl;
+        VR(generateClassDeclare(h, linkClass, declared));
     }
+    h << endl;
 
     //类型转换
     if (metaClass->isTemplateClass())
@@ -854,7 +866,35 @@ Result CppGenerator::generateNativeInterface(const string& root, MetaClass* meta
         h << "typedef " << cppClass->cppNativeName << cppClass->getTemplateParamImpl() << " " << cppClass->cppName << ";" << endl;
     }
 
-    h << "}" << endl;
+    h << endl << "}" << endl;
+    
+    //////////////////////////////////////////////////////////////////////////////////
+    //源文件
+    ofstream cpp(FileUtils::appendFileName(root, cppClass->cppPath));
+    if (cpp.is_open() == false)
+    {
+        return R_FAILED;
+    }
+
+    cpp << "#include \"" << FileUtils::getFileName(cppClass->cppHPath) << "\"" << endl;
+    cpp << "#include \"" << "StringPool.h" << "\"" << endl;
+    cpp << "#include \"" << "ObjectPool.h" << "\"" << endl;
+    cpp << "#include \"" << "ExceptionHelper.h" << "\"" << endl;
+
+    set<string> includes;
+    for (auto& link : metaClass->linkClasses)
+    {
+        includes.insert(CppClass::getCppClass(link)->cppHPath);
+    }
+    for (auto& name : includes)
+    {
+        cpp << "#include \"" << name << "\"" << endl;
+    }
+    cpp << endl;
+
+    cpp << "namespace One {" << endl << endl;
+
+    cpp << endl << "}" << endl;
 
     return {};
 }
@@ -878,24 +918,11 @@ Result CppGenerator::generateClass(const string& root, MetaClass* metaClass)
         return R_FAILED;
     }
 
-    //
+    //头文件和类声明
     set<string> includes;
     for (auto& parent : metaClass->parents)
     {
         includes.insert(CppClass::getCppClass(parent)->cppHPath);
-    }
-    set<string> classNames;
-    for (auto& link : metaClass->linkClasses)
-    {
-        CppClass* cppLink = CppClass::getCppClass(link);
-        if (cppLink->cppNative)
-        {
-            includes.insert(cppLink->cppHPath);
-        }
-        else
-        {
-            classNames.insert(cppLink->cppName);
-        }
     }
 
     //头文件包含
@@ -910,10 +937,12 @@ Result CppGenerator::generateClass(const string& root, MetaClass* metaClass)
     h << "namespace One {" << endl << endl;
 
     //声明类
-    for (auto& name : classNames)
+    set<MetaClass*> declared;
+    for (auto& linkClass : metaClass->linkClasses)
     {
-        h << "class " << name << ";" << endl;
+        VR(generateClassDeclare(h, linkClass, declared));
     }
+    h << endl;
 
     //类的定义
     h << "class " << cppClass->cppName;
@@ -933,32 +962,9 @@ Result CppGenerator::generateClass(const string& root, MetaClass* metaClass)
     h << "{" << endl;
     h << "public:" << endl;
     
-
     //构造函数
-    h << KEY_TAB << cppClass->cppName << "()";
-    if (metaClass->parents.empty() == false)
-    {
-        int index = 0;
-        for (auto& parent : metaClass->parents)
-        {
-            if (parent->isInterface == false)
-            {
-                continue;
-            }
-            if (index == 0)
-            {
-                h << " : ";
-            }
-            else
-            {
-                h << ", ";
-            }
-            h << CppClass::getCppClass(parent)->cppName << "(this)";
-
-            index++;
-        }
-    }
-    h << " {}" << endl;
+    h << KEY_TAB << cppClass->cppName << "();" << endl;
+    h << KEY_TAB << "~" << cppClass->cppName << "();" << endl;
 
     //变量
     for (auto& var : metaClass->vars)
@@ -985,12 +991,9 @@ Result CppGenerator::generateClass(const string& root, MetaClass* metaClass)
     }
     h << endl;
 
-    //加上三个固定的方法
-    if (metaClass->isInterface == false)
-    {
-        VR(generateFuncDeclare(h, metaClass->varInitFunc));
-        VR(generateFuncDeclare(h, metaClass->staticVarInitFunc));
-    }
+    //加上固定的方法
+    VR(generateFuncDeclare(h, metaClass->varInitFunc));
+    VR(generateFuncDeclare(h, metaClass->staticVarInitFunc));
 
     //方法
     for (auto& metaFunc : metaClass->funcs)
@@ -1004,59 +1007,91 @@ Result CppGenerator::generateClass(const string& root, MetaClass* metaClass)
 
     h << "};" << endl << endl;
 
-    VR(generateFactoryClass(h, metaClass));
+    VR(generateFactoryClassH(h, metaClass));
 
-    h << "}" << endl << endl;
+    h << endl << "}" << endl << endl;
 
     ////////////////////////////////////////////////////////////////////////////////
     //源文件
-    if (metaClass->isInterface == false)
+    ofstream cpp(FileUtils::appendFileName(root, cppClass->cppPath));
+    if (cpp.is_open() == false)
     {
-        ofstream cpp(FileUtils::appendFileName(root, cppClass->cppPath));
-        if (cpp.is_open() == false)
-        {
-            return R_FAILED;
-        }
+        return R_FAILED;
+    }
 
-        cpp << "#include \"" << FileUtils::getFileName(cppClass->cppHPath) << "\"" << endl;
-        cpp << "#include \"" << "StringPool.h" << "\"" << endl;
-        cpp << "#include \"" << "ObjectPool.h" << "\"" << endl;
-        cpp << "#include \"" << "ExceptionHelper.h" << "\"" << endl;
-        set<string> includes;
-        for (auto& link : metaClass->linkClasses)
-        {
-            includes.insert(CppClass::getCppClass(link)->cppHPath);
-        }
-        for (auto& name : includes)
-        {
-            cpp << "#include \"" << name << "\"" << endl;
-        }
-        cpp << endl;
+    cpp << "#include \"" << FileUtils::getFileName(cppClass->cppHPath) << "\"" << endl;
+    cpp << "#include \"" << "StringPool.h" << "\"" << endl;
+    cpp << "#include \"" << "ObjectPool.h" << "\"" << endl;
+    cpp << "#include \"" << "ExceptionHelper.h" << "\"" << endl;
+    includes.clear();
+    for (auto& link : metaClass->linkClasses)
+    {
+        includes.insert(CppClass::getCppClass(link)->cppHPath);
+    }
+    for (auto& name : includes)
+    {
+        cpp << "#include \"" << name << "\"" << endl;
+    }
+    cpp << endl;
 
-        cpp << "namespace One {" << endl << endl;
+    cpp << "namespace One {" << endl << endl;
 
-        for (auto& var : metaClass->vars)
+    for (auto& var : metaClass->vars)
+    {
+        if (var->isStatic)
         {
-            if (var->isStatic)
-            {
-                cpp << generateVarDefType(var->type) << " "  << cppClass->cppName << "::" << var->name << ";" << endl;
-            }
+            cpp << generateVarDefType(var->type) << " "  << cppClass->cppName << "::" << var->name << ";" << endl;
         }
-        cpp << endl;
+    }
+    cpp << endl;
 
-        VR(generateFuncImpl(cpp, "", metaClass->varInitFunc, true));
-        VR(generateFuncImpl(cpp, "", metaClass->staticVarInitFunc, true));
-        for (auto& metaFunc : metaClass->funcs)
+    //构造析构
+    cpp << cppClass->cppName << "::" << cppClass->cppName << "()" << endl;
+    if (metaClass->parents.empty() == false)
+    {
+        int index = 0;
+        for (auto& parent : metaClass->parents)
         {
-            if (metaFunc->isHidden)
+            if (parent->isInterface == false)
             {
                 continue;
             }
-            VR(generateFuncImpl(cpp, "", metaFunc, true));
-        }
+            if (index == 0)
+            {
+                cpp << KEY_TAB << ": ";
+            }
+            else
+            {
+                cpp << ", ";
+            }
+            cpp << CppClass::getCppClass(parent)->cppName << "(this)";
 
-        cpp << endl << "}" << endl;
+            index++;
+        }
+        if (index > 0)
+        {
+            cpp << endl;
+        }
     }
+    cpp << "{}" << endl;
+    cpp << cppClass->cppName << "::~" << cppClass->cppName << "()" << endl;
+    cpp << "{}" << endl;
+
+    VR(generateFuncImpl(cpp, "", metaClass->varInitFunc, true));
+    VR(generateFuncImpl(cpp, "", metaClass->staticVarInitFunc, true));
+
+    for (auto& metaFunc : metaClass->funcs)
+    {
+        if (metaFunc->isHidden)
+        {
+            continue;
+        }
+        VR(generateFuncImpl(cpp, "", metaFunc, true));
+    }
+    
+    VR(generateFactoryClassCpp(cpp, metaClass));
+
+    cpp << endl << "}" << endl;
 
     //增加内嵌类
     for (auto& inner : metaClass->innerClasses)
@@ -1347,7 +1382,7 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
             }
             else
             {
-                instruct->cppCode = "return " + generateData(instruct->params.front());
+                instruct->cppCode = "return " + generateTypeData(instruct->params.front(), instruct->retType, false);
             }
         }
         break;
@@ -1655,6 +1690,47 @@ Result CppGenerator::generateExpCode(const list<MetaInstruct*>& instructs, strin
 
     return {};
 }
+    
+Result CppGenerator::generateClassDeclare(ofstream& h, MetaClass* metaClass, set<MetaClass*>& declared)
+{
+    if (declared.count(metaClass) > 0)
+    {
+        return {};
+    }
+    declared.insert(metaClass);
+
+    CppClass* cppClass = CppClass::getCppClass(metaClass);
+    if (cppClass->cppNative)
+    {
+        //遍历模板参数
+        for (auto& param : metaClass->params)
+        {
+            if (param->type.isClass())
+            {
+                VR(generateClassDeclare(h, param->type.clazz, declared));
+            }
+        }
+
+        //定义模板
+        if (metaClass->params.empty())
+        {
+            h << "class " << cppClass->cppNativeName << ";" << endl;
+        }
+        else
+        {
+            h << cppClass->getTemplateParamDefine() << " class " << cppClass->cppNativeName << ";" << endl;
+        }
+
+        //定义类
+        h << "typedef " << cppClass->cppNativeName << cppClass->getTemplateParamImpl() << " " << cppClass->cppName << ";" << endl;
+    }
+    else
+    {
+        h << "class " << cppClass->cppName << ";" << endl;
+    }
+
+    return {};
+}
 
 Result CppGenerator::generateBlock(ofstream& f, const string& space, MetaBlock* block)
 {
@@ -1731,7 +1807,7 @@ Result CppGenerator::generateFuncDeclare(ofstream& h, MetaFunc* metaFunc)
     if (metaFunc->funcType == FUNC_DESTRUCT)
     {
         //添加一个清除变量的接口
-        h << KEY_TAB << "virtual void " << KEY_CLEAR_VAR_FUNC << "();" << endl;
+        h << KEY_TAB << "virtual OneVoid " << KEY_CLEAR_VAR_FUNC << "();" << endl;
     }
 
     return {};
@@ -1828,7 +1904,7 @@ Result CppGenerator::generateFuncImpl(ofstream& f, const string& space, MetaFunc
 
     if (metaFunc->funcType == FUNC_DESTRUCT)
     {
-        f << space << "void " << cppClass->cppName << "::" << KEY_CLEAR_VAR_FUNC << "()" << endl;
+        f << space << "OneVoid " << cppClass->cppName << "::" << KEY_CLEAR_VAR_FUNC << "()" << endl;
         f << space << "{" << endl;
             
         for (auto& var : metaFunc->getOuterClass()->vars)

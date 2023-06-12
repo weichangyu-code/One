@@ -309,11 +309,6 @@ MetaClass* MetaClass::createRealClass(const list<MetaType>& types)
     {
         param->type = *iter;
         ++iter;
-
-        if (param->type.isClass())
-        {
-            realClazz->addLinkClass(param->type.clazz);
-        }
     }
     
     realClasses.push_back(realClazz);

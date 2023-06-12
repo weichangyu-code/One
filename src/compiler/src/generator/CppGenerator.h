@@ -65,11 +65,14 @@ protected:
     Result generateNativeClass(const string& root, MetaClass* metaClass);
     Result generateInterface(const string& root, MetaClass* metaClass);
     Result generateNativeInterface(const string& root, MetaClass* metaClass);
-    Result generateFactoryClass(ofstream& f, MetaClass* metaClass);
+    Result generateFactoryClassH(ofstream& f, MetaClass* metaClass);
+    Result generateFactoryClassCpp(ofstream& f, MetaClass* metaClass);
     Result generateBlock(ofstream& f, const string& space, MetaBlock* block);
     Result generateInstruct(const string& space, MetaInstruct* instruct);
     Result generateInstructs(const string& space, const list<MetaInstruct*>& instructs);
     Result generateExpCode(const list<MetaInstruct*>& instructs, string& code);
+
+    Result generateClassDeclare(ofstream& h, MetaClass* metaClass, set<MetaClass*>& declared);
 
     Result generateFuncDeclare(ofstream& h, MetaFunc* metaFunc);
     Result generateFuncImpl(ofstream& f, const string& space, MetaFunc* metaFunc, bool classPrefix);

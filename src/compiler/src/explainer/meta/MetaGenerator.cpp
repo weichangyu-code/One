@@ -185,7 +185,6 @@ Result MetaGenerator::generateMetaClassStruct(MetaClass* clazz)
         if (clazz != objectClass)
         {
             //没有父类的，默认object为父类
-            clazz->addLinkClass(objectClass);
             clazz->parents.push_front(objectClass);
         }
     }
@@ -385,6 +384,7 @@ Result MetaGenerator::generateMetaVarDefInstruct(MetaVariable* var)
     {
         SyntaxVarDef* syntaxVarDef = (SyntaxVarDef*)var->syntaxObj;
 
+        //TODO函数的默认参数没处理
         MetaData tmp;
         VR(generateMetaExpInstruct(var->initBlock, syntaxVarDef->exp, &tmp));
     }
@@ -918,7 +918,6 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
                     //代表本对象
                     iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, inClass->getThisVariable());
                 }
-                block->getOuterClass()->addLinkClass(clazz);
                 iterClass = clazz;
                 continue;
             }
@@ -1028,6 +1027,11 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
             {
                 return R_FAILED;
             }
+        }
+
+        if (iterVarRef && iterVarRef->getType().isClass())
+        {
+            block->getOuterClass()->addLinkClass(iterVarRef->getType().clazz);
         }
     }
 
@@ -1510,6 +1514,7 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
                 return R_FAILED;
             }
 
+            instruct->retType = retType;
             block->addInstruct(instruct);
         }
         break;
@@ -1825,7 +1830,6 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                         //代表本对象
                         iterVarRef = MetaVarRef::makeVarRef(metaContainer, iterVarRef, inClass->getThisVariable());
                     }
-                    block->getOuterClass()->addLinkClass(clazz);
                     iterClass = clazz;
                     continue;
                 }
@@ -1936,6 +1940,11 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                     return R_FAILED;
                 }
             }
+
+            if (iterVarRef && iterVarRef->getType().isClass())
+            {
+                block->getOuterClass()->addLinkClass(iterVarRef->getType().clazz);
+            }
         }
     }
     else
@@ -1960,6 +1969,11 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
         iterVarRef = MetaVarRef::makeVarRef(metaContainer, obj);
         instruct->func = func;
         instruct->params.push_front(iterVarRef);
+    }
+
+    if (instruct->func->returnType.isClass())
+    {
+        block->getOuterClass()->addLinkClass(instruct->func->returnType.clazz);
     }
 
     return {};
@@ -2020,8 +2034,6 @@ Result MetaGenerator::generateMetaType(MetaBoxBase* box, SyntaxType* syntaxType,
                     {
                         return R_FAILED;
                     }
-
-                    box->getOuterClass()->addLinkClass(clazz);
                 }
             }
             else if (first)
@@ -2031,7 +2043,6 @@ Result MetaGenerator::generateMetaType(MetaBoxBase* box, SyntaxType* syntaxType,
                 {
                     break;
                 }
-                box->getOuterClass()->addLinkClass(clazz);
                 package = metaContainer->searchPackage(box, item->typeName);
                 if (package)
                 {
@@ -2091,6 +2102,8 @@ Result MetaGenerator::generateMetaType(MetaBoxBase* box, SyntaxType* syntaxType,
                 }
                 VR(generateRealClass(box, clazz, types, &clazz));
             }
+
+            box->getOuterClass()->addLinkClass(clazz);
         }
     }
 
@@ -2287,6 +2300,13 @@ Result MetaGenerator::generateRealClass(MetaBoxBase* box, MetaClass* clazz, cons
         VR(generateMetaClassInstruct(realClass));
     }
 
+    for (auto& type : types)
+    {
+        if (type.isClass())
+        {
+            realClass->addLinkClass(type.clazz);
+        }
+    }
     box->getOuterClass()->addLinkClass(realClass);
 
     *out = realClass;
@@ -2301,6 +2321,7 @@ Result MetaGenerator::generateRealClass(MetaBoxBase* box, MetaClass* clazz, Synt
     }
     if (clazz->params.empty())
     {
+        box->getOuterClass()->addLinkClass(clazz);
         *out = clazz;
         return {};
     }

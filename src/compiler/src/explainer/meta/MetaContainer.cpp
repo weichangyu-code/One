@@ -182,7 +182,8 @@ MetaClass* MetaContainer::searchClass(MetaBoxBase* box, const string& name)
             MetaClass* clazz = iter->convertClass();
             if (clazz->name == name)
             {
-                return clazz->templateClass ? clazz->templateClass : clazz;
+                clazz = clazz->templateClass ? clazz->templateClass : clazz;
+                return clazz;
             }
             MetaClass* innerClass = clazz->getInnerClass(name);
             if (innerClass)
