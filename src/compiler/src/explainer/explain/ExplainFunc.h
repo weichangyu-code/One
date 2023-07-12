@@ -29,7 +29,6 @@ public:
 
         registe("callfuncparam", "null", (MyRuleExecuteFunction)&ExplainFunc::onExplainCallFuncParamNull);
         registe("callfuncparam", "", (MyRuleExecuteFunction)&ExplainFunc::onExplainCallFuncParam);
-        registe("callfunc", "destruct", (MyRuleExecuteFunction)&ExplainFunc::onExplainCallFuncDestruct);
         registe("callfunc", "", (MyRuleExecuteFunction)&ExplainFunc::onExplainCallFunc);
 
         registe("return", "", (MyRuleExecuteFunction)&ExplainFunc::onExplainReturn);
@@ -191,23 +190,6 @@ public:
         SyntaxMulti<SyntaxExp*>* multiExp = (SyntaxMulti<SyntaxExp*>*)es[1].ptr;
         
         out.ptr = multiExp;
-        return {};
-    }
-
-    Result onExplainCallFuncDestruct(Rule* rule, vector<LexElement>& es, LexElement& out)
-    {
-        SyntaxExp* exp = (SyntaxExp*)es[0].ptr;
-        exp = SyntaxExp::convertExp2Exp(exp, "~", context);
-
-        SyntaxInstruct* instruct = new SyntaxInstruct(context);
-        instruct->cmd = CALL;
-        instruct->func = exp;
-
-        exp = new SyntaxExp(context);
-        exp->instructs.push_back(instruct);
-        exp->ret.setInstruct(instruct);
-
-        out.ptr = exp;
         return {};
     }
 

@@ -57,11 +57,15 @@ public:
     //匿名类的外层this
     list<MetaVariable*> getAnonyThises();
     MetaVariable* addAnonyThis(int index, MetaVarRef* varRef);
-    MetaVariable* addAnonyMember(const string name, MetaVarRef* varRef);
+    MetaVariable* addAnonyMember(const string& name, MetaVarRef* varRef);
 
     //函数类型
     bool isFunctionClass();
     MetaFunc* getFunctionClassBody();
+
+protected:
+    MetaFunc* createHideFunction(const string& name, int type, bool isStatic);
+    MetaVariable* createHideVariable(const string& name, int type, bool isStatic);
 
 public:
     int id = 0;                         //所以Class的索引，从1开始

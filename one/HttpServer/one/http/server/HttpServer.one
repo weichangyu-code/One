@@ -12,6 +12,15 @@ class HttpServer
         {
             Out.println(v);
         }
+        int i := 1;
+        List<int> l2;
+        l2 := l;
+        delete l2;
+        for (auto v : l2)
+        {
+            Out.println(v);
+        }
+        const int ii = 0;
 
         auto sockListen = new Socket();
         int ret = sockListen.listen("0.0.0.0", 8000);

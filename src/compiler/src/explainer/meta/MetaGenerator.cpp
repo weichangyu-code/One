@@ -209,7 +209,7 @@ Result MetaGenerator::generateMetaClassStruct(MetaClass* clazz)
             return R_FAILED;
         }
         MetaVariable* var = clazz->addVeriable(syntaxVarDef->name, syntaxVarDef);
-        VR(generateMetaVarDefStruct(clazz, var, var->isConst));
+        VR(generateMetaVarDefStruct(clazz, var));
     }
 
     // 解析方法
@@ -248,9 +248,9 @@ Result MetaGenerator::generateMetaFunctionStruct(MetaFunc* func)
             return R_FAILED;
         }
         MetaVariable* param = func->addParam(syntaxVarDef->name, syntaxVarDef);
-        VR(generateMetaVarDefStruct(func, param, true));
+        VR(generateMetaVarDefStruct(func, param));
 
-        if (syntaxVarDef->exp == nullptr)
+        if (syntaxVarDef->haveInitExp == false)
         {
             if (defaultParamNum > 0)
             {
@@ -290,7 +290,7 @@ Result MetaGenerator::generateMetaFunctionStruct(MetaFunc* func)
     return {};
 }
 
-Result MetaGenerator::generateMetaVarDefStruct(MetaBoxBase* box, MetaVariable* var, bool needInit)
+Result MetaGenerator::generateMetaVarDefStruct(MetaBoxBase* box, MetaVariable* var)
 {
     SyntaxVarDef* syntaxVarDef = (SyntaxVarDef*)var->syntaxObj;
 
@@ -309,18 +309,10 @@ Result MetaGenerator::generateMetaVarDefStruct(MetaBoxBase* box, MetaVariable* v
         //auto
     }
 
-    if (syntaxVarDef->isConst && syntaxVarDef->exp == nullptr)
+    if (syntaxVarDef->isConst && syntaxVarDef->haveInitExp == false)
     {
         //const变量右边必须有表达式
         return R_FAILED;
-    }
-
-    
-    //只有常量才需要处理
-    if (syntaxVarDef->exp && needInit)
-    {
-        //借用下varInitFunc
-        var->initBlock = new MetaBlock(box->getOuterClass()->varInitFunc, metaContainer, nullptr);
     }
 
     return {};
@@ -354,15 +346,6 @@ Result MetaGenerator::generateMetaClassInstruct(MetaClass* clazz)
         VR(generateMetaClassInstruct(innerClass));
     }
 
-    // 解析变量
-    for (auto& var : clazz->vars)
-    {
-        if (var->isConst)
-        {
-            VR(generateMetaVarDefInstruct(var));
-        }
-    }
-
     // 解析变量初始化
     VR(generateMetaFunctionInstruct(clazz->varInitFunc));
     VR(generateMetaFunctionInstruct(clazz->staticVarInitFunc));
@@ -377,19 +360,19 @@ Result MetaGenerator::generateMetaClassInstruct(MetaClass* clazz)
     return {};
 }
 
-Result MetaGenerator::generateMetaVarDefInstruct(MetaVariable* var)
-{
-    //只有常量才需要处理
-    if (var->initBlock)
-    {
-        SyntaxVarDef* syntaxVarDef = (SyntaxVarDef*)var->syntaxObj;
+// Result MetaGenerator::generateMetaVarDefInstruct(MetaBlock* block, MetaVariable* var)
+// {
+//     if (var->haveInitBlock)
+//     {
+//         SyntaxVarDef* syntaxVarDef = (SyntaxVarDef*)var->syntaxObj;
 
-        //TODO函数的默认参数没处理
-        MetaData tmp;
-        VR(generateMetaExpInstruct(var->initBlock, syntaxVarDef->exp, &tmp));
-    }
-    return {};
-}
+//         var->initBlock = new MetaBlock(block, metaContainer, nullptr);
+
+//         //TODO函数的默认参数没处理
+//         VR(generateMetaExpInstruct(var->initBlock, syntaxVarDef->initExp, nullptr));
+//     }
+//     return {};
+// }
 
 Result MetaGenerator::generateMetaFunctionInstruct(MetaFunc* func)
 {
@@ -397,12 +380,6 @@ Result MetaGenerator::generateMetaFunctionInstruct(MetaFunc* func)
     if (syntaxFunc == nullptr || syntaxFunc->block == nullptr)
     {
         return {};
-    }
-
-    //处理初始化参数
-    for (auto& var : func->params)
-    {
-        VR(generateMetaVarDefInstruct(var));
     }
 
     func->block = new MetaBlock(func, metaContainer, syntaxFunc->block);
@@ -437,8 +414,8 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
                 SyntaxExp* syntaxExp = element->sentence->exp;
                 if (syntaxExp)
                 {
-                    MetaData tmp;
-                    VR(generateMetaExpInstruct(block, syntaxExp, &tmp));
+                    MetaData obj;
+                    VR(generateMetaExpInstruct(block, syntaxExp, &obj));
                 }
             }
             break;
@@ -552,8 +529,8 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
 
                 if (syntaxForBlock->type == SyntaxForBlock::FOR_RANGE)
                 {
-                    MetaVariable* var = subBlock->addVeriable(syntaxForBlock->varDef->name, syntaxForBlock->varDef);
-                    VR(generateMetaVarDefStruct(block, var, false));
+                    MetaVariable* var = subBlock->addVariable(syntaxForBlock->varDef->name, syntaxForBlock->varDef);
+                    VR(generateMetaVarDefStruct(block, var));
 
                     MetaData varData(var);
                     
@@ -584,8 +561,8 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
                 }
                 else if (syntaxForBlock->type == SyntaxForBlock::FOR_EACH)
                 {
-                    MetaVariable* var = block->addVeriable(syntaxForBlock->varDef->name, syntaxForBlock->varDef);
-                    VR(generateMetaVarDefStruct(block, var, false));
+                    MetaVariable* var = block->addVariable(syntaxForBlock->varDef->name, syntaxForBlock->varDef);
+                    VR(generateMetaVarDefStruct(block, var));
 
                     MetaData varData(var);
                     
@@ -671,7 +648,7 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
                 block->addInstruct(instruct);
 
                 //添加异常变量
-                MetaVariable* varE = subBlock->addVeriable("__e" + metaContainer->getAnonymous() + "__", nullptr);
+                MetaVariable* varE = subBlock->createAnonyVariable();
                 varE->type.setClass(metaContainer->getExceptionClass());
                 instruct = new MetaInstruct(metaContainer, nullptr);
                 instruct->cmd = VARDEF;
@@ -713,8 +690,8 @@ Result MetaGenerator::generateMetaBlockInstruct(MetaBlock* block)
                     {
                         MetaBlock* subCatchBlock = new MetaBlock(ifBlock, metaContainer, nullptr);
 
-                        MetaVariable* varE2 = subCatchBlock->addVeriable(catchBlock->varDef->name, catchBlock->varDef);
-                        VR(generateMetaVarDefStruct(subCatchBlock, varE2, false));
+                        MetaVariable* varE2 = subCatchBlock->addVariable(catchBlock->varDef->name, catchBlock->varDef);
+                        VR(generateMetaVarDefStruct(subCatchBlock, varE2));
 
                         //新增IF语句                
                         MetaInstruct* instruct2 = new MetaInstruct(metaContainer, nullptr);
@@ -893,8 +870,6 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
                     return R_FAILED;
                 }
             }
-
-            out->setData(iterVarRef);
         }
         else if (first)
         {
@@ -1032,6 +1007,11 @@ Result MetaGenerator::generateMetaVarInstruct(MetaBlock* block, SyntaxVar* synta
         {
             block->getOuterClass()->addLinkClass(iterVarRef->getType().clazz);
         }
+    }
+
+    if (out)
+    {
+        out->setData(iterVarRef);
     }
 
     return {};
@@ -1331,7 +1311,6 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
         }
         break;
     case ASSIGN:
-    case DEEP_ASSIGN:
         {
             MetaData& left = instruct->params.front();
             MetaData& right = instruct->params.back();
@@ -1340,25 +1319,13 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             MetaType leftType = left.getType();
             VR(handleAnonyClass(block, rightType, leftType));
 
-            if (instruct->cmd == DEEP_ASSIGN && rightType.isClass())
+            //判断左边是否是常量
+            if (block->getOuterFunc()->isHide == false)
             {
-                //添加一个clone调用的指令
-                MetaFunc* func = metaContainer->searchClassFunction(rightType.clazz, KEY_CLONE_FUNC, {}, MFT_ONLY_NORMAL);
-                if (func == nullptr)
+                if (left.isConst() || left.isConstVariable())
                 {
                     return R_FAILED;
                 }
-                
-                MetaInstruct* instructClone = new MetaInstruct(metaContainer, nullptr);
-                instructClone->cmd = CALL;
-                instructClone->func = func;
-                instructClone->params.push_back(right);
-                instructClone->retType = func->returnType;
-                block->addInstruct(instructClone);
-
-                //更新右操作符
-                right.setData(instructClone);
-                rightType = right.getType();
             }
 
             if (metaContainer->getAutoConvertType(rightType, leftType) == MetaContainer::ACT_CANNT)
@@ -1390,6 +1357,38 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             instruct->cmd = ASSIGN;
             instruct->retType = leftType;
             block->addInstruct(instruct);
+        }
+        break;
+    case CLONE:
+        {
+            MetaData& param = instruct->params.front();
+            MetaType type = param.getType();
+
+            if (type.isClass())
+            {
+                //添加一个clone调用的指令
+                MetaFunc* func = metaContainer->searchClassFunction(type.clazz, KEY_CLONE_FUNC, {}, MFT_ONLY_NORMAL);
+                if (func == nullptr)
+                {
+                    return R_FAILED;
+                }
+                if (func->returnType != type)
+                {
+                    return R_FAILED;
+                }
+                
+                instruct->cmd = CALL;
+                instruct->func = func;
+                instruct->retType = func->returnType;
+                block->addInstruct(instruct);
+            }
+            else
+            {
+                //空指令
+                instruct->cmd = NOP;
+                instruct->retType = type;
+                block->addInstruct(instruct);
+            }
         }
         break;
     case MUL_ASSIGN:
@@ -1579,6 +1578,51 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
             block->addInstruct(instruct);
         }
         break;
+    case DELETE:
+        {
+            MetaData param = instruct->params.front();
+            MetaType type = param.getType();
+            if (param.isVariable() == false || param.isConstVariable())
+            {
+                //不能操作常量
+                return R_FAILED;
+            }
+            if (type.isClass() == false)
+            {
+                //对象才能删除
+                return R_FAILED;
+            }
+
+            MetaVariable* varE = block->createAnonyVariable();
+            varE->isReference = true;
+            varE->type = type;
+
+            MetaInstruct* instructVar = new MetaInstruct(metaContainer, nullptr);
+            instructVar->cmd = VARDEF;
+            instructVar->var = varE;
+            instructVar->retType = type;
+            block->addInstruct(instructVar);
+            
+            MetaInstruct* instructAssign = new MetaInstruct(metaContainer, nullptr);
+            instructAssign->cmd = ASSIGN;
+            instructAssign->params.push_back(instructVar);
+            instructAssign->params.push_back(param);
+            instructAssign->retType = type;
+            block->addInstruct(instructAssign);
+
+            //DELETE指令
+            instruct->params.clear();
+            instruct->params.push_back(varE);
+            block->addInstruct(instruct);
+
+            //赋值null
+            instructAssign = new MetaInstruct(metaContainer, nullptr);
+            instructAssign->cmd = ASSIGN;
+            instructAssign->params.push_back(varE);
+            instructAssign->params.push_back(metaContainer->getNullConst());
+            block->addInstruct(instructAssign);
+        }
+        break;
     case CALL:
         {
             VR(generateMetaInstructCallFunc(block, instruct));
@@ -1605,8 +1649,8 @@ Result MetaGenerator::generateMetaInstruct(MetaBlock* block, SyntaxInstruct* syn
                 //同一个BLOCK不允许重复定义
                 return R_FAILED;
             }
-            MetaVariable* var = block->addVeriable(syntaxInstruct->varDef->name, syntaxInstruct->varDef);
-            VR(generateMetaVarDefStruct(block, var, false));
+            MetaVariable* var = block->addVariable(syntaxInstruct->varDef->name, syntaxInstruct->varDef);
+            VR(generateMetaVarDefStruct(block, var));
             instruct->var = var;
             instruct->retType = var->type;
             block->addInstruct(instruct);
@@ -1628,7 +1672,6 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
     MetaFunc* inFunc = block->getOuterFunc();
     SyntaxInstruct* syntaxInstruct = (SyntaxInstruct*)instruct->syntaxObj;
     SyntaxExp* syntaxExp = syntaxInstruct->func;
-
 
     //.的后面可以是什么？函数、变量、子类、包名
     //指向什么都是未知数
@@ -1765,46 +1808,12 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
                         instruct->func = func;
                     }
                 }
+                
                 if (instruct->func->funcType == FUNC_CONSTRUCT)
                 {
                     //构造函数都是指定类调用
                     instruct->cmd = CALL_FIXED;
                 }
-
-                //查看是否有匿名类参数
-                auto iter1 = instruct->func->params.begin();
-                auto iter2 = instruct->params.begin();
-                if (instruct->func->isStatic == false)
-                {
-                    ++iter2;
-                }
-                MetaType type1;
-                MetaType type2;
-                for (;iter2 != instruct->params.end();++iter2)
-                {
-                    type2 = (*iter2).getType();
-                    if (iter1 != instruct->func->params.end())
-                    {
-                        type1 = (*iter1)->type;
-                        ++iter1;
-                    }
-                    if (type2.isClass() && type2.clazz->isAnonyClass)
-                    {
-                        //
-                        VR(handleAnonyClass(block, type2, type1));
-                    }
-                }
-
-                //是否有可变参数，需要把可变参数类型加到link里面
-                if (instruct->func->isDynamicParamFunc())
-                {
-                    MetaType type = instruct->func->getDynamicParamType();
-                    if (type.isClass())
-                    {
-                        block->getOuterClass()->addLinkClass(type.clazz);
-                    }
-                }
-
                 instruct->retType = instruct->func->returnType;
             }
             else if (first)
@@ -1967,6 +1976,48 @@ Result MetaGenerator::generateMetaInstructCallFunc(MetaBlock* block, MetaInstruc
         iterVarRef = MetaVarRef::makeVarRef(metaContainer, obj);
         instruct->func = func;
         instruct->params.push_front(iterVarRef);
+        instruct->retType = instruct->func->returnType;
+    }
+    
+    //查看是否有匿名类参数
+    auto iter1 = instruct->func->params.begin();
+    auto iter2 = instruct->params.begin();
+    if (instruct->func->isStatic == false)
+    {
+        ++iter2;
+    }
+    MetaType type1;
+    MetaType type2;
+    for (;iter2 != instruct->params.end();++iter2)
+    {
+        type2 = (*iter2).getType();
+        if (iter1 != instruct->func->params.end())
+        {
+            type1 = (*iter1)->type;
+            ++iter1;
+        }
+        if (type2.isClass() && type2.clazz->isAnonyClass)
+        {
+            //
+            VR(handleAnonyClass(block, type2, type1));
+        }
+    }
+
+    //默认参数处理
+    for (;iter1 != instruct->func->params.end();++iter1)
+    {
+        //查看是否有默认参数
+        MetaVariable* var = *iter1;
+        assert(var->haveInitBlock);                 //必须有默认参数
+
+        SyntaxVarDef* syntaxVarDef = (SyntaxVarDef*)var->syntaxObj;
+
+        //TODO函数的默认参数没处理
+        MetaData out;
+        VR(generateMetaExpInstruct(block, syntaxVarDef->initExp, &out));
+        
+        //
+        instruct->params.push_back(out);
     }
 
     if (instruct->func->returnType.isClass())
@@ -2346,6 +2397,7 @@ Result MetaGenerator::generateAnonyClass(MetaBoxBase* box, MetaInstruct* instruc
 
     //添加默认构造函数
     MetaFunc* conFunc = clazz->addFunction(clazz->name, FUNC_CONSTRUCT);
+    conFunc->isHide = true;
     conFunc->block = new MetaBlock(conFunc, metaContainer, nullptr);
 
     //设置匿名相关变量
@@ -2429,7 +2481,7 @@ Result MetaGenerator::generateAnonyClassInstruct(MetaBoxBase* box, MetaClass* an
 
         //参数
         auto iter1 = overrideFunc->params.begin();
-        auto iter2= syntaxAnonyFunc->params.begin();
+        auto iter2 = syntaxAnonyFunc->params.begin();
         for (;iter1 != overrideFunc->params.end();++iter1, ++iter2)
         {
             SyntaxVarDef* syntaxVarDef = *iter2;

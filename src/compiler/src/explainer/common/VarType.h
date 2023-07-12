@@ -9,4 +9,5 @@ enum
     VAR_SUPER,
     VAR_CLASS,
     VAR_ANONY_THIS,     //用在匿名类上外层的THIS
+    VAR_ANONY,
 };

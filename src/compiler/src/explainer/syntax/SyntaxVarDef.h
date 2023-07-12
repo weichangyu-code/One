@@ -13,9 +13,6 @@ public:
         
     }
 
-    void addVarDefAndAssginInstruct(ExplainContext* context);
-    void addAssginInstruct(ExplainContext* context);
-
 public:
     bool isConst = false;
     bool isStatic = false;
@@ -29,6 +26,6 @@ public:
 
     //包含赋值语句和定义语句
     //只包含赋值表达式
-    bool deepAssign = false;
-    SyntaxExp* exp = nullptr;
+    bool haveInitExp = false;
+    SyntaxExp* initExp = nullptr;      //如果已经消化会职位
 };

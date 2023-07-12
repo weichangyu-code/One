@@ -12,6 +12,11 @@
 #include "../syntax/SyntaxVarDef.h"
 #include "../syntax/SyntaxFunc.h"
 #include "../syntax/SyntaxBlock.h"
+#include "../syntax/SyntaxExp.h"
+#include "../syntax/SyntaxClassElement.h"
+#include "../syntax/SyntaxElement.h"
+#include "../syntax/SyntaxSentence.h"
+#include "../syntax/SyntaxInstruct.h"
 #include "StringUtils.h"
 using namespace OneCommon;
 
@@ -24,29 +29,85 @@ MetaClass::MetaClass(const string& name, MetaBoxBase* outer, MetaContainer* meta
     SyntaxClass* syntaxClass = (SyntaxClass*)syntaxObj;
     this->isInterface = syntaxClass->isInterface;
     
-    this->this_ = createVeriable(syntaxClass->this_->name, syntaxClass->this_);
-    this->this_->varType = VAR_THIS;
+    this->this_ = createHideVariable(KEY_THIS, VAR_THIS, false);
     this->this_->type.setClass(this);
-    this->class_ = createVeriable(syntaxClass->class_->name, syntaxClass->class_);
-    this->class_->varType = VAR_CLASS;
-    this->class_->isStatic = true;
+    this->class_ = createHideVariable(KEY_CLASS, VAR_CLASS, true);
+
     if (this->isInterface == false)
     {
         //接口没有super_
-        this->super_ = createVeriable(syntaxClass->super_->name, syntaxClass->super_);
-        this->super_->varType = VAR_SUPER;
+        this->super_ = createHideVariable(KEY_SUPER, VAR_SUPER, false);
     }
 
-    this->varInitFunc = createFunction(syntaxClass->varInitFunc->name, syntaxClass->varInitFunc);
-    this->staticVarInitFunc = createFunction(syntaxClass->staticVarInitFunc->name, syntaxClass->staticVarInitFunc);
+    this->varInitFunc = createHideFunction(KEY_INIT_VAR_FUNC, FUNC_INIT, false);
+    this->staticVarInitFunc = createHideFunction(KEY_INIT_STATIC_VAR_FUNC, FUNC_STATIC_INIT, true);
 
     for (auto& param : syntaxClass->templateParams)
     {
         addParam(param);
     }
 
+    for (auto& varDef : syntaxClass->vars)
+    {
+        //将变量初始化提炼varInitFunc和staticVarInitFunc行数
+        if (varDef->initExp != nullptr)
+        {
+            SyntaxExp* exp = varDef->initExp;
+            varDef->initExp = nullptr;
+
+            //构建赋值语句
+            SyntaxInstruct* instructAssgin = new SyntaxInstruct(syntaxClass->getTempExplainContext());
+            instructAssgin->cmd = ASSIGN;
+            instructAssgin->params.push_back(varDef);
+            instructAssgin->params.push_back(exp->ret);
+            exp->instructs.push_back(instructAssgin);
+            exp->ret.setInstruct(instructAssgin);
+
+            SyntaxSentence* sentence = new SyntaxSentence(syntaxClass->getTempExplainContext());
+            sentence->exp = exp;
+            SyntaxElement* element = new SyntaxElement(syntaxClass->getTempExplainContext());
+            element->type = SyntaxElement::SENTENCE;
+            element->sentence = sentence;
+
+            if (varDef->isStatic)
+            {
+                ((SyntaxFunc*)this->staticVarInitFunc->syntaxObj)->block->elements.push_back(element);
+            }
+            else
+            {
+                ((SyntaxFunc*)this->varInitFunc->syntaxObj)->block->elements.push_back(element);
+            }
+        }
+    }
+
     //添加到容器
     metaContainer->addClass(this);
+}
+
+MetaFunc* MetaClass::createHideFunction(const string& name, int type, bool isStatic)
+{
+    SyntaxClass* syntaxClass = (SyntaxClass*)this->syntaxObj;
+
+    SyntaxFunc* syntaxFunc = syntaxClass->createFunc(name, type, syntaxClass->getTempExplainContext());
+    syntaxFunc->isStatic = isStatic;
+
+    MetaFunc* func = createFunction(name, syntaxFunc);
+    func->isHide = true;
+    return func;
+}
+    
+MetaVariable* MetaClass::createHideVariable(const string& name, int type, bool isStatic)
+{
+    SyntaxClass* syntaxClass = (SyntaxClass*)this->syntaxObj;
+
+    SyntaxVarDef* syntaxVar = syntaxClass->createVarDef(name, syntaxClass->getTempExplainContext());
+
+    MetaVariable* var = createVeriable(name, syntaxVar);
+    var->varType = type;
+    var->isStatic = isStatic;
+    var->isConst = true;
+
+    return var;
 }
 
 MetaClass* MetaClass::getInnerClass(const string& name)
@@ -380,6 +441,7 @@ MetaFunc* MetaClass::getFunction(const string& name, int filterType)
     
 Result MetaClass::verifyAndRepair()
 {
+    SyntaxClass* syntaxClass = (SyntaxClass*)syntaxObj;
     if (isInterface)
     {
         for (auto& parent : parents)
@@ -466,24 +528,18 @@ Result MetaClass::verifyAndRepair()
                 haveDestruct = true;
             }
         }
+
         if (haveConstruct == false)
         {
             //添加默认构造函数
-            MetaFunc* func = addFunction(name, ((SyntaxClass*)syntaxObj)->createFunc(name, FUNC_CONSTRUCT));
+            MetaFunc* func = addFunction(name, syntaxClass->createFunc(name, FUNC_CONSTRUCT, syntaxClass->getTempExplainContext()));
             //TODO: func->returnType.setClass(this);
         }
         if (haveDestruct == false)
         {
-            MetaFunc* func = addFunction("~" + name, ((SyntaxClass*)syntaxObj)->createFunc("~" + name, FUNC_DESTRUCT));
+            MetaFunc* func = addFunction("~" + name, syntaxClass->createFunc("~" + name, FUNC_DESTRUCT, syntaxClass->getTempExplainContext()));
             func->isVirtual = true;
         }
-    }
-
-    if (this == metaContainer->getObjectClass() || this == metaContainer->getInterfaceClass())
-    {
-        //添加隐藏的销毁函数
-        MetaFunc* func = addFunction("~", ((SyntaxClass*)syntaxObj)->createFunc("~", FUNC_DESTROY));
-        func->isHidden = true;
     }
 
     //完善类型
@@ -521,10 +577,11 @@ MetaVariable* MetaClass::addAnonyThis(int index, MetaVarRef* varRef)
     string name = "this" + StringUtils::itoa(index);
     MetaVariable* var = addAnonyMember(name, varRef);
     var->varType = VAR_ANONY_THIS;
+    var->isConst = true;
     return var;
 }
     
-MetaVariable* MetaClass::addAnonyMember(const string name, MetaVarRef* varRef)
+MetaVariable* MetaClass::addAnonyMember(const string& name, MetaVarRef* varRef)
 {
     //构造函数增加一个参数
     string varName = "var" + StringUtils::itoa((int)anonyConstructFunc->params.size());

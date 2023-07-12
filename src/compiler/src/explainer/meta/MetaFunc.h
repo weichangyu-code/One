@@ -28,7 +28,7 @@ public:
     string name;
     bool isStatic = false;
     bool isVirtual = false;
-    bool isHidden = false;             //隐藏函数
+    bool isHide = false;                //隐藏的函数，一步都是系统默认生成的
 
     list<MetaVariable*> params;
     MetaType returnType;
@@ -39,4 +39,5 @@ public:
 
     //匿名类
     list<MetaClass*> anonyClasses;
+    list<MetaVariable*> anaonyVariables;
 };

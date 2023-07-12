@@ -14,6 +14,7 @@ public:
 		registe("newobject", "param", (MyRuleExecuteFunction)&ExplainNew::onExeNewObjectParam);
 		registe("newobject", "", (MyRuleExecuteFunction)&ExplainNew::onExeNewObject);
 		registe("newarray", "", (MyRuleExecuteFunction)&ExplainNew::onExeNewArray);
+		registe("deleteobject", "", (MyRuleExecuteFunction)&ExplainNew::onExeDeleteObject);
     }
 
 	Result onExeNewObjectParam(Rule* rule, vector<LexElement>& es, LexElement& out)
@@ -65,6 +66,22 @@ public:
         instruct->cmd = NEW_ARRAY;
         instruct->type = type;
         instruct->params.push_back(exp->ret);
+        exp->instructs.push_back(instruct);
+        exp->ret.setInstruct(instruct);
+
+        out.ptr = exp;
+		return {};
+	}
+
+	Result onExeDeleteObject(Rule* rule, vector<LexElement>& es, LexElement& out)
+	{
+        SyntaxVar* var = (SyntaxVar*)es[1].ptr;
+        
+        SyntaxExp* exp = new SyntaxExp(context);
+
+        SyntaxInstruct* instruct = new SyntaxInstruct(context);
+        instruct->cmd = DELETE;
+        instruct->params.push_back(var);
         exp->instructs.push_back(instruct);
         exp->ret.setInstruct(instruct);
 

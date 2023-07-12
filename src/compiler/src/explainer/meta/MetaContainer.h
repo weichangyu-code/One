@@ -32,6 +32,7 @@ public:
     const list<MetaClass*>& getClasses();
 
     MetaConst*   getZeroConst();
+    MetaConst*   getNullConst();
 
 protected:
     MetaPackage* rootPackage = nullptr;
@@ -46,6 +47,7 @@ protected:
     MetaClass* exceptionClass = nullptr;
 
     MetaConst* zeroConst = nullptr;
+    MetaConst* nullConst = nullptr;
 
 //对象管理
 public:
@@ -108,10 +110,4 @@ protected:
 
 protected:
     map<MetaType, map<MetaType, int> > autoConvertData;
-
-//唯一的名字
-protected:
-    int anonySeek = 0;
-public:
-    string getAnonymous();
 };

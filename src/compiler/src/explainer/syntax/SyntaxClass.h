@@ -17,9 +17,11 @@ public:
 public:
     void addInnerClass(SyntaxClass* clazz);
 
-    SyntaxFunc* createFunc(const string& name, int type);
-    SyntaxVarDef* createVarDef(const string& name);
-    void addElements(ExplainContext* context, SyntaxMulti<SyntaxClassElement*>* elements);
+    SyntaxFunc* createFunc(const string& name, int type, ExplainContext* context);
+    SyntaxVarDef* createVarDef(const string& name, ExplainContext* context);
+    void addElements(SyntaxMulti<SyntaxClassElement*>* elements);
+
+    ExplainContext* getTempExplainContext();
 
 public:
     SyntaxFile* file = nullptr;
@@ -43,13 +45,4 @@ public:
 
     //内嵌类
     list<SyntaxClass*> innerClasses;
-
-    //变量初始化
-    SyntaxFunc* varInitFunc = nullptr;
-    SyntaxFunc* staticVarInitFunc = nullptr;
-
-    //this
-    SyntaxVarDef* this_ = nullptr;
-    SyntaxVarDef* super_ = nullptr;
-    SyntaxVarDef* class_ = nullptr;
 };

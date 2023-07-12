@@ -26,6 +26,7 @@ public:
     bool isNone();
     bool isConst();
     bool isVariable();
+    bool isConstVariable();
     bool isInstructTmp();
 
     MetaType getType() const;

@@ -2,7 +2,11 @@
 #include "MetaVariable.h"
 #include "MetaData.h"
 #include "MetaInstruct.h"
+#include "MetaFunc.h"
 #include "../common/Member.h"
+#include "MetaContainer.h"
+#include "StringUtils.h"
+using namespace OneCommon;
 
 MetaBlock::MetaBlock(MetaBoxBase* outer, MetaContainer* metaContainer, SyntaxBase* syntaxObj)
     :MetaBoxBase(BOX_BLOCK, outer, metaContainer, syntaxObj)
@@ -22,10 +26,19 @@ MetaVariable* MetaBlock::getVariable(const string& name, int filterType)
     return nullptr;
 }  
 
-MetaVariable* MetaBlock::addVeriable(const string& name, SyntaxBase* syntaxObj)
+MetaVariable* MetaBlock::addVariable(const string& name, SyntaxBase* syntaxObj)
 {
     MetaVariable* var = new MetaVariable(name, VAR_LOCAL, this, metaContainer, syntaxObj);
     vars.push_back(var);
+    return var;
+}
+
+MetaVariable* MetaBlock::createAnonyVariable()
+{
+    MetaFunc* outFunc = getOuterFunc();
+    string name = "__anonyVar" + StringUtils::itoa((int)outFunc->anaonyVariables.size()) + "__";
+    MetaVariable* var = new MetaVariable(name, VAR_ANONY, this, metaContainer, nullptr);
+    outFunc->anaonyVariables.push_back(var);
     return var;
 }
     

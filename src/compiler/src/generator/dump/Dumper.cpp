@@ -56,19 +56,11 @@ Result Dumper::dumpClass(MetaClass* clazz)
     int funcNum = 0;
     for (auto& func : clazz->funcs)
     {
-        if (func->isHidden)
-        {
-            continue;
-        }
         funcNum++;
     }
     _stream << funcNum;
     for (auto& func : clazz->funcs)
     {
-        if (func->isHidden)
-        {
-            continue;
-        }
         VR(dumpFunc(func));
     }
 

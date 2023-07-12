@@ -15,5 +15,7 @@ MetaVariable::MetaVariable(const string& name, int varType, MetaBoxBase* box, Me
         this->isStatic = syntaxVarDef->isStatic;
         this->isConst = syntaxVarDef->isConst;
         this->isDynamic = syntaxVarDef->isDynamic;
+
+        this->haveInitBlock = syntaxVarDef->haveInitExp;
     }
 }

@@ -6,6 +6,7 @@
 #include "SyntaxElement.h"
 #include "SyntaxSentence.h"
 #include "SyntaxExp.h"
+#include "SyntaxFile.h"
 #include "../explain/ExplainContext.h"
 #include "../common/Keyword.h"
 
@@ -13,15 +14,6 @@ SyntaxClass::SyntaxClass(ExplainContext* context)
     :SyntaxBase(context)
 {
     this->file = context->file;
-
-    this->varInitFunc = createFunc(KEY_INIT_VAR_FUNC, FUNC_INIT);
-
-    this->staticVarInitFunc = createFunc(KEY_INIT_STATIC_VAR_FUNC, FUNC_STATIC_INIT);
-    this->staticVarInitFunc->isStatic = true;
-
-    this->this_ = createVarDef(KEY_THIS);
-    this->super_ = createVarDef(KEY_SUPER);
-    this->class_ = createVarDef(KEY_CLASS);
 }
 
 void SyntaxClass::addInnerClass(SyntaxClass* clazz)
@@ -30,25 +22,23 @@ void SyntaxClass::addInnerClass(SyntaxClass* clazz)
     innerClasses.push_back(clazz);
 }
     
-SyntaxFunc* SyntaxClass::createFunc(const string& name, int type)
+SyntaxFunc* SyntaxClass::createFunc(const string& name, int type, ExplainContext* context)
 {
-    ExplainContext context(file);
-    SyntaxFunc* func = new SyntaxFunc(&context);
+    SyntaxFunc* func = new SyntaxFunc(context);
     func->name = name;
     func->type = type;
-    func->block = new SyntaxBlock(&context);
+    func->block = new SyntaxBlock(context);
     return func;
 }
     
-SyntaxVarDef* SyntaxClass::createVarDef(const string& name)
+SyntaxVarDef* SyntaxClass::createVarDef(const string& name, ExplainContext* context)
 {
-    ExplainContext context(file);
-    SyntaxVarDef* varDef = new SyntaxVarDef(&context);
+    SyntaxVarDef* varDef = new SyntaxVarDef(context);
     varDef->name = name;
     return varDef;
 }
     
-void SyntaxClass::addElements(ExplainContext* context, SyntaxMulti<SyntaxClassElement*>* elements)
+void SyntaxClass::addElements(SyntaxMulti<SyntaxClassElement*>* elements)
 {
     for (auto& element : elements->items)
     {
@@ -58,26 +48,6 @@ void SyntaxClass::addElements(ExplainContext* context, SyntaxMulti<SyntaxClassEl
 
             //添加变量
             this->vars.push_back(varDef);
-
-            //添加初始化代码块
-            if (varDef->isConst == false && varDef->exp != nullptr && varDef->exp->instructs.empty() == false)
-            {
-                varDef->addAssginInstruct(context);
-
-                SyntaxSentence* sentence = new SyntaxSentence(context);
-                sentence->exp = varDef->exp;
-                SyntaxElement* element = new SyntaxElement(context);
-                element->type = SyntaxElement::SENTENCE;
-                element->sentence = sentence;
-                if (varDef->isStatic)
-                {
-                    this->staticVarInitFunc->block->elements.push_back(element);
-                }
-                else
-                {
-                    this->varInitFunc->block->elements.push_back(element);
-                }
-            }
         }
         else if (element->func)
         {        
@@ -94,5 +64,10 @@ void SyntaxClass::addElements(ExplainContext* context, SyntaxMulti<SyntaxClassEl
             this->addInnerClass(innerClass);
         }
     }
+}
+    
+ExplainContext* SyntaxClass::getTempExplainContext()
+{
+    return file->getTempExplainContext();
 }
 

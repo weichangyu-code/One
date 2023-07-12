@@ -49,8 +49,14 @@ public:
 		SyntaxExp* exp = (SyntaxExp*)es[0].ptr;
 		SyntaxExp* exp2 = (SyntaxExp*)es[2].ptr;
 
+		SyntaxInstruct* clone = new SyntaxInstruct(context);
+		clone->cmd = CLONE;
+		clone->params.push_back(exp2->ret);
+		exp2->instructs.push_back(clone);
+		exp2->ret.setInstruct(clone);
+
 		SyntaxInstruct* instruct = new SyntaxInstruct(context);
-		instruct->cmd = DEEP_ASSIGN;
+		instruct->cmd = ASSIGN;
 		instruct->params.push_back(exp->ret);
 		instruct->params.push_back(exp2->ret);
 

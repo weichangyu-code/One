@@ -120,7 +120,7 @@ public:
         SyntaxClass* clazz = (SyntaxClass*)es[0].ptr;
         SyntaxMulti<SyntaxClassElement*>* multi = (SyntaxMulti<SyntaxClassElement*>*)es[1].ptr;
 
-        clazz->addElements(context, multi);
+        clazz->addElements(multi);
 
         out.ptr = clazz;
         return {};

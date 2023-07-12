@@ -37,7 +37,7 @@ enum INSTRUCT
     FMT,                        //格式化
     COND,                       // ? :
     ASSIGN,						//按照语法书写顺序，第二个操作符赋值给第一个
-    DEEP_ASSIGN,
+    CLONE,                      //克隆，废弃DEEP_ASSIGN
 
     MUL_ASSIGN,
     DIV_ASSIGN,
@@ -64,6 +64,7 @@ enum INSTRUCT
 
     NEW,                        //新建对象
     NEW_ARRAY,
+    DELETE,
     CALL,                       //函数调用，没有类前缀
     CALL_FIXED,                 //指定类函数调用，不会触发虚函数调用
     TYPE_CONVERT,               //类型转换

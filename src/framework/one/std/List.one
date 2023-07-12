@@ -52,6 +52,16 @@ class List<T> : Iterable<T>
 		return new ListIterator(_head);
 	}
 
+    List<T> clone()
+    {
+        List<T> c = new List<T>();
+        for (T obj : this)
+        {
+            c.pushBack(obj);
+        }
+        return c;
+    }
+
     bool isEmpty()
     {
         return _length == 0;

@@ -9,6 +9,11 @@ public:
     SyntaxFile(ExplainContext* context);
     virtual ~SyntaxFile();
 
+public:
+    ExplainContext* getTempExplainContext();
+protected:
+    ExplainContext* tempContext;
+
 //临时对象管理
 public:
     void addSyntaxObject(SyntaxBase* obj);

@@ -170,6 +170,17 @@ MetaConst* MetaContainer::getZeroConst()
     }
     return zeroConst;
 }
+    
+MetaConst* MetaContainer::getNullConst()
+{
+    if (nullConst == nullptr)
+    {
+        nullConst = new MetaConst(this, nullptr);
+        nullConst->setRefNull();
+        nullConst->remark = "null";
+    }
+    return nullConst;
+}
 
 MetaClass* MetaContainer::searchClass(MetaBoxBase* box, const string& name)
 {
@@ -330,7 +341,7 @@ MetaFunc* MetaContainer::searchClassFunction(MetaClass* clazz, const string& nam
     
 MetaFunc* MetaContainer::searchClassFunction2(MetaClass* clazz, const string& name, const list<MetaType>& paramTypes, int filterType)
 {
-    int matchValue = 0;
+    int matchValue = -1;
     return searchMatchClassFunction(clazz, name, paramTypes, matchValue, filterType);
 }
     
@@ -351,7 +362,7 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
     {
         paramTypes.push_back(param.getType());
     }
-    int matchValue;
+    int matchValue = -1;
     return searchMatchClassFunction(clazz, name, paramTypes, matchValue, filterType);
 }
     
@@ -359,7 +370,7 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
 {
     //先查找类型一样的
     MetaFunc* match = nullptr;
-    matchValue = 0xFFFF;
+    matchValue = -1;
     for (auto& func : clazz->funcs)
     {
         if (filterMember(func->isStatic, filterType) == false)
@@ -378,12 +389,14 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
             continue;
         }
     
-        if (value < matchValue)
+        if (value > matchValue)
         {
             matchValue = value;
             match = func;
-            if (matchValue == 0)
+
+            if (matchValue == INT_MAX)
             {
+                //完全匹配
                 return match;
             }
         }
@@ -391,14 +404,16 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
 
     for (auto& parent : clazz->parents)
     {
-        int value;
+        int value = -1;
         MetaFunc* func = searchMatchClassFunction(parent, name, paramTypes, value, filterType);
-        if (value < matchValue)
+        if (value > matchValue)
         {
             matchValue = value;
             match = func;
-            if (matchValue == 0)
+
+            if (matchValue == INT_MAX)
             {
+                //完全匹配
                 return match;
             }
         }
@@ -409,7 +424,9 @@ MetaFunc* MetaContainer::searchMatchClassFunction(MetaClass* clazz, const string
     
 int MetaContainer::calcFunctionMatchValue(MetaFunc* func, const list<MetaType>& paramTypes)
 {
-    int value = 0;
+    //越大匹配度越高，-1表示不匹配
+    int value = INT_MAX;
+
     //判断是否有可变参数
     if (func->isDynamicParamFunc())
     {
@@ -441,13 +458,13 @@ int MetaContainer::calcFunctionMatchValue(MetaFunc* func, const list<MetaType>& 
             {
                 if (getAutoConvertType(type2, type1) != ACT_CANNT)
                 {
-                    value++;
+                    //可以自动转换，匹配度i降低
+                    value--;
                 }
                 else
                 {
                     //不匹配
-                    value = 0xFFFF;
-                    break;
+                    return -1;
                 }
             }
         }
@@ -467,13 +484,12 @@ int MetaContainer::calcFunctionMatchValue(MetaFunc* func, const list<MetaType>& 
             {
                 if (getAutoConvertType(type2, type1) != ACT_CANNT)
                 {
-                    value++;
+                    value--;
                 }
                 else
                 {
                     //不匹配
-                    value = 0xFFFF;
-                    break;
+                    return -1;
                 }
             }
         }
@@ -503,13 +519,12 @@ int MetaContainer::calcFunctionMatchValue(MetaFunc* func, const list<MetaType>& 
             {
                 if (getAutoConvertType(type2, type1) != ACT_CANNT)
                 {
-                    value++;
+                    value--;
                 }
                 else
                 {
                     //不匹配
-                    value = 0xFFFF;
-                    break;
+                    return -1;
                 }
             }
         }
@@ -518,11 +533,10 @@ int MetaContainer::calcFunctionMatchValue(MetaFunc* func, const list<MetaType>& 
         for (;iter1 != func->params.end();++iter1)
         {
             MetaVariable* var = *iter1;
-            if (var->initBlock == nullptr)
+            if (var->haveInitBlock == false)
             {
                 //不是默认参数，不匹配
-                value = 0xFFFF;
-                break;
+                return -1;
             }
         }
     }
@@ -747,9 +761,4 @@ MetaType MetaContainer::getMaxType(const MetaType& type1, const MetaType& type2)
     }
     return {};
 }
-    
-string MetaContainer::getAnonymous()
-{
-    return StringUtils::format("anony%d", ++anonySeek);
-}
-   
+

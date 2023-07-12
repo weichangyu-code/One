@@ -35,6 +35,7 @@ FALSE="false"
 NULL="null"
 NEW="new"
 AUTO="auto"
+DELETE="delete"
 
 #异常相关关键字
 TRY="try"
@@ -97,6 +98,7 @@ newanony=NEW type classbody
 newarray=NEW type [ exp ]
 newobject(param)=NEW type callfuncparam
 #newobject=NEW type                            #优先级不能比callfuncparam高
+deleteobject=DELETE var                        #删除+赋null
 
 #操作符定义（不支持）
 operator=arr
@@ -140,7 +142,6 @@ operatordef(vnormal)=VIRTUAL operatordefheader codeblock
 #函数调用
 callfuncparam(null)=()
 callfuncparam=( multiexp )
-callfunc(destruct)=exp.~()
 callfunc=exp callfuncparam
 
 #符号路径，可以作为变量、函数、类型用
@@ -381,6 +382,7 @@ sentence(return)=return sentenceend
 sentence(break)=break sentenceend
 sentence(continue)=continue sentenceend
 sentence(short)=multishortsentence sentenceend
+sentence(delete)=deleteobject sentenceend
 sentence(end)=sentenceend
 
 #类内容

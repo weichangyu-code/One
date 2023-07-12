@@ -85,6 +85,26 @@ bool MetaData::isVariable()
     return this->type == VARREF || this->type == VAR;
 }
     
+bool MetaData::isConstVariable()
+{
+    if (this->type == VARREF)
+    {
+        if (varRef->members.empty())
+        {
+            return varRef->obj.isConstVariable();
+        }
+        else
+        {
+            return varRef->members.back()->isConst;
+        }
+    }
+    else if (this->type == VAR)
+    {
+        return var->isConst;
+    }
+    return false;
+}
+    
 bool MetaData::isInstructTmp()
 {
     return this->type == INSTRUCT;

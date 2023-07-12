@@ -15,10 +15,11 @@ public:
     bool isStatic = false;
     bool isConst = false;
     bool isDynamic = false;                 //动态参数，多个参数
+    bool isReference = false;               //是否引用，用于一个变量多个操作的时候
 
     MetaType type;                          //NONE表示自动
     MetaBoxBase* box = nullptr;
 
-    MetaBlock* initBlock = nullptr;         //const变量要用
+    bool haveInitBlock = false;
 };
 

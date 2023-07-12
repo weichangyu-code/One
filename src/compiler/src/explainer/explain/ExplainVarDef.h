@@ -26,11 +26,22 @@ public:
     Result onExplainVarDefItemAutoAssign(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
         SyntaxExp* exp = (SyntaxExp*)es[3].ptr;
+        bool deepAssign = es[2].remark != "=";
+
+        if (deepAssign)
+        {
+            //转换成
+            SyntaxInstruct* clone = new SyntaxInstruct(context);
+            clone->cmd = CLONE;
+            clone->params.push_back(exp->ret);
+            exp->instructs.push_back(clone);
+            exp->ret.setInstruct(clone);
+        }
 
         SyntaxVarDef* varDef = new SyntaxVarDef(context);
         varDef->name = es[1].remark;
-        varDef->exp = exp;
-        varDef->deepAssign = es[2].remark != "=";
+        varDef->initExp = exp;
+        varDef->haveInitExp = true;
 
         out.ptr = varDef;
         return {};
@@ -70,12 +81,23 @@ public:
     Result onExplainVarDefItemAssign(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
         SyntaxExp* exp = (SyntaxExp*)es[3].ptr;
+        bool deepAssign = es[2].remark != "=";
+
+        if (deepAssign)
+        {
+            //转换成
+            SyntaxInstruct* clone = new SyntaxInstruct(context);
+            clone->cmd = CLONE;
+            clone->params.push_back(exp->ret);
+            exp->instructs.push_back(clone);
+            exp->ret.setInstruct(clone);
+        }
 
         SyntaxVarDef* varDef = new SyntaxVarDef(context);
         varDef->name = es[1].remark;
         varDef->type = (SyntaxType*)es[0].ptr;
-        varDef->exp = exp;
-        varDef->deepAssign = es[2].remark != "=";
+        varDef->initExp = exp;
+        varDef->haveInitExp = true;
 
         out.ptr = varDef;
         return {};

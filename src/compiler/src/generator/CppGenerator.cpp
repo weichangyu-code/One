@@ -414,10 +414,6 @@ void CppGenerator::generateCppInfoFunc(const string& path, const string& namePre
     {
         cppFunc->cppName = KEY_DESTRUCT_FUNC;
     }
-    else if (metaFunc->funcType == FUNC_DESTROY)
-    {
-        cppFunc->cppName = KEY_DESTROY_FUNC;
-    }
     else
     {
         cppFunc->cppName = metaFunc->name;
@@ -759,10 +755,6 @@ Result CppGenerator::generateInterface(const string& root, MetaClass* metaClass)
     //方法
     for (auto& metaFunc : metaClass->funcs)
     {
-        if (metaFunc->isHidden)
-        {
-            continue;
-        }
         VR(generateFuncDeclare(h, metaFunc));
     }
 
@@ -975,19 +967,7 @@ Result CppGenerator::generateClass(const string& root, MetaClass* metaClass)
             h << "static ";
         }
 
-        if (var->isConst)
-        {
-            h << "const ";
-
-            //构造初始化
-            string initCode;
-            VR(generateExpCode(var->initBlock->instructs, initCode));
-            h << generateVarDefType(var->type) << " " << var->name << " = " << initCode << ";" << endl;
-        }
-        else
-        {
-            h << generateVarDefType(var->type) << " " << var->name << ";" << endl;
-        }
+        h << generateVarDefType(var->type) << " " << var->name << ";" << endl;
     }
     h << endl;
 
@@ -998,10 +978,6 @@ Result CppGenerator::generateClass(const string& root, MetaClass* metaClass)
     //方法
     for (auto& metaFunc : metaClass->funcs)
     {
-        if (metaFunc->isHidden)
-        {
-            continue;
-        }
         VR(generateFuncDeclare(h, metaFunc));
     }
 
@@ -1082,10 +1058,6 @@ Result CppGenerator::generateClass(const string& root, MetaClass* metaClass)
 
     for (auto& metaFunc : metaClass->funcs)
     {
-        if (metaFunc->isHidden)
-        {
-            continue;
-        }
         VR(generateFuncImpl(cpp, "", metaFunc, true));
     }
     
@@ -1122,9 +1094,17 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
 {
     switch (instruct->cmd)
     {
+    case NOP:
+        {
+            //原样处理
+            instruct->cppCode = generateData(instruct->params.front());
+        }
+        break;
     case INDEX:
         {
-            instruct->cppCode = generateData(instruct->params.front());
+            //不会进入
+            //instruct->cppCode = generateData(instruct->params.front());
+            assert(false);
         }
         break;
     case LINC:
@@ -1431,6 +1411,11 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
                     + generateData(instruct->params.front()) +  ")";
         }
         break;
+    case DELETE:
+        {
+            instruct->cppCode = generateData(instruct->params.front()) + "->" KEY_DESTROY_FUNC "()";
+        }
+        break;
     case CALL:
     case CALL_FIXED:
         {
@@ -1592,7 +1577,15 @@ Result CppGenerator::generateInstruct(const string& space, MetaInstruct* instruc
             {
                 prefix += "static ";
             }
-            instruct->cppCode = prefix + generateVarDefType(var->type) + " " + var->name;
+            if (var->isReference)
+            {
+                //引用
+                instruct->cppCode = prefix + generateVarDefType(var->type) + "& " + var->name;
+            }
+            else
+            {
+                instruct->cppCode = prefix + generateVarDefType(var->type) + " " + var->name;
+            }
         }
         break;
     case IF:
@@ -1844,14 +1837,6 @@ Result CppGenerator::generateFuncImpl(ofstream& f, const string& space, MetaFunc
         }
 
         f << generateFuncParamType(var->type) << " " << var->name;
-
-        if (var->initBlock)
-        {
-            string initCode;
-            VR(generateExpCode(var->initBlock->instructs, initCode));
-            f << " = " << initCode;
-        }
-
     }
     f << ")" << endl;
     f << space << "{" << endl;

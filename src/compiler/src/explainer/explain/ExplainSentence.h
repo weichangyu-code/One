@@ -24,6 +24,7 @@ public:
         registe("sentence", "continue", (MyRuleExecuteFunction)&ExplainSentence::onExplainSentenceContinue);
         registe("sentence", "short", (MyRuleExecuteFunction)&ExplainSentence::onExplainSentenceShort);
         registe("sentence", "end", (MyRuleExecuteFunction)&ExplainSentence::onExplainSentenceEnd);
+        registe("sentence", "delete", (MyRuleExecuteFunction)&ExplainSentence::onExplainSentenceDelete);
     }
     
     Result onExplainShortSentenceExp(Rule* rule, vector<LexElement>& es, LexElement& out)
@@ -34,8 +35,38 @@ public:
     Result onExplainShortSentenceVarDef(Rule* rule, vector<LexElement>& es, LexElement& out)
     {
         SyntaxVarDef* varDef = (SyntaxVarDef*)es[0].ptr;
-        varDef->addVarDefAndAssginInstruct(context);
-        out.ptr = varDef->exp;
+
+        SyntaxData right;
+        SyntaxExp* exp;
+        if (varDef->initExp == nullptr)
+        {
+            exp = new SyntaxExp(context);
+        }
+        else
+        {
+            exp = varDef->initExp;
+            varDef->initExp = nullptr;                                      //已经转换成EXP，不需要再初始化
+
+            right = exp->ret;
+        }
+
+        SyntaxInstruct* instructLeft = new SyntaxInstruct(context);
+        instructLeft->cmd = VARDEF;
+        instructLeft->varDef = varDef;
+        exp->instructs.push_back(instructLeft);
+        exp->ret.setInstruct(instructLeft);
+        
+        if (right.isNone() == false)
+        {
+            SyntaxInstruct* instructAssgin = new SyntaxInstruct(context);
+            instructAssgin->cmd = ASSIGN;
+            instructAssgin->params.push_back(instructLeft);
+            instructAssgin->params.push_back(right);
+            exp->instructs.push_back(instructAssgin);
+            exp->ret.setInstruct(instructAssgin);
+        }
+
+        out.ptr = exp;
         return {};
     }
     
@@ -145,6 +176,17 @@ public:
 
         //空语句
         sentence->exp = new SyntaxExp(context);
+
+        out.ptr = sentence;
+        return {};
+    }
+
+    Result onExplainSentenceDelete(Rule* rule, vector<LexElement>& es, LexElement& out)
+    {
+        SyntaxExp* exp = (SyntaxExp*)es[0].ptr;
+
+        SyntaxSentence* sentence = new SyntaxSentence(context);
+        sentence->exp = exp;
 
         out.ptr = sentence;
         return {};
